@@ -18,8 +18,8 @@ const DetectObject: React.FC = () => {
             });
 
             if (!result.canceled) {
+                await generateLabels(result.assets[0].uri);
                 setImageUri(result.assets[0].uri);
-                await generateLabels(result.assets[0].uri)
             }
             console.log(result);
         } catch (error) {
@@ -76,16 +76,15 @@ const DetectObject: React.FC = () => {
             >
                 <Text style={styles.text}> Upload an image . . .</Text>
             </TouchableOpacity>
-            
             {
                 labels.length > 0 && (
-                    <View style={styles.labelsContainer}>
-                        {labels.map((label) => (
-                            <View key={label.mid} style={styles.labelPill}>
-                                <Text style={styles.labelText}>{label.description}</Text>
-                            </View>
-                        ))}
-                    </View>
+                <View style={styles.labelsContainer}>
+                    {labels.map((label) => (
+                        <View key={label.mid} style={styles.labelPill}>
+                            <Text style={styles.labelText}>{label.description}</Text>
+                        </View>
+                    ))}
+                </View>
                 )
             }
         </View>
@@ -100,7 +99,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 50, 
+        marginTop: 50, // Move the content upwards
     },
     title: {
         fontSize: 30,
