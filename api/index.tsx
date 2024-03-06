@@ -33,7 +33,7 @@ const DetectObject: React.FC = () => {
                 return;
             }
             // Test private key
-            const apiKey = "1459d55d0db457de520f318aa9b76ef8de9c59e0";
+            const apiKey = "AIzaSyAuL70Y1v_C-Zb-B8fgCYdfLkvPGwigXxQ";
             const apiURL = `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`;
 
             const base64ImageData = await FileSystem.readAsStringAsync(imageUri, {
