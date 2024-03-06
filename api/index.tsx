@@ -109,28 +109,35 @@ export default DetectObject;
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      backgroundColor: '#fff',
-      alignItems: 'center',
-      justifyContent: 'center',
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 50, // Move the content upwards
     },
     title: {
         fontSize: 30,
         fontWeight: 'bold',
-        marginBottom: 50,
-        marginTop: 100,
+        marginBottom: 20,
+    },
+    imageContainer: {
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    image: {
+        width: 300,
+        height: 300,
     },
     button: {
         backgroundColor: '#DDDDDD',
         padding: 10,
         marginBottom: 10,
-        marginTop:20 ,
     },
     text: {
         fontSize: 20,
         fontWeight: 'bold',
     },
-    label: { // Corrected spelling of 'label'
+    label: {
         fontSize: 20,
         fontWeight: 'bold',
         marginTop: 20,
