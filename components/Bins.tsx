@@ -5,7 +5,7 @@ export default class Bins extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      bins: ['Upload Image 1'] // Initial boxes
+      bins: ['Upload Image 1']
     };
   }
 
@@ -40,15 +40,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
-    justifyContent: 'space-between', // Ensure equal spacing between items
+    justifyContent: 'space-between',
     padding: 5,
-    paddingBottom: 200, // Add extra padding at the bottom
+    paddingBottom: 200,
   },
   bin: {
-    width: '48%', // Adjusted width to ensure two bins fit in a row
-    aspectRatio: 1, // Ensure square shape
+    width: '48%',
+    aspectRatio: 1,
     padding: 5,
-    marginBottom: 5, // Add margin between rows
+    marginBottom: 5,
   },
   inner: {
     flex: 1,
@@ -57,12 +57,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   addButton: {
-    width: '48%', // Adjusted width to ensure two buttons fit in a row
-    aspectRatio: 1, // Ensure square shape
+    width: '48%',
+    aspectRatio: 1,
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'lightblue',
-    marginBottom: 5, // Add margin between rows
+    marginBottom: 5, 
   },
 });
