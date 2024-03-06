@@ -1,17 +1,16 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
+import DetectObject from '../../api';
 
 interface SellScreenProps {
-  navigation: NavigationProp<any>; // Replace 'any' with the correct type for navigation prop
+  navigation: NavigationProp<any>;
 }
 
 const SellScreen: React.FC<SellScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text
-        onPress={() => navigation.navigate('Explore')}
-        style={{ fontSize: 26, fontWeight: 'bold' }}>Sell Screen</Text>
+       <DetectObject/>
     </View>
   );
 }
