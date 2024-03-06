@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NavigationContainer, NavigationContainerProps } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -44,13 +44,16 @@ const MainContainer: React.FC = () => {
             // You can return any component that you like here!
             return <Ionicons name={iconName} size={size} color={color} />;
           },
+          tabBarStyle: {
+            height: 100,
+            paddingVertical: 5, // Adjust the vertical padding
+            paddingHorizontal: 10, // Adjust the horizontal padding
+          },
+          tabBarActiveTintColor: '#9747FF',
+          tabBarInactiveTintColor: '#9DB2CE',
+          tabBarLabelStyle: { fontSize: 10, paddingBottom: 10 },
         })}
-        tabBarOptions={{
-          activeTintColor: '#9747FF',
-          inactiveTintColor: '#9DB2CE',
-          labelStyle: { paddingBottom: 10, fontSize: 10 },
-          style: { padding: 10, height: 70 }
-        }}>
+      >
         <Tab.Screen name={requestName} component={RequestsScreen} />
         <Tab.Screen name={sellName} component={SellScreen} />
         <Tab.Screen name={exploreName} component={ExploreScreen} />
