@@ -19,6 +19,7 @@ const DetectObject: React.FC = () => {
 
             if (!result.canceled) {
                 setImageUri(result.assets[0].uri);
+                await generateLabels(result.assets[0].uri)
             }
             console.log(result);
         } catch (error) {
@@ -26,7 +27,7 @@ const DetectObject: React.FC = () => {
         }
     };
 
-    const generateLabels = async () => {
+    const generateLabels = async (uri: string) => {
         try {
             if (!imageUri) {
                 alert('Please select an image first!!');
@@ -75,29 +76,15 @@ const DetectObject: React.FC = () => {
             >
                 <Text style={styles.text}> Upload an image . . .</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-                onPress={generateLabels}
-                style={styles.button}
-            >
-                <Text style={styles.text}> Label Image</Text>
-
-            </TouchableOpacity>
+            
             {
                 labels.length > 0 && (
-                    <View>
-                        <Text style={styles.label}>
-                            Labels:
-                        </Text>
-                        {
-                            labels.map((label) => (
-                                <Text
-                                    key={label.mid}
-                                    style={styles.outputtext}
-                                >
-                                    {label.description}
-                                </Text>
-                            ))
-                        }
+                    <View style={styles.labelsContainer}>
+                        {labels.map((label) => (
+                            <View key={label.mid} style={styles.labelPill}>
+                                <Text style={styles.labelText}>{label.description}</Text>
+                            </View>
+                        ))}
                     </View>
                 )
             }
@@ -113,7 +100,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 50, // Move the content upwards
+        marginTop: 50, 
     },
     title: {
         fontSize: 30,
@@ -132,6 +119,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#DDDDDD',
         padding: 10,
         marginBottom: 10,
+        borderRadius: 20,
     },
     text: {
         fontSize: 20,
@@ -145,5 +133,21 @@ const styles = StyleSheet.create({
     outputtext: {
         fontSize: 18,
         marginBottom: 10,
-    }
+    },
+    labelsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginTop: 20,
+        justifyContent: 'center',
+    },
+    labelPill: {
+        backgroundColor: '#DDDDDD',
+        borderRadius: 20,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        margin: 5,
+    },
+    labelText: {
+        fontSize: 16,
+    },
 });
