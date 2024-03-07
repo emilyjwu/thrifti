@@ -29,7 +29,7 @@ const Bin = ({ name }) => {
 };
 
 const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
-  const [bins, setBins] = useState(["Emily's Bin"]);
+  const [bins, setBins] = useState(["My Bin"]);
   const [isModalVisible, setIsModalVisible] = React.useState(false);
 
   const addBin = () => {

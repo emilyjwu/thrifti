@@ -178,12 +178,10 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                     </View>
                     )}
                 </ScrollView>
-                {
-                    isReadyToNavigate &&
-                    <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
-                        <Text style={styles.text}> Next </Text>
-                    </TouchableOpacity>
-                }
+
+                <TouchableOpacity onPress={onNextPress} style={[styles.nextButton, { backgroundColor: isReadyToNavigate ? 'lightblue' : '#ebebeb' }]}>
+                    <Text style={styles.text}> Next </Text>
+                </TouchableOpacity>
              </View>
 
     );
@@ -211,7 +209,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 20,
         alignSelf: 'center',
-        backgroundColor: 'lightblue',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 5,
