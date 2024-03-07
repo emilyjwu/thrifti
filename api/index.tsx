@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput, ScrollView} from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput, ScrollView, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
@@ -108,7 +108,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                 {imageUri ? (
                     <Image
                         source={{ uri: imageUri }}
-                        style={{ width: 250, height: 250, marginBottom: 10 }}
+                        style={{ width: 250, height: 250, marginBottom: 10, borderRadius: 10 }}
                     />
                 ) : (
                     <IconWithBackground width={250} height={250} iconSize={60} iconColor="#000" iconComponent={EntypoIcon} iconName="image" backgroundColor="#eBeBeB" />
@@ -149,13 +149,13 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                         backgroundColor: '#DDDDDD',
                         padding: 5,
                         marginBottom: 10,
-                        borderRadius: 20,
+                        borderRadius: 10,
                     }}
                     buttonStyle={{
                         backgroundColor: '#DDDDDD',
                         padding: 5,
                         marginBottom: 10,
-                        borderRadius: 20,
+                        borderRadius: 10,
                     }}
                     buttonTextStyle={{
                         color: '#333',
@@ -220,6 +220,8 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: 50,
+        minWidth: '100%',
+        maxWidth: '100%',
       },
       scrollViewContent: {
         paddingBottom: 0,
@@ -245,11 +247,12 @@ const styles = StyleSheet.create({
     labelsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        width: '100%',
     },
     labelPill: {
         backgroundColor: '#DDDDDD',
-        borderRadius: 20,
+        borderRadius: 10,
         paddingVertical: 5,
         paddingHorizontal: 10,
         margin: 5,
@@ -265,13 +268,6 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
         textAlign: 'left',
-    },
-    imagePlaceholderContainer: {
-        width: 250,
-        height: 250,
-        backgroundColor: '#eBeBeB',
-        marginBottom: 10,
     },
 });
