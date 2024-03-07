@@ -160,7 +160,7 @@ const DetectObject: React.FC = () => {
                 </ScrollView>
                 <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
                     <Text style={styles.text}> Next </Text>
-                    </TouchableOpacity>
+                </TouchableOpacity>
              </View>
 
     );

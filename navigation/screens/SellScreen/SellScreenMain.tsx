@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Button, Modal } from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useState } from 'react';
 import NewBinModal from '../../../components/NewBinModal';
 
@@ -42,6 +43,7 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
     setBins([...bins, name]);
     setIsModalVisible(false);
   };
+
   const navigateToListItemScreen = () => {
     navigation.navigate('ListItemScreen');
   };
@@ -56,10 +58,18 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
           ))}
           <SquareButton onPress={() => addBin()}  />
         </ScrollView>
-        <Text style={styles.title}>List Item</Text>
-        <TouchableOpacity onPress={navigateToListItemScreen}>
-           <Text>Go to ListItemScreen</Text>
-        </TouchableOpacity>
+      </View>
+      
+      <View style={styles.contentContainer}>
+          <Text style={styles.title}>List Item</Text>
+          <View style={styles.centeredContainer}>
+            <TouchableOpacity onPress={navigateToListItemScreen}>
+              <View style={styles.listContainer}>
+                <View style={styles.square}/>
+                <MaterialCommunityIcons name="camera-plus-outline" size={65} color="#000" style={styles.cameraIcon}/>
+              </View>
+            </TouchableOpacity>
+          </View>
       </View>
       <NewBinModal isVisible={isModalVisible} onClose={closeModal} onSave={saveBin} />
     </SafeAreaView>
@@ -87,6 +97,7 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: 'bold',
     textAlign: 'left',
+    marginBottom: 5,
   },
   binContainer: {
     alignItems: 'center',
@@ -103,7 +114,33 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
-  }
+  },
+  centeredContainer: {
+    justifyContent: 'center', 
+    alignItems: 'center',
+  },
+  listContainer: {
+    width: 250,  
+    height: 250,
+    position: 'relative',
+  },
+  square: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#eBeBeB',
+    borderRadius: 10,
+    zIndex: 0,
+  },
+  cameraIcon: {
+    position: 'absolute',
+    top: '50%',  
+    left: '50%',  
+    transform: [{ translateX: -40 }, { translateY: -40 }], 
+    zIndex: 1,
+  },
 });
 
 export default SellScreenMain;
