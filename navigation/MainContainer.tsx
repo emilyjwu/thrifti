@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import {NavigationContainer} from '@react-navigation/native';
+import { TouchableOpacity, Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -24,11 +25,12 @@ const profileName = "Profile";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const SellStack = () => (
+
+const SellStack = ({ navigation }) => (
   <Stack.Navigator>
     <Stack.Screen name="Bins" component={SellScreen} options={{ headerShown: false }} />
-    <Stack.Screen name="ListItemScreen" component={ListItemScreen}  options={{ headerShown: false }}  />
-    <Stack.Screen name="AdditionalInformationScreen" component={AdditionalInformationScreen}  options={{ headerShown: false }}   />
+    <Stack.Screen name="ListItemScreen" component={ListItemScreen} options={{ headerShown: false }}/>
+    <Stack.Screen name="AdditionalInformationScreen" component={AdditionalInformationScreen} options={{ headerShown: false }} />
   </Stack.Navigator>
 );
 

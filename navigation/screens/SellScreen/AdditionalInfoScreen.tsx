@@ -1,19 +1,35 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import DoneListingModal from '../../../components/DoneListingModal.tsx';
 
 interface ExploreScreenProps {
   navigation: any;
 }
 
-const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
+
+const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [inputValue, setInputValue] = useState('');
   const [itemCondition, setItemCondition] = useState<string | null>(null);
-  const conditions = ["Brand New", "Used-Excellent", "Used-Good", "Used-Fair"]
+  const conditions = ["Brand New", "Used-Excellent", "Used-Good", "Used-Fair"];
+  // const navigation = useNavigation();
+  const route = useRoute();
+  const { selectedBin } = route.params;
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
 
   const handleInputChange = (text) => {
     setInputValue(text);
   };
+
+  const onDonePress = () => {
+    setIsModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+
 
 
   return (
@@ -70,9 +86,10 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
                 />
         </View>
        </View>
-       <TouchableOpacity style={styles.button}>
+       <TouchableOpacity style={styles.button} onPress={onDonePress}>
             <Text style={styles.subTitle}> Done </Text>
        </TouchableOpacity>
+       <DoneListingModal isVisible={isModalVisible} onClose={closeModal} selectedBin={selectedBin}/>
     </View>
   );
 }
@@ -133,4 +150,4 @@ dropDownLabelText: {
   }
 });
 
-export default ExploreScreen;
+export default AdditionalInfoScreen;
