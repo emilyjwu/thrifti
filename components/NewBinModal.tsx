@@ -30,7 +30,9 @@ const NewBinModal: React.FC<NewBinModalProps> = ({ isVisible, onClose, onSave })
                 onChangeText={text => setNewBinName(text)}
                 value={newBinName}
                 />
-                <Button title="Save" onPress={saveBin} />
+                <TouchableOpacity onPress={saveBin} style={styles.saveButton}>
+                    <Text style={{fontSize: 16, fontWeight: 'bold',}}>Save</Text>
+                </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -69,6 +71,13 @@ modalContainer: {
     top: 5,
     right: 5,
     padding: 5,
+  },
+  saveButton: {
+    alignSelf: 'center',
+    backgroundColor: 'lightblue',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
   },
 });
 

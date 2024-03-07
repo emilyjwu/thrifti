@@ -1,18 +1,25 @@
 import React, { useState, useEffect} from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput, ScrollView} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import SelectDropdown from 'react-native-select-dropdown';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
+import IconWithBackground from '../components/IconWithBackground';
 
-const DetectObject: React.FC = () => {
+interface DetectObjectProps {
+    binNames: string[]; 
+  }
+
+const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [labels, setLabels] = useState<any[]>([]);
     const [itemPrice, setItemPrice] = useState<number>(0);
-    const binNames = ["Winter Bin", "Dorm Items", "Jane's Bin"];
     const [labelsGenerated, setLabelsGenerated] = useState<boolean>(false);
+    const [selectedBin, setSelectedBin] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const [isReadyToNavigate, setIsReadyToNavigate] = useState<boolean>(false);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -24,6 +31,14 @@ const DetectObject: React.FC = () => {
             generateLabels(imageUri);
         }
     }, [imageUri, labelsGenerated]);
+
+    useEffect(() => {
+        if (itemPrice > 0 && selectedBin && labels.length > 0) {
+            setIsReadyToNavigate(true);
+        } else {
+            setIsReadyToNavigate(false);
+        }
+    }, [itemPrice, selectedBin, labels]);
 
     const pickImage = async () => {
         try {
@@ -67,7 +82,7 @@ const DetectObject: React.FC = () => {
                         image: {
                             content: base64ImageData,
                         },
-                        features: [{ type: 'LABEL_DETECTION', maxResults: 10 }],
+                        features: [{ type: 'LABEL_DETECTION', maxResults: 7 }],
                     },
                 ],
             };
@@ -86,15 +101,19 @@ const DetectObject: React.FC = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>
-                List Item
-            </Text>
-            {imageUri && (
-                <Image
-                    source={{ uri: imageUri }}
-                    style={{ width: 250, height: 250, marginBottom: 10 }}
-                />
-            )}
+            <View style={styles.centeredContainer}>
+                <Text style={styles.title}>
+                    List Item
+                </Text>
+                {imageUri ? (
+                    <Image
+                        source={{ uri: imageUri }}
+                        style={{ width: 250, height: 250, marginBottom: 10 }}
+                    />
+                ) : (
+                    <IconWithBackground width={250} height={250} iconSize={60} iconColor="#000" iconComponent={EntypoIcon} iconName="image" backgroundColor="#eBeBeB" />
+                )}
+            </View>
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Price: $</Text>
                 <TextInput
@@ -116,6 +135,7 @@ const DetectObject: React.FC = () => {
                     data={binNames}
                     onSelect={(selectedItem, index) => {
                         console.log(selectedItem, index)
+                        setSelectedBin(selectedItem);
 
                     }}
                     defaultButtonText="Choose Bin"
@@ -145,7 +165,7 @@ const DetectObject: React.FC = () => {
                 />
             </View>
             <View style={styles.tagsContainer}>
-                <Text style={styles.label}>TAGS</Text>
+                <Text style={styles.label}>Tags</Text>
             </View>
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
                     {labels.length > 0 && (
@@ -158,9 +178,12 @@ const DetectObject: React.FC = () => {
                     </View>
                     )}
                 </ScrollView>
-                <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
-                    <Text style={styles.text}> Next </Text>
+                {
+                    isReadyToNavigate && 
+                    <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
+                        <Text style={styles.text}> Next </Text>
                     </TouchableOpacity>
+                }
              </View>
 
     );
@@ -172,10 +195,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        alignItems: 'center',
         justifyContent: 'flex-start',
-        paddingTop: 20,
+        padding: 20,
         position: 'relative',
+      },
+      centeredContainer: {
+        justifyContent: 'center', 
+        alignItems: 'center',
       },
       tagsContainer: {
         marginBottom: -10,
@@ -214,8 +240,7 @@ const styles = StyleSheet.create({
         marginTop: 0,
         marginRight: 10,
         marginBottom: 10,
-         alignSelf: 'center',
-
+        textAlign: 'left'
     },
     labelsContainer: {
         flexDirection: 'row',
@@ -237,10 +262,16 @@ const styles = StyleSheet.create({
         borderColor: '#777',
         padding: 8,
         width: 200,
-      },
-      inputContainer: {
+    },
+    inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         textAlign: 'left',
-    }
+    },
+    imagePlaceholderContainer: {
+        width: 250,
+        height: 250,
+        backgroundColor: '#eBeBeB',
+        marginBottom: 10,
+    },
 });

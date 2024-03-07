@@ -1,15 +1,24 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import DetectObject from '../../../api';
+import { useEffect } from 'react';
+import { useRoute } from '@react-navigation/native';
 
 interface ListItemScreenProps {
   navigation: any;
 }
 
+interface RouteParams {
+  binNames?: string[]; // Define the bins property in the route params
+}
+
 const ListItemScreen: React.FC<ListItemScreenProps> = ({ navigation }) => {
+  const route = useRoute();
+  const { binNames }: RouteParams = route.params || {};
+  console.log("binNames:", binNames);
   return (
     <View style={styles.container}>
-        <DetectObject/>
+        <DetectObject binNames={binNames}/>
     </View>
   );
 }
