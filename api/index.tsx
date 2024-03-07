@@ -9,7 +9,7 @@ import EntypoIcon from 'react-native-vector-icons/Entypo';
 import IconWithBackground from '../components/IconWithBackground';
 
 interface DetectObjectProps {
-    binNames: string[]; 
+    binNames: string[];
   }
 
 const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
@@ -96,7 +96,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
     };
 
     const onNextPress = () => {
-        navigation.navigate('AdditionalInformationScreen');
+        navigation.navigate('AdditionalInformationScreen', { selectedBin });
     };
 
     return (
@@ -179,7 +179,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                     )}
                 </ScrollView>
                 {
-                    isReadyToNavigate && 
+                    isReadyToNavigate &&
                     <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
                         <Text style={styles.text}> Next </Text>
                     </TouchableOpacity>
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
         position: 'relative',
       },
       centeredContainer: {
-        justifyContent: 'center', 
+        justifyContent: 'center',
         alignItems: 'center',
       },
       tagsContainer: {
