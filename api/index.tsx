@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput, ScrollView} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
@@ -116,7 +116,6 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                 <Text style={styles.label}>Price: $</Text>
                 <TextInput
                     placeholder="Enter"
-                    keyboardType="numeric"
                     style={[styles.input, { fontSize: 16 }]}
                     onChangeText={(value) => {
                         const price = parseInt(value, 10);
