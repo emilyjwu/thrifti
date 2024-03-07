@@ -118,28 +118,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center',
   },
-  listContainer: {
-    width: 250,  
-    height: 250,
-    position: 'relative',
-  },
-  square: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#eBeBeB',
-    borderRadius: 10,
-    zIndex: 0,
-  },
-  cameraIcon: {
-    position: 'absolute',
-    top: '50%',  
-    left: '50%',  
-    transform: [{ translateX: -40 }, { translateY: -40 }], 
-    zIndex: 1,
-  },
 });
 
 export default SellScreenMain;
