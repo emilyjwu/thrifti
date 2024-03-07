@@ -6,11 +6,14 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import SelectDropdown from 'react-native-select-dropdown';
 
-const DetectObject: React.FC = () => {
+interface DetectObjectProps {
+    binNames: string[]; 
+  }
+
+const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [labels, setLabels] = useState<any[]>([]);
     const [itemPrice, setItemPrice] = useState<number>(0);
-    const binNames = ["Winter Bin", "Dorm Items", "Jane's Bin"];
     const [labelsGenerated, setLabelsGenerated] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const navigation = useNavigation();
@@ -214,7 +217,7 @@ const styles = StyleSheet.create({
         marginTop: 0,
         marginRight: 10,
         marginBottom: 10,
-         alignSelf: 'center',
+        alignSelf: 'center',
 
     },
     labelsContainer: {

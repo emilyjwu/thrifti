@@ -45,7 +45,8 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   };
 
   const navigateToListItemScreen = () => {
-    navigation.navigate('ListItemScreen');
+    const binNames = bins.map(bin => bin);
+    navigation.navigate('ListItemScreen', { binNames });
   };
 
   return (
