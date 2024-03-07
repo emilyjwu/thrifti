@@ -165,7 +165,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                 />
             </View>
             <View style={styles.tagsContainer}>
-                <Text style={styles.label}>TAGS</Text>
+                <Text style={styles.label}>Tags</Text>
             </View>
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
                     {labels.length > 0 && (
