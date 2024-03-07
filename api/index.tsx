@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
@@ -11,10 +11,23 @@ const DetectObject: React.FC = () => {
     const [labels, setLabels] = useState<any[]>([]);
     const [itemPrice, setItemPrice] = useState<number>(0);
     const binNames = ["Winter Bin", "Dorm Items", "Jane's Bin"];
+    const [labelsGenerated, setLabelsGenerated] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
     const navigation = useNavigation();
+
+    useEffect(() => {
+        pickImage();
+      }, []);
+
+    useEffect(() => {
+        if (imageUri && !labelsGenerated) {
+            generateLabels(imageUri);
+        }
+    }, [imageUri, labelsGenerated]);
 
     const pickImage = async () => {
         try {
+            setLoading(true);
             let result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
@@ -23,18 +36,20 @@ const DetectObject: React.FC = () => {
             });
 
             if (!result.canceled) {
-                await generateLabels(result.assets[0].uri);
                 setImageUri(result.assets[0].uri);
+               // await generateLabels(result.assets[0].uri);
             }
             console.log(result);
         } catch (error) {
             console.error('Error Picking Image: ', error);
+        } finally {
+            setLoading(false);
         }
     };
 
     const generateLabels = async (uri: string) => {
         try {
-            if (!imageUri) {
+            if (!imageUri && !loading) {
                 alert('Please select an image first!!');
                 return;
             }
@@ -58,6 +73,7 @@ const DetectObject: React.FC = () => {
             };
             const apiResponse = await axios.post(apiURL, requestData);
             setLabels(apiResponse.data.responses[0].labelAnnotations);
+            setLabelsGenerated(true);
         } catch (error) {
             console.error('Error analyzing image: ', error);
             alert('Error analyzing images. Please try again later');
@@ -79,12 +95,6 @@ const DetectObject: React.FC = () => {
                     style={{ width: 250, height: 250, marginBottom: 10 }}
                 />
             )}
-            <TouchableOpacity
-                onPress={pickImage}
-                style={styles.button}
-            >
-                <Text style={styles.text}> Upload Image . . .</Text>
-            </TouchableOpacity>
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Price: $</Text>
                 <TextInput
@@ -106,6 +116,7 @@ const DetectObject: React.FC = () => {
                     data={binNames}
                     onSelect={(selectedItem, index) => {
                         console.log(selectedItem, index)
+
                     }}
                     defaultButtonText="Choose Bin"
                     buttonTextAfterSelection={(selectedItem, index) => {
@@ -146,11 +157,11 @@ const DetectObject: React.FC = () => {
                         ))}
                     </View>
                     )}
-                    <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
+                </ScrollView>
+                <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
                     <Text style={styles.text}> Next </Text>
                     </TouchableOpacity>
-                </ScrollView>
-                </View>
+             </View>
 
     );
 }
@@ -167,7 +178,8 @@ const styles = StyleSheet.create({
         position: 'relative',
       },
       tagsContainer: {
-        marginBottom: 0,
+        marginBottom: -10,
+        paddingBottom:0,
       },
       nextButton: {
         position: 'absolute',
@@ -181,9 +193,10 @@ const styles = StyleSheet.create({
       scrollView: {
         flex: 1,
         width: '100%',
+        height: 50,
       },
       scrollViewContent: {
-        paddingBottom: 80,
+        paddingBottom: 0,
       },
 
     title: {
@@ -228,7 +241,6 @@ const styles = StyleSheet.create({
     labelsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginTop: 20,
         justifyContent: 'center',
     },
     labelPill: {

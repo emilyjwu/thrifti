@@ -12,9 +12,6 @@ interface SellScreenProps {
 const SellScreen: React.FC<SellScreenProps> = ({ navigation }) => {
   const [binName, setBinName] = useState('');
 
-  const handleCreateBin = () => {
-    // Add box handling logic here for explore page
-  };
 
   return (
 
