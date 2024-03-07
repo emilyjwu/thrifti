@@ -2,13 +2,17 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { createStackNavigator } from '@react-navigation/stack';
 
 // Screens
 import ExploreScreen from './screens/ExploreScreen';
+import ListItemScreen  from './screens/SellScreen/ListItemScreen';
 import SellScreen from './screens/SellScreen/SellScreenMain';
 import MessageScreen from './screens/MessageScreen';
 import RequestsScreen from './screens/RequestsScreen';
 import ProfileScreen from './screens/ProfileScreen';
+import AdditionalInformationScreen from './screens/SellScreen/AdditionalInfoScreen';
+
 
 // Screen names
 const exploreName = "Explore";
@@ -18,6 +22,15 @@ const requestName = "Request";
 const profileName = "Profile";
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
+
+const SellStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen name="Sell" component={SellScreen} />
+    <Stack.Screen name="List Item" component={ListItemScreen} />
+    <Stack.Screen name="AdditionalInformationScreen" component={AdditionalInformationScreen} />
+  </Stack.Navigator>
+);
 
 const MainContainer: React.FC = () => {
   return (
@@ -41,7 +54,6 @@ const MainContainer: React.FC = () => {
               iconName = focused ? 'person-circle' : 'person-circle-outline';
             }
 
-            // You can return any component that you like here!
             return <Ionicons name={iconName} size={size} color={color} />;
           },
           tabBarStyle: {
@@ -55,7 +67,7 @@ const MainContainer: React.FC = () => {
         })}
       >
         <Tab.Screen name={requestName} component={RequestsScreen} />
-        <Tab.Screen name={sellName} component={SellScreen} />
+        <Tab.Screen name={sellName} component={SellStack} />
         <Tab.Screen name={exploreName} component={ExploreScreen} />
         <Tab.Screen name={messageName} component={MessageScreen} />
         <Tab.Screen name={profileName} component={ProfileScreen} />

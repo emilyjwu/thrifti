@@ -4,6 +4,7 @@ import { NavigationProp } from '@react-navigation/native';
 import DetectObject from '../../../api';
 import Bins from '../../../components/Bins';
 
+
 interface SellScreenProps {
   navigation: NavigationProp<any>;
 }
