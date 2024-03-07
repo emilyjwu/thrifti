@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     backgroundColor: '#eBeBeB',
     height: 150, 
-    width: Dimensions.get('window').width, // fix this later
+    minWidth: Dimensions.get('window').width,
     padding: 25,
     alignItems: 'flex-start',
     borderRadius: 10, 
