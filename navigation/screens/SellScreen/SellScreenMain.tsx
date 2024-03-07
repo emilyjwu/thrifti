@@ -7,7 +7,7 @@ import NewBinModal from '../../../components/NewBinModal';
 
 
 interface SellScreenMain {
-  navigation: any; 
+  navigation: any;
 }
 const SquareButton = ({ onPress, title }) => {
   return (
@@ -42,6 +42,9 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
     setBins([...bins, name]);
     setIsModalVisible(false);
   };
+  const navigateToListItemScreen = () => {
+    navigation.navigate('ListItemScreen');
+  };
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
@@ -53,7 +56,10 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
           ))}
           <SquareButton onPress={() => addBin()} title="Square Button" />
         </ScrollView>
-        <Text style={styles.title}>List Item</Text>
+        <Text style={styles.title}>List Item!!</Text>
+        <TouchableOpacity onPress={navigateToListItemScreen}>
+           <Text>Go to ListItemScreen</Text>
+        </TouchableOpacity>
       </View>
       <NewBinModal isVisible={isModalVisible} onClose={closeModal} onSave={saveBin} />
     </SafeAreaView>
@@ -74,7 +80,7 @@ const styles = StyleSheet.create({
     minWidth: Dimensions.get('window').width,
     padding: 25,
     alignItems: 'flex-start',
-    borderRadius: 10, 
+    borderRadius: 10,
     flexDirection: 'row',
   },
   title: {
@@ -91,12 +97,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   addBinButton: {
-    width: 80, 
-    height: 80, 
-    backgroundColor: '#fff', 
+    width: 80,
+    height: 80,
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10, 
+    borderRadius: 10,
   }
 });
 

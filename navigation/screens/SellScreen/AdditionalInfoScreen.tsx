@@ -9,8 +9,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text
-        onPress={() => alert('This is the Additional Info Screen.')}
-        style={{ fontSize: 26, fontWeight: 'bold' }}>Explore Screen</Text>
+        style={{ fontSize: 26, fontWeight: 'bold' }}>Add Additional Info</Text>
     </View>
   );
 }
