@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, TextInput, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import SelectDropdown from 'react-native-select-dropdown';
 
 const DetectObject: React.FC = () => {
     const [imageUri, setImageUri] = useState<string | null>(null);
     const [labels, setLabels] = useState<any[]>([]);
+    const [itemPrice, setItemPrice] = useState<number>(0);
+    const binNames = ["Winter Bin", "Dorm Items", "Jane's Bin"];
+    const navigation = useNavigation();
 
     const pickImage = async () => {
         try {
@@ -47,7 +52,7 @@ const DetectObject: React.FC = () => {
                         image: {
                             content: base64ImageData,
                         },
-                        features: [{ type: 'LABEL_DETECTION', maxResults: 5 }],
+                        features: [{ type: 'LABEL_DETECTION', maxResults: 10 }],
                     },
                 ],
             };
@@ -59,35 +64,94 @@ const DetectObject: React.FC = () => {
         }
     };
 
+    const onNextPress = () => {
+        navigation.navigate('AdditionalInformationScreen');
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>
-                Create New Listing
+                List Item
             </Text>
             {imageUri && (
                 <Image
                     source={{ uri: imageUri }}
-                    style={{ width: 300, height: 300 }}
+                    style={{ width: 250, height: 250, marginBottom: 10 }}
                 />
             )}
             <TouchableOpacity
                 onPress={pickImage}
                 style={styles.button}
             >
-                <Text style={styles.text}> Upload an image . . .</Text>
+                <Text style={styles.text}> Upload Image . . .</Text>
             </TouchableOpacity>
-            {
-                labels.length > 0 && (
-                <View style={styles.labelsContainer}>
-                    {labels.map((label) => (
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>Price: $</Text>
+                <TextInput
+                    placeholder="Enter"
+                    style={[styles.input, { fontSize: 16 }]}
+                    onChangeText={(value) => {
+                        const price = parseInt(value, 10);
+                        if (!isNaN(price)) {
+                            setItemPrice(price);
+                        } else {
+                            setItemPrice(0);
+                        }
+                    }}
+                />
+            </View>
+            <View style={styles.inputContainer}>
+                <Text style={styles.label2}>Bin:</Text>
+                <SelectDropdown
+                    data={binNames}
+                    onSelect={(selectedItem, index) => {
+                        console.log(selectedItem, index)
+                    }}
+                    defaultButtonText="Choose Bin"
+                    buttonTextAfterSelection={(selectedItem, index) => {
+                        return selectedItem;
+                    }}
+                    rowTextForSelection={(item, index) => {
+                        return item;
+                    }}
+                    dropdownStyle={{
+                        backgroundColor: '#DDDDDD',
+                        padding: 5,
+                        marginBottom: 10,
+                        borderRadius: 20,
+                    }}
+                    buttonStyle={{
+                        backgroundColor: '#DDDDDD',
+                        padding: 5,
+                        marginBottom: 10,
+                        borderRadius: 20,
+                    }}
+                    buttonTextStyle={{
+                        color: '#333',
+                        fontSize: 14,
+                        textAlign: 'left',
+                    }}
+                />
+            </View>
+            <View style={styles.tagsContainer}>
+                <Text style={styles.label2}>TAGS</Text>
+            </View>
+            <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
+                    {labels.length > 0 && (
+                    <View style={styles.labelsContainer}>
+                        {labels.map((label) => (
                         <View key={label.mid} style={styles.labelPill}>
                             <Text style={styles.labelText}>{label.description}</Text>
                         </View>
-                    ))}
+                        ))}
+                    </View>
+                    )}
+                    <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
+                    <Text style={styles.text}> Next </Text>
+                    </TouchableOpacity>
+                </ScrollView>
                 </View>
-                )
-            }
-        </View>
+
     );
 }
 
@@ -98,9 +162,30 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 50, // Move the content upwards
-    },
+        justifyContent: 'flex-start',
+        paddingTop: 20,
+        position: 'relative',
+      },
+      tagsContainer: {
+        marginBottom: 0,
+      },
+      nextButton: {
+        position: 'absolute',
+        bottom: 20,
+        alignSelf: 'center',
+        backgroundColor: 'lightblue',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 5,
+      },
+      scrollView: {
+        flex: 1,
+        width: '100%',
+      },
+      scrollViewContent: {
+        paddingBottom: 80,
+      },
+
     title: {
         fontSize: 30,
         fontWeight: 'bold',
@@ -118,16 +203,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#DDDDDD',
         padding: 10,
         marginBottom: 10,
-        borderRadius: 20,
+        borderRadius: 15,
     },
     text: {
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: 'bold',
     },
     label: {
         fontSize: 20,
         fontWeight: 'bold',
-        marginTop: 20,
+        marginTop: 0,
+    },
+    label2: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginRight: 10,
+        marginBottom: 10,
+         alignSelf: 'center',
     },
     outputtext: {
         fontSize: 18,
@@ -149,4 +241,14 @@ const styles = StyleSheet.create({
     labelText: {
         fontSize: 16,
     },
+    input: {
+        borderWidth: 0,
+        borderColor: '#777',
+        padding: 8,
+        width: 200,
+      },
+      inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    }
 });
