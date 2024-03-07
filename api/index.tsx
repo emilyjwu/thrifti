@@ -17,7 +17,9 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
     const [labels, setLabels] = useState<any[]>([]);
     const [itemPrice, setItemPrice] = useState<number>(0);
     const [labelsGenerated, setLabelsGenerated] = useState<boolean>(false);
+    const [selectedBin, setSelectedBin] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const [isReadyToNavigate, setIsReadyToNavigate] = useState<boolean>(false);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -29,6 +31,14 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
             generateLabels(imageUri);
         }
     }, [imageUri, labelsGenerated]);
+
+    useEffect(() => {
+        if (itemPrice > 0 && selectedBin && labels.length > 0) {
+            setIsReadyToNavigate(true);
+        } else {
+            setIsReadyToNavigate(false);
+        }
+    }, [itemPrice, selectedBin, labels]);
 
     const pickImage = async () => {
         try {
@@ -72,7 +82,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                         image: {
                             content: base64ImageData,
                         },
-                        features: [{ type: 'LABEL_DETECTION', maxResults: 10 }],
+                        features: [{ type: 'LABEL_DETECTION', maxResults: 7 }],
                     },
                 ],
             };
@@ -106,6 +116,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                 <Text style={styles.label}>Price: $</Text>
                 <TextInput
                     placeholder="Enter"
+                    keyboardType="numeric"
                     style={[styles.input, { fontSize: 16 }]}
                     onChangeText={(value) => {
                         const price = parseInt(value, 10);
@@ -123,6 +134,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                     data={binNames}
                     onSelect={(selectedItem, index) => {
                         console.log(selectedItem, index)
+                        setSelectedBin(selectedItem);
 
                     }}
                     defaultButtonText="Choose Bin"
@@ -165,9 +177,12 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                     </View>
                     )}
                 </ScrollView>
-                <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
-                    <Text style={styles.text}> Next </Text>
-                </TouchableOpacity>
+                {
+                    isReadyToNavigate && 
+                    <TouchableOpacity onPress={onNextPress} style={styles.nextButton}>
+                        <Text style={styles.text}> Next </Text>
+                    </TouchableOpacity>
+                }
              </View>
 
     );
