@@ -2,7 +2,7 @@ import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 interface ExploreScreenProps {
-  navigation: any; // Replace 'any' with the correct type for navigation prop
+  navigation: any;
 }
 
 const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {

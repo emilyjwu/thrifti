@@ -111,7 +111,7 @@ const DetectObject: React.FC = () => {
                 />
             </View>
             <View style={styles.inputContainer}>
-                <Text style={styles.label2}>Bin:</Text>
+                <Text style={styles.label}>Bin:</Text>
                 <SelectDropdown
                     data={binNames}
                     onSelect={(selectedItem, index) => {
@@ -145,7 +145,7 @@ const DetectObject: React.FC = () => {
                 />
             </View>
             <View style={styles.tagsContainer}>
-                <Text style={styles.label2}>TAGS</Text>
+                <Text style={styles.label}>TAGS</Text>
             </View>
             <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
                     {labels.length > 0 && (
@@ -204,20 +204,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 20,
     },
-    imageContainer: {
-        alignItems: 'center',
-        marginBottom: 20,
-    },
-    image: {
-        width: 300,
-        height: 300,
-    },
-    button: {
-        backgroundColor: '#DDDDDD',
-        padding: 10,
-        marginBottom: 10,
-        borderRadius: 15,
-    },
     text: {
         fontSize: 16,
         fontWeight: 'bold',
@@ -226,17 +212,10 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginTop: 0,
-    },
-    label2: {
-        fontSize: 20,
-        fontWeight: 'bold',
         marginRight: 10,
         marginBottom: 10,
          alignSelf: 'center',
-    },
-    outputtext: {
-        fontSize: 18,
-        marginBottom: 10,
+
     },
     labelsContainer: {
         flexDirection: 'row',
@@ -262,5 +241,6 @@ const styles = StyleSheet.create({
       inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        textAlign: 'left',
     }
 });

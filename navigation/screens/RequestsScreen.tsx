@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 
 interface RequestsScreenProps {
-  navigation: NavigationProp<any>; // Replace 'any' with the correct type for navigation prop
+  navigation: NavigationProp<any>;
 }
 
 const RequestsScreen: React.FC<RequestsScreenProps> = ({ navigation }) => {

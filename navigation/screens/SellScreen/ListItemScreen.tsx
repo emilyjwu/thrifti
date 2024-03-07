@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import DetectObject from '../../../api';
 
 interface ListItemScreenProps {
-  navigation: any; // Replace 'any' with the correct type for navigation prop
+  navigation: any;
 }
 
 const ListItemScreen: React.FC<ListItemScreenProps> = ({ navigation }) => {
