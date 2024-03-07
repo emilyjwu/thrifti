@@ -9,7 +9,7 @@ import NewBinModal from '../../../components/NewBinModal';
 interface SellScreenMain {
   navigation: any;
 }
-const SquareButton = ({ onPress, title }) => {
+const SquareButton = ({ onPress}) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.addBinButton}>
       <EntypoIcon name="plus" size={50} color="black" />
@@ -33,7 +33,7 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   const addBin = () => {
     setIsModalVisible(true);
   };
-  
+
   const closeModal = () => {
     setIsModalVisible(false);
   };
@@ -54,9 +54,9 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
           {bins.map((bin, index) => (
               <Bin key={index} name={bin} />
           ))}
-          <SquareButton onPress={() => addBin()} title="Square Button" />
+          <SquareButton onPress={() => addBin()}  />
         </ScrollView>
-        <Text style={styles.title}>List Item!!</Text>
+        <Text style={styles.title}>List Item</Text>
         <TouchableOpacity onPress={navigateToListItemScreen}>
            <Text>Go to ListItemScreen</Text>
         </TouchableOpacity>
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     backgroundColor: '#eBeBeB',
-    height: 150, 
+    height: 150,
     minWidth: Dimensions.get('window').width,
     padding: 25,
     alignItems: 'flex-start',
