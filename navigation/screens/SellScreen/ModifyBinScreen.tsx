@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Button, TextInput, ScrollView } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
-import DetectObject from '../../api';
-import Bins from '../../components/Bins';
+import DetectObject from '../../../api';
+import Bins from '../../../components/Bins';
 
 interface SellScreenProps {
   navigation: NavigationProp<any>;
