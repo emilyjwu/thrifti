@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Button, Modal } from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
-import { useNavigation } from '@react-navigation/native';
 import { useState } from 'react';
+import NewBinModal from '../../../components/NewBinModal';
 
 
 interface SellScreenMain {
@@ -28,11 +28,21 @@ const Bin = ({ name }) => {
 
 const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   const [bins, setBins] = useState(["Emily's Bin"]);
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
 
   const addBin = () => {
-    setBins([...bins, "New Bin"]); // You can replace "New Bin" with the actual input value
+    setIsModalVisible(true);
   };
   
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+
+  const saveBin = (name: string) => {
+    setBins([...bins, name]);
+    setIsModalVisible(false);
+  };
+
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <View style={styles.contentContainer}>
@@ -45,6 +55,7 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
         </ScrollView>
         <Text style={styles.title}>List Item</Text>
       </View>
+      <NewBinModal isVisible={isModalVisible} onClose={closeModal} onSave={saveBin} />
     </SafeAreaView>
   );
 }
@@ -60,7 +71,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     backgroundColor: '#eBeBeB',
     height: 150, 
-    width: Dimensions.get('window').width, // fix this later
+    minWidth: Dimensions.get('window').width,
     padding: 25,
     alignItems: 'flex-start',
     borderRadius: 10, 
