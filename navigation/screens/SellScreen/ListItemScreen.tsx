@@ -1,16 +1,15 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import DetectObject from '../../../api';
 
-interface ExploreScreenProps {
+interface ListItemScreenProps {
   navigation: any; // Replace 'any' with the correct type for navigation prop
 }
 
-const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
+const ListItemScreen: React.FC<ListItemScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text
-        onPress={() => alert('This is the List Item Screen.')}
-        style={{ fontSize: 26, fontWeight: 'bold' }}>Explore Screen</Text>
+        <DetectObject/>
     </View>
   );
 }
@@ -24,4 +23,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ExploreScreen;
+export default ListItemScreen;
