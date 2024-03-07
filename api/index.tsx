@@ -146,13 +146,13 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
                         return item;
                     }}
                     dropdownStyle={{
-                        backgroundColor: '#DDDDDD',
+                        backgroundColor: '#eBeBeB',
                         padding: 5,
                         marginBottom: 10,
                         borderRadius: 10,
                     }}
                     buttonStyle={{
-                        backgroundColor: '#DDDDDD',
+                        backgroundColor: '#eBeBeB',
                         padding: 5,
                         marginBottom: 10,
                         borderRadius: 10,
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     labelPill: {
-        backgroundColor: '#DDDDDD',
+        backgroundColor: 'lightslategrey',
         borderRadius: 10,
         paddingVertical: 5,
         paddingHorizontal: 10,
@@ -259,6 +259,7 @@ const styles = StyleSheet.create({
     },
     labelText: {
         fontSize: 16,
+        color: 'white',
     },
     input: {
         borderWidth: 0,

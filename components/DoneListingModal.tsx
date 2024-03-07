@@ -41,21 +41,17 @@ modalContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
+  },
+  modalContent: {
     backgroundColor: '#fff',
     width: '80%',
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
-    },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
   },
   popupTitle: {
-    fontSize: 15,
+    fontSize: 20,
+    fontWeight: 'bold',
     marginBottom: 10,
   },
   input: {
@@ -72,15 +68,8 @@ modalContainer: {
     right: 5,
     padding: 5,
   },
-  line: {
-    width: '100%',
-    height: 1,
-    backgroundColor: '#ccc',
-    marginBottom: 10,
-  },
   text: {
     fontSize: 15,
-    fontWeight: 'bold',
     marginBottom: 10,
   }
 });

@@ -34,7 +34,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Optional Item Info</Text>
+      <Text style={styles.title}>Optional Info</Text>
       <View style={styles.subContainer}>
         <Text style={styles.subTitle}>Description</Text>
         <View style={styles.textAreaContainer} >
@@ -66,16 +66,16 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
                         return item;
                     }}
                     dropdownStyle={{
-                        backgroundColor: '#DDDDDD',
+                        backgroundColor: '#eBeBeB',
                         padding: 5,
                         marginBottom: 10,
-                        borderRadius: 20,
+                        borderRadius: 10,
                     }}
                     buttonStyle={{
-                        backgroundColor: '#DDDDDD',
+                        backgroundColor: '#eBeBeB',
                         padding: 5,
                         marginBottom: 10,
-                        borderRadius: 20,
+                        borderRadius: 10,
                         alignItems: 'center',
                     }}
                     buttonTextStyle={{
@@ -98,10 +98,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 20,
+    padding: 20,
   },
   title: {
-    fontSize: 25,
+    fontSize: 30,
     fontWeight: 'bold',
     textAlign: 'left',
   },
@@ -109,18 +109,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'left',
+    marginBottom: 5,
   },
   subContainer: {
     flex: 1,
     backgroundColor: '#fff',
     marginTop: 20,
-    // marginLeft: 20,
-    // paddingHorizontal: 20,
   },
   textAreaContainer: {
-    borderColor: '#CCCCCC',
-    borderWidth: 1,
     padding: 5,
+    backgroundColor: "#eBeBeB",
+    borderRadius: 20,
   },
   textArea: {
     height: 150,
@@ -140,13 +139,13 @@ dropDownLabelText: {
     textAlign: 'left'
   },
   button: {
-      position: 'absolute',
-      bottom: 20,
-      alignSelf: 'center',
-      backgroundColor: 'lightblue',
-      paddingVertical: 15,
-      paddingHorizontal: 30,
-      borderRadius: 5,
+    position: 'absolute',
+    bottom: 20,
+    alignSelf: 'center',
+    backgroundColor: 'lightblue',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
   }
 });
 

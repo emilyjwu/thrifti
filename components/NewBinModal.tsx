@@ -45,40 +45,40 @@ modalContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
+},
+modalContent: {
     backgroundColor: '#fff',
     width: '80%', 
     padding: 20,
     borderRadius: 10,
     alignItems: 'center', 
-    },
-  modalTitle: {
+},
+modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
-  },
-  input: {
+},
+input: {
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
     borderRadius: 10,
-    marginBottom: 10,
+    marginBottom: 15,
     paddingHorizontal: 10,
-  },
-  xButton: {
+},
+xButton: {
     position: 'absolute',
     top: 5,
     right: 5,
     padding: 5,
-  },
-  saveButton: {
+},
+saveButton: {
     alignSelf: 'center',
     backgroundColor: 'lightblue',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
-  },
+},
 });
 
 export default NewBinModal;
