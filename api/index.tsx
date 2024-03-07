@@ -5,6 +5,8 @@ import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import SelectDropdown from 'react-native-select-dropdown';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
+import IconWithBackground from '../components/IconWithBackground';
 
 interface DetectObjectProps {
     binNames: string[]; 
@@ -92,11 +94,13 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
             <Text style={styles.title}>
                 List Item
             </Text>
-            {imageUri && (
+            {imageUri ? (
                 <Image
                     source={{ uri: imageUri }}
                     style={{ width: 250, height: 250, marginBottom: 10 }}
                 />
+            ) : (
+                <IconWithBackground width={250} height={250} iconSize={60} iconColor="#000" iconComponent={EntypoIcon} iconName="image" backgroundColor="#eBeBeB" />
             )}
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Price: $</Text>
@@ -245,5 +249,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         textAlign: 'left',
-    }
+    },
+    imagePlaceholderContainer: {
+        width: 250,
+        height: 250,
+        backgroundColor: '#eBeBeB',
+        marginBottom: 10,
+    },
 });

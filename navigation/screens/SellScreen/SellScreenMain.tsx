@@ -5,6 +5,7 @@ import EntypoIcon from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useState } from 'react';
 import NewBinModal from '../../../components/NewBinModal';
+import IconWithBackground from '../../../components/IconWithBackground';
 
 
 interface SellScreenMain {
@@ -65,10 +66,7 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
           <Text style={styles.title}>List Item</Text>
           <View style={styles.centeredContainer}>
             <TouchableOpacity onPress={navigateToListItemScreen}>
-              <View style={styles.listContainer}>
-                <View style={styles.square}/>
-                <MaterialCommunityIcons name="camera-plus-outline" size={65} color="#000" style={styles.cameraIcon}/>
-              </View>
+            <IconWithBackground width={250} height={250} iconSize={65} iconColor="#000" iconComponent={MaterialCommunityIcons} iconName="camera-plus-outline" backgroundColor="#eBeBeB" />
             </TouchableOpacity>
           </View>
       </View>
