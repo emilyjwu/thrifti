@@ -101,17 +101,19 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>
-                List Item
-            </Text>
-            {imageUri ? (
-                <Image
-                    source={{ uri: imageUri }}
-                    style={{ width: 250, height: 250, marginBottom: 10 }}
-                />
-            ) : (
-                <IconWithBackground width={250} height={250} iconSize={60} iconColor="#000" iconComponent={EntypoIcon} iconName="image" backgroundColor="#eBeBeB" />
-            )}
+            <View style={styles.centeredContainer}>
+                <Text style={styles.title}>
+                    List Item
+                </Text>
+                {imageUri ? (
+                    <Image
+                        source={{ uri: imageUri }}
+                        style={{ width: 250, height: 250, marginBottom: 10 }}
+                    />
+                ) : (
+                    <IconWithBackground width={250} height={250} iconSize={60} iconColor="#000" iconComponent={EntypoIcon} iconName="image" backgroundColor="#eBeBeB" />
+                )}
+            </View>
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Price: $</Text>
                 <TextInput
@@ -193,10 +195,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        alignItems: 'center',
         justifyContent: 'flex-start',
-        paddingTop: 20,
+        padding: 20,
         position: 'relative',
+      },
+      centeredContainer: {
+        justifyContent: 'center', 
+        alignItems: 'center',
       },
       tagsContainer: {
         marginBottom: -10,
@@ -235,8 +240,7 @@ const styles = StyleSheet.create({
         marginTop: 0,
         marginRight: 10,
         marginBottom: 10,
-        alignSelf: 'center',
-
+        textAlign: 'left'
     },
     labelsContainer: {
         flexDirection: 'row',
@@ -258,8 +262,8 @@ const styles = StyleSheet.create({
         borderColor: '#777',
         padding: 8,
         width: 200,
-      },
-      inputContainer: {
+    },
+    inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         textAlign: 'left',
