@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Screens
 import ExploreScreen from './screens/ExploreScreen';
-import SellScreen from './screens/SellScreen';
+import SellScreen from './screens/SellScreen/SellScreenMain';
 import MessageScreen from './screens/MessageScreen';
 import RequestsScreen from './screens/RequestsScreen';
 import ProfileScreen from './screens/ProfileScreen';
