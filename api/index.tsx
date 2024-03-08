@@ -119,6 +119,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
         limit(1)
       );
 
+
       try {
         const binQuerySnapshot = await getDocs(binQuery);
 

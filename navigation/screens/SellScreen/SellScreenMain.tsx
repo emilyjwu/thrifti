@@ -41,6 +41,7 @@ const Bin = ({ name }) => {
 
 const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   const [bins, setBins] = useState([]);
+
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [updatedBins, setUpdatedBins] = useState(false);
   const uid = "3aQacXP9qFtBBM27eQ79"; // ***** CHANGE THIS WHEN IMPLEMENT AUTH *****
