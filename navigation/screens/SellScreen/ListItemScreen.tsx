@@ -1,8 +1,9 @@
-import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import DetectObject from '../../../api';
-import { useEffect } from 'react';
-import { useRoute } from '@react-navigation/native';
+import * as React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import DetectObject from "../../../api";
+import { useEffect } from "react";
+import { useRoute } from "@react-navigation/native";
+import { firebaseApp, firestore, firebaseAnalytics } from "../../../api";
 
 interface ListItemScreenProps {
   navigation: any;
@@ -18,17 +19,17 @@ const ListItemScreen: React.FC<ListItemScreenProps> = ({ navigation }) => {
   console.log("binNames:", binNames);
   return (
     <View style={styles.container}>
-        <DetectObject binNames={binNames}/>
+      <DetectObject binNames={binNames} />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

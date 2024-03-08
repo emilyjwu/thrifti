@@ -1,17 +1,28 @@
-import * as React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Button, Modal } from 'react-native';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
-import EntypoIcon from 'react-native-vector-icons/Entypo';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useState } from 'react';
-import NewBinModal from '../../../components/NewBinModal';
-import IconWithBackground from '../../../components/IconWithBackground';
-
+import * as React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  Dimensions,
+  TouchableOpacity,
+  Button,
+  Modal,
+} from "react-native";
+import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
+import EntypoIcon from "react-native-vector-icons/Entypo";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { useState } from "react";
+import NewBinModal from "../../../components/NewBinModal";
+import IconWithBackground from "../../../components/IconWithBackground";
+import { firestore } from "../../../api";
+import { addDoc, getDocs, collection, query, where } from "firebase/firestore";
 
 interface SellScreenMain {
   navigation: any;
 }
-const SquareButton = ({ onPress}) => {
+const SquareButton = ({ onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.addBinButton}>
       <EntypoIcon name="plus" size={50} color="black" />
@@ -29,8 +40,34 @@ const Bin = ({ name }) => {
 };
 
 const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
-  const [bins, setBins] = useState(["My Bin"]);
+  const [bins, setBins] = useState([]);
+
   const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [updatedBins, setUpdatedBins] = useState(false);
+  const uid = "3aQacXP9qFtBBM27eQ79"; // ***** CHANGE THIS WHEN IMPLEMENT AUTH *****
+
+  async function getBinNames(firestoreObject, binUserID) {
+    const binQuery = query(
+      collection(firestoreObject, "bins"),
+      where("userID", "==", binUserID)
+    );
+
+    try {
+      const querySnapshot = await getDocs(binQuery);
+      console.log("RETRIEVING BIN NAMES");
+      const binNames = querySnapshot.docs.map((doc) => {
+        // get name from each doc
+        return doc.data().binName;
+      });
+      setBins(binNames);
+    } catch (error) {
+      console.error("Error retrieving bin names:", error);
+    }
+  }
+
+  React.useEffect(() => {
+    getBinNames(firestore, uid);
+  }, [updatedBins]);
 
   const addBin = () => {
     setIsModalVisible(true);
@@ -41,66 +78,86 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   };
 
   const saveBin = (name: string) => {
-    setBins([...bins, name]);
+    const newBinData = {
+      binName: name,
+      userID: uid,
+    };
+    addDoc(collection(firestore, "bins"), newBinData);
+    setUpdatedBins(!updatedBins);
     setIsModalVisible(false);
   };
 
   const navigateToListItemScreen = () => {
-    const binNames = bins.map(bin => bin);
-    navigation.navigate('ListItemScreen', { binNames });
+    const binNames = bins.map((bin) => bin);
+    navigation.navigate("ListItemScreen", { binNames });
   };
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <View style={styles.contentContainer}>
         <Text style={styles.title}>My Bins</Text>
-        <ScrollView horizontal={true} contentContainerStyle={styles.scrollContainer}>
+        <ScrollView
+          horizontal={true}
+          contentContainerStyle={styles.scrollContainer}
+        >
           {bins.map((bin, index) => (
-              <Bin key={index} name={bin} />
+            <Bin key={index} name={bin} />
           ))}
-          <SquareButton onPress={() => addBin()}  />
+          <SquareButton onPress={() => addBin()} />
         </ScrollView>
       </View>
-      
+
       <View style={styles.contentContainer}>
-          <Text style={styles.title}>List Item</Text>
-          <View style={styles.centeredContainer}>
-            <TouchableOpacity onPress={navigateToListItemScreen}>
-            <IconWithBackground width={250} height={250} iconSize={65} iconColor="#000" iconComponent={MaterialCommunityIcons} iconName="camera-plus-outline" backgroundColor="#eBeBeB" />
-            </TouchableOpacity>
-          </View>
+        <Text style={styles.title}>List Item</Text>
+        <View style={styles.centeredContainer}>
+          <TouchableOpacity onPress={navigateToListItemScreen}>
+            <IconWithBackground
+              width={250}
+              height={250}
+              iconSize={65}
+              iconColor="#000"
+              iconComponent={MaterialCommunityIcons}
+              iconName="camera-plus-outline"
+              backgroundColor="#eBeBeB"
+            />
+          </TouchableOpacity>
+        </View>
       </View>
-      <NewBinModal isVisible={isModalVisible} onClose={closeModal} onSave={saveBin} />
+      <NewBinModal
+        isVisible={isModalVisible}
+        onClose={closeModal}
+        onSave={saveBin}
+      />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   contentContainer: {
     padding: 20,
   },
   scrollContainer: {
-    backgroundColor: '#eBeBeB',
+    backgroundColor: "#eBeBeB",
     height: 150,
-    minWidth: Dimensions.get('window').width,
+    minWidth: Dimensions.get("window").width,
     padding: 25,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
     borderRadius: 10,
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   title: {
     fontSize: 35,
-    fontWeight: 'bold',
-    textAlign: 'left',
+    fontWeight: "bold",
+    textAlign: "left",
     marginBottom: 5,
   },
   binContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 20,
   },
   binTitle: {
@@ -109,14 +166,14 @@ const styles = StyleSheet.create({
   addBinButton: {
     width: 80,
     height: 80,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 10,
   },
   centeredContainer: {
-    justifyContent: 'center', 
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
