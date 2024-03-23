@@ -20,8 +20,12 @@ import { limit, getDocs, collection, query, where } from "firebase/firestore";
 
 // FIREBASE IN QUARANTINE UNTIL IT WORKS
 import { initializeApp } from "firebase/app";
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from "firebase/firestore";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { User, getAuth } from "firebase/auth";
+import { createContext } from "react";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -42,14 +46,42 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const firestore = getFirestore();
 const storage = getStorage(firebaseApp);
-
-const uploadImageToFBS = async (imageUri: string) => {
-  const response = await fetch(imageUri);
-  const blob = await response.blob();
-  const imageName = "TEST_UPLOAD.jpg"; // Set a unique name for your image
-  const storageRef = ref(storage, `7tJWpEXpelbqSEaiiMDR/${imageName}`);
-  await uploadBytes(storageRef, blob);
-  console.log("Image uploaded successfully");
+const auth = initializeAuth(firebaseApp, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});
+export const uploadImageToStorage = async (
+  imageUri: string,
+  binID: string,
+  listingName: string
+) => {
+  try {
+    const response = await fetch(imageUri);
+    const blob = await response.blob();
+    const imageName = listingName; // Set a unique name for your image
+    const storageRef = ref(storage, `${binID}/${imageName}`);
+    await uploadBytesResumable(storageRef, blob);
+    console.log("Image uploaded successfully");
+    return 200;
+  } catch {
+    console.log("Issue storing image in FBS");
+    return 400;
+  }
 };
 
-export { firestore, storage };
+export const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [userAuth, setUserAuth] = useState<User | null>(null);
+
+  const setAuthAfterLogin = (userData: User) => {
+    setUserAuth(userData);
+  };
+
+  return (
+    <AuthContext.Provider value={{ userAuth, setAuthAfterLogin }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export { firestore, storage, auth };

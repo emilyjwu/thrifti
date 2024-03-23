@@ -13,10 +13,10 @@ import {
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import NewBinModal from "../../../components/NewBinModal";
 import IconWithBackground from "../../../components/IconWithBackground";
-import { firestore } from "../../../api";
+import { firestore, AuthContext } from "../../../api";
 import { addDoc, getDocs, collection, query, where } from "firebase/firestore";
 
 interface SellScreenMain {
@@ -43,7 +43,7 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   const [bins, setBins] = useState([]);
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [updatedBins, setUpdatedBins] = useState(false);
-  const uid = "3aQacXP9qFtBBM27eQ79"; // ***** CHANGE THIS WHEN IMPLEMENT AUTH *****
+  const uid = useContext(AuthContext).userAuth.uid;
 
   async function getBinNames(firestoreObject, binUserID) {
     const binQuery = query(

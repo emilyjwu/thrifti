@@ -1,5 +1,5 @@
 import { useRoute } from "@react-navigation/native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import SelectDropdown from "react-native-select-dropdown";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import IconWithBackground from "../../../components/IconWithBackground";
 import { limit, getDocs, collection, query, where } from "firebase/firestore";
-import { firestore } from "../../../api/index";
+import { firestore, AuthContext } from "../../../api/index";
 
 interface ListItemScreenProps {
   navigation: any;
@@ -41,6 +41,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isReadyToNavigate, setIsReadyToNavigate] = useState<boolean>(false);
   const navigation = useNavigation();
+  const uid = useContext(AuthContext).userAuth.uid;
 
   // pick image
   useEffect(() => {
@@ -125,6 +126,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
       const binQuery = query(
         collection(firestore, "bins"),
         where("binName", "==", selectedBin),
+        where("userID", "==", uid),
         limit(1)
       );
 
@@ -134,7 +136,6 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
         if (!binQuerySnapshot.empty) {
           const doc = binQuerySnapshot.docs[0];
           return {
-            image: imageUri,
             tags: labels,
             binID: doc.id,
             price: itemPrice,
@@ -154,6 +155,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
     navigation.navigate("AdditionalInformationScreen", {
       selectedBin,
       listingData,
+      imageUri,
     });
   };
 
@@ -262,6 +264,7 @@ const ListItemScreen: React.FC<ListItemScreenProps> = ({ navigation }) => {
   const route = useRoute();
   const { binNames }: RouteParams = route.params || {};
   console.log("binNames:", binNames);
+  //console.log("UID: ", userAuth.uid);
   return (
     <View style={styles.container}>
       <DetectObject binNames={binNames} />
