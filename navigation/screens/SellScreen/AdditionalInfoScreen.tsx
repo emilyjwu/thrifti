@@ -5,6 +5,9 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  ScrollView,
+  Keyboard,
+  TouchableWithoutFeedback
 } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -42,12 +45,15 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
     <View style={styles.container}>
       <Text style={styles.title}>Optional Info</Text>
       <View style={styles.subContainer}>
         <Text style={styles.subTitle}>Description</Text>
         <View style={styles.textAreaContainer}>
-          <TextInput
+        <ScrollView contentContainerStyle={{flexGrow: 1}}
+            keyboardShouldPersistTaps='handled'>
+            <TextInput
             style={styles.textArea}
             underlineColorAndroid="transparent"
             placeholder="Type something"
@@ -56,8 +62,11 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
             multiline={true}
             value={inputValue}
             onChangeText={handleInputChange}
+
           />
-        </View>
+        </ScrollView>
+
+      </View>
         <View style={styles.dropDownContainer}>
           <Text style={styles.dropDownLabelText}>Condition:</Text>
           <SelectDropdown
@@ -103,6 +112,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         selectedBin={selectedBin}
       />
     </View>
+    </TouchableWithoutFeedback>
   );
 };
 
