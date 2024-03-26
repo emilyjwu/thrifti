@@ -13,9 +13,8 @@ import SelectDropdown from "react-native-select-dropdown";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import DoneListingModal from "../../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
-import { firestore } from "../../../api";
+import { firestore, uploadImageToStorage } from "../../../api";
 import { addDoc, collection } from "firebase/firestore";
-
 interface ExploreScreenProps {
   navigation: any;
 }
@@ -23,20 +22,32 @@ interface ExploreScreenProps {
 const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [inputValue, setInputValue] = useState("");
   const [itemCondition, setItemCondition] = useState<string | null>(null);
+  const [listingName, setListingName] = useState("");
   const conditions = ["Brand New", "Used-Excellent", "Used-Good", "Used-Fair"];
   // const navigation = useNavigation();
   const route = useRoute();
-  const { selectedBin, listingData } = route.params;
+  const { selectedBin, listingData, imageUri } = route.params;
   const [isModalVisible, setIsModalVisible] = React.useState(false);
 
   const handleInputChange = (text) => {
     setInputValue(text);
   };
 
-  const onDonePress = () => {
+  const handleNameChange = (text) => {
+    setListingName(text);
+  };
+
+  const onDonePress = async () => {
     listingData.condition = itemCondition;
     listingData.description = inputValue;
-    addDoc(collection(firestore, "items"), listingData);
+    listingData.listingName = listingName;
+    const docRef = await addDoc(collection(firestore, "items"), listingData);
+    if (
+      (await uploadImageToStorage(imageUri, listingData.binID, docRef.id)) ==
+      400
+    ) {
+      return;
+    }
     setIsModalVisible(true);
   };
 
@@ -54,6 +65,19 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         <ScrollView contentContainerStyle={{flexGrow: 1}}
             keyboardShouldPersistTaps='handled'>
             <TextInput
+          <TextInput
+            style={styles.titleArea}
+            underlineColorAndroid="transparent"
+            placeholder="Listing Name"
+            placeholderTextColor="grey"
+            numberOfLines={1}
+            multiline={false}
+            value={listingName}
+            onChangeText={handleNameChange}
+          />
+        </View>
+        <View style={styles.textAreaContainer}>
+          <TextInput
             style={styles.textArea}
             underlineColorAndroid="transparent"
             placeholder="Type something"
@@ -140,11 +164,16 @@ const styles = StyleSheet.create({
   },
   textAreaContainer: {
     padding: 5,
+    margin: 5,
     backgroundColor: "#eBeBeB",
     borderRadius: 20,
   },
   textArea: {
     height: 150,
+    justifyContent: "flex-start",
+  },
+  titleArea: {
+    height: 30,
     justifyContent: "flex-start",
   },
   dropDownContainer: {
