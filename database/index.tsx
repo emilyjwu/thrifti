@@ -1,29 +1,17 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  TextInput,
-  ScrollView,
-  Dimensions,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import axios from "axios";
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import SelectDropdown from "react-native-select-dropdown";
-import EntypoIcon from "react-native-vector-icons/Entypo";
-import IconWithBackground from "../components/IconWithBackground";
-import { limit, getDocs, collection, query, where } from "firebase/firestore";
+import React, { useState } from "react";
+import { getDocs, collection, query, where } from "firebase/firestore";
 
 // FIREBASE IN QUARANTINE UNTIL IT WORKS
 import { initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { getFirestore } from "firebase/firestore";
-import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage";
 import { User, getAuth } from "firebase/auth";
 import { createContext } from "react";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -82,6 +70,59 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+// retrives the ID of all of a user's bins as a [] of binIDs
+export const fetchUserBins = async (userID: string) => {
+  try {
+    const binQuerySnapshot = await getDocs(
+      query(collection(firestore, "bins"), where("userID", "==", userID))
+    );
+    const binIDs = binQuerySnapshot.docs.map((doc) => doc.id);
+    console.log("Bins: ", binIDs);
+    return binIDs;
+  } catch (error) {
+    console.error("Error retrieving data:", error);
+    return [];
+  }
+};
+
+// retrives the ID of all bin in the DB as a [] of binIDs
+export const fetchAllBins = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(firestore, "bins"));
+    const ids = querySnapshot.docs.map((doc) => doc.id);
+    return ids;
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+    return [];
+  }
+};
+
+// accesses items for a given bin and returns the image URLs as a [] of URLs
+export const fetchURLs = async (binID: string) => {
+  if (!binID) {
+    return [];
+  }
+  try {
+    const itemQuerySnapshot = await getDocs(
+      query(collection(firestore, "items"), where("binID", "==", binID))
+    );
+    const imgRefs = itemQuerySnapshot.docs.map((doc) => {
+      return ref(storage, "/" + binID + "/" + doc.id);
+    });
+    const urls = await Promise.all(
+      imgRefs.map(async (ref) => {
+        const downloadURL = await getDownloadURL(ref);
+        return downloadURL;
+      })
+    );
+    console.log("URLs: ", urls);
+    return urls;
+  } catch (error) {
+    console.error("Problem retrieving URLs:", error);
+    return [];
+  }
 };
 
 export { firestore, storage, auth };

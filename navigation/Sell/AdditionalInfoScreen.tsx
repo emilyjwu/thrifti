@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -6,13 +6,17 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
 } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
-import { firestore, uploadImageToStorage } from "../../database";
+import {
+  firestore,
+  uploadImageToStorage,
+  AuthContext,
+} from "../../database/index";
 import { addDoc, collection } from "firebase/firestore";
 interface ExploreScreenProps {
   navigation: any;
@@ -27,6 +31,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const route = useRoute();
   const { selectedBin, listingData, imageUri } = route.params;
   const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const uid = useContext(AuthContext).userAuth.uid;
 
   const handleInputChange = (text) => {
     setInputValue(text);
@@ -40,6 +45,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
     listingData.condition = itemCondition;
     listingData.description = inputValue;
     listingData.listingName = listingName;
+    listingData.userID = uid;
     const docRef = await addDoc(collection(firestore, "items"), listingData);
     if (
       (await uploadImageToStorage(imageUri, listingData.binID, docRef.id)) ==
@@ -56,79 +62,79 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-    <View style={styles.container}>
-      <Text style={styles.title}>Optional Info</Text>
-      <View style={styles.subContainer}>
-        <Text style={styles.subTitle}>Description</Text>
-        <View style={styles.textAreaContainer}>
-          <TextInput
-            style={styles.titleArea}
-            underlineColorAndroid="transparent"
-            placeholder="Listing Name"
-            placeholderTextColor="grey"
-            numberOfLines={1}
-            multiline={false}
-            value={listingName}
-            onChangeText={handleNameChange}
-          />
+      <View style={styles.container}>
+        <Text style={styles.title}>Optional Info</Text>
+        <View style={styles.subContainer}>
+          <Text style={styles.subTitle}>Description</Text>
+          <View style={styles.textAreaContainer}>
+            <TextInput
+              style={styles.titleArea}
+              underlineColorAndroid="transparent"
+              placeholder="Listing Name"
+              placeholderTextColor="grey"
+              numberOfLines={1}
+              multiline={false}
+              value={listingName}
+              onChangeText={handleNameChange}
+            />
+          </View>
+          <View style={styles.textAreaContainer}>
+            <TextInput
+              style={styles.textArea}
+              underlineColorAndroid="transparent"
+              placeholder="Type something"
+              placeholderTextColor="grey"
+              numberOfLines={4}
+              multiline={true}
+              value={inputValue}
+              onChangeText={handleInputChange}
+            />
+          </View>
+          <View style={styles.dropDownContainer}>
+            <Text style={styles.dropDownLabelText}>Condition:</Text>
+            <SelectDropdown
+              data={conditions}
+              onSelect={(selectedItem, index) => {
+                console.log(selectedItem, index);
+                setItemCondition(selectedItem);
+              }}
+              defaultButtonText="Select Item Condition"
+              buttonTextAfterSelection={(selectedItem, index) => {
+                return selectedItem;
+              }}
+              rowTextForSelection={(item, index) => {
+                return item;
+              }}
+              dropdownStyle={{
+                backgroundColor: "#eBeBeB",
+                padding: 5,
+                marginBottom: 10,
+                borderRadius: 10,
+              }}
+              buttonStyle={{
+                backgroundColor: "#eBeBeB",
+                padding: 5,
+                marginBottom: 10,
+                borderRadius: 10,
+                alignItems: "center",
+              }}
+              buttonTextStyle={{
+                color: "#333",
+                fontSize: 14,
+                textAlign: "left",
+              }}
+            />
+          </View>
         </View>
-        <View style={styles.textAreaContainer}>
-          <TextInput
-            style={styles.textArea}
-            underlineColorAndroid="transparent"
-            placeholder="Type something"
-            placeholderTextColor="grey"
-            numberOfLines={4}
-            multiline={true}
-            value={inputValue}
-            onChangeText={handleInputChange}
-          />
-        </View>
-        <View style={styles.dropDownContainer}>
-          <Text style={styles.dropDownLabelText}>Condition:</Text>
-          <SelectDropdown
-            data={conditions}
-            onSelect={(selectedItem, index) => {
-              console.log(selectedItem, index);
-              setItemCondition(selectedItem);
-            }}
-            defaultButtonText="Select Item Condition"
-            buttonTextAfterSelection={(selectedItem, index) => {
-              return selectedItem;
-            }}
-            rowTextForSelection={(item, index) => {
-              return item;
-            }}
-            dropdownStyle={{
-              backgroundColor: "#eBeBeB",
-              padding: 5,
-              marginBottom: 10,
-              borderRadius: 10,
-            }}
-            buttonStyle={{
-              backgroundColor: "#eBeBeB",
-              padding: 5,
-              marginBottom: 10,
-              borderRadius: 10,
-              alignItems: "center",
-            }}
-            buttonTextStyle={{
-              color: "#333",
-              fontSize: 14,
-              textAlign: "left",
-            }}
-          />
-        </View>
+        <TouchableOpacity style={styles.button} onPress={onDonePress}>
+          <Text style={styles.subTitle}> Done </Text>
+        </TouchableOpacity>
+        <DoneListingModal
+          isVisible={isModalVisible}
+          onClose={closeModal}
+          selectedBin={selectedBin}
+        />
       </View>
-      <TouchableOpacity style={styles.button} onPress={onDonePress}>
-        <Text style={styles.subTitle}> Done </Text>
-      </TouchableOpacity>
-      <DoneListingModal
-        isVisible={isModalVisible}
-        onClose={closeModal}
-        selectedBin={selectedBin}
-      />
-    </View>
     </TouchableWithoutFeedback>
   );
 };
