@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 
 interface RequestsScreenProps {
@@ -7,11 +7,19 @@ interface RequestsScreenProps {
 }
 
 const RequestsScreen: React.FC<RequestsScreenProps> = ({ navigation }) => {
+  const renderItem = ({ item }: { item: any }) => (
+    <TouchableOpacity onPress={() => navigation.navigate('RequestListing')}>
+      <View style={styles.requestItem} />
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
-      <Text
-        onPress={() => navigation.navigate('Explore')}
-        style={{ fontSize: 26, fontWeight: 'bold' }}>Requests Screen</Text>
+      <FlatList
+        data={Array.from({ length: 30 }, (_, index) => index)} // Creates an array of length 30 for rendering 30 items
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+      />
     </View>
   );
 }
@@ -20,8 +28,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  requestItem: {
+    height: 100,
+    backgroundColor: '#ccc',
+    marginVertical: 5,
+    marginHorizontal: 15,
   },
 });
 
