@@ -101,7 +101,6 @@ export const fetchAllBins = async () => {
 
 export const fetchBinSize = async (binID: string) => {
   try {
-    let numItems = 0;
     const querySnapshot = await getDocs(
       query(collection(firestore, "items"), where("binID", "==", binID))
     );

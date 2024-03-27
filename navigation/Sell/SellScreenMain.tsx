@@ -16,7 +16,7 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import { useState, useContext } from "react";
 import NewBinModal from "../../components/NewBinModal";
 import IconWithBackground from "../../components/IconWithBackground";
-import { firestore, AuthContext } from "../../database";
+import { firestore, AuthContext, fetchBinSize } from "../../database/index";
 import { addDoc, getDocs, collection, query, where } from "firebase/firestore";
 
 interface SellScreenMain {
@@ -69,7 +69,9 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
     getBinNames(firestore, uid);
   }, [updatedBins]);
 
-  const addBin = () => {
+  const addBin = async () => {
+    const val = await fetchBinSize("IhkMFpC0eQhXNdiu20BO");
+    console.log(val);
     setIsModalVisible(true);
   };
 
