@@ -16,9 +16,13 @@ import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import SelectDropdown from "react-native-select-dropdown";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import IconWithBackground from "../../../components/IconWithBackground";
+import IconWithBackground from "../../components/IconWithBackground";
 import { limit, getDocs, collection, query, where } from "firebase/firestore";
+<<<<<<< HEAD:navigation/Sell/ListItemScreen.tsx
+import { firestore, AuthContext } from "../../api/index";
+=======
 import { firestore, AuthContext } from "../../../database/index";
+>>>>>>> main:navigation/screens/SellScreen/ListItemScreen.tsx
 
 interface ListItemScreenProps {
   navigation: any;

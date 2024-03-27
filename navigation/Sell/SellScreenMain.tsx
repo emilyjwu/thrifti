@@ -14,9 +14,9 @@ import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useState, useContext } from "react";
-import NewBinModal from "../../../components/NewBinModal";
-import IconWithBackground from "../../../components/IconWithBackground";
-import { firestore, AuthContext } from "../../../database";
+import NewBinModal from "../../components/NewBinModal";
+import IconWithBackground from "../../components/IconWithBackground";
+import { firestore, AuthContext } from "../../database";
 import { addDoc, getDocs, collection, query, where } from "firebase/firestore";
 
 interface SellScreenMain {

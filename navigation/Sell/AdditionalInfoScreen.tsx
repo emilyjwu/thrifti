@@ -10,9 +10,9 @@ import {
 } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import DoneListingModal from "../../../components/DoneListingModal";
+import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
-import { firestore, uploadImageToStorage } from "../../../database";
+import { firestore, uploadImageToStorage } from "../../database";
 import { addDoc, collection } from "firebase/firestore";
 interface ExploreScreenProps {
   navigation: any;

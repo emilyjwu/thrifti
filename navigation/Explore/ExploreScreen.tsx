@@ -4,6 +4,12 @@ import { FlatList, View, Text, StyleSheet, Image } from "react-native";
 import { AuthContext, storage, firestore } from "../../database/index";
 import { limit, getDocs, collection, query, where } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
+import { TouchableOpacity } from "react-native-gesture-handler";
+
+import { useNavigation } from "@react-navigation/native";
+import { sys } from "typescript";
+
+
 
 interface ExploreScreenProps {
   navigation: any;
@@ -86,14 +92,26 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         <Image key={index} style={styles.image} source={{ uri: url }} />
       ))}
       <Text
-        onPress={() => alert("This is the Explore Page")}
+        onPress={() => navigation.navigate("Listing")}
         style={{ fontSize: 26, fontWeight: "bold" }}
       >
         Explore Screen
       </Text>
+      <TouchableOpacity  onPress={() => navigation.navigate("Listing")}>
+        <Text>
+        Go to Listing!
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity  onPress={() => navigation.navigate("ExpandBin")}>
+        <Text>
+        Go to Bins!
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };
+
+// navigation.navigate("Listing")
 
 const styles = StyleSheet.create({
   container: {
