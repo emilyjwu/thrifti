@@ -3,7 +3,9 @@ import { View, TextInput, Button, StyleSheet, Text } from "react-native";
 import { auth } from "../../database/index";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
-import { AuthContext } from "../../database/index";
+import { addDoc, collection } from "firebase/firestore";
+import { refFromURL } from "firebase/storage";
+import { firestore, storage, firebaseApp } from "../../database/index";
 
 interface LoginScreenProps {
   onSignUp: () => void;
@@ -12,10 +14,15 @@ interface LoginScreenProps {
 const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        addDoc(collection(firestore, "users"), {
+          userName: username,
+          userID: userCredential.user.uid,
+        });
         onSignUp();
       })
       .catch((error) => {
@@ -37,6 +44,12 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
       <TextInput
         style={styles.input}
         placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="E-Mail"
         value={email}
         onChangeText={setEmail}
       />
