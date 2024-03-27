@@ -8,6 +8,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { useNavigation } from "@react-navigation/native";
 import { sys } from "typescript";
+import MixedFeed from "../../components/MixedFeed";
 
 
 
