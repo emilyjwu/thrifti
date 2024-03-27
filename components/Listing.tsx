@@ -10,6 +10,8 @@ interface ListingProps {
 
 const Listing: React.FC<ListingProps> = ({ navigation }) => {
   const [liked, setLiked] = useState(false);
+  const labels = ['Denim', 'Blue', 'Outerwear'];
+
 
     return (
       <View style={styles.container}>
@@ -30,7 +32,20 @@ const Listing: React.FC<ListingProps> = ({ navigation }) => {
           <View style={styles.listingDescription}>
             <Text>Lightly worn but still in good condition! Fits size small.</Text>
           </View>
+          <View style={styles.horizontalBox}>
+              <Text style={styles.subtitle}>Condition:</Text>
+            <View style={styles.listingCondition}>
+              <Text>Like New</Text>
+            </View>
+          </View>
           <Text style={styles.subtitle}>Tags</Text>
+          <View style={styles.labelsContainer}>
+            {labels.map((label, index) => (
+              <View key={index} style={styles.labelPill}>
+                <Text style={styles.labelText}>{label}</Text>
+              </View>
+            ))}
+          </View>
         </ScrollView>
         <View style={styles.bottomBar}>
           <Text style={styles.title}>$15</Text>
@@ -54,7 +69,7 @@ const styles = StyleSheet.create({
   horizontalBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    // backgroundColor: 'pink',
   },
   profilePhoto: {
     width: 50,
@@ -71,14 +86,17 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
   },
   square: {
+    marginTop: 10,
+    marginBottom: 10,
     flex: 1,
     backgroundColor: 'lightblue',
     borderRadius: 20,
   },
+  titleContainer: {
+    justifyContent: 'center',
+  },
   title: {
-    marginTop: 10,
     marginRight: 5,
-    marginBottom: 5,
     fontSize: 25,
     fontWeight: 'bold',
   },
@@ -86,16 +104,44 @@ const styles = StyleSheet.create({
     backgroundColor: '#eBeBeB',
     padding: 10,
     borderRadius: 10,
+    alignItems: "center",
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  listingCondition: {
+    backgroundColor: '#eBeBeB',
+    padding: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+    marginLeft: 5,
   },
   subtitle: {
     marginTop: 10,
     fontSize: 20,
     fontWeight: 'bold',
   },
+  labelsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    width: "100%",
+  },
+  labelPill: {
+    backgroundColor: "lightslategrey",
+    borderRadius: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    margin: 5,
+  },
+  labelText: {
+    fontSize: 16,
+    color: "white",
+  },
   bottomBar: {
     padding: 20,
     height: 100, 
-    backgroundColor: 'lightblue', 
+    backgroundColor: '#778899', 
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',
