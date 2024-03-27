@@ -5,14 +5,21 @@ import { getDocs, collection, query, where } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
-import { getFirestore } from "firebase/firestore";
+import {
+  getFirestore,
+  updateDoc,
+  addDoc,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import {
   getStorage,
   ref,
   uploadBytesResumable,
   getDownloadURL,
+  StringFormat,
 } from "firebase/storage";
-import { User, getAuth } from "firebase/auth";
+import { User } from "firebase/auth";
 import { createContext } from "react";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -37,21 +44,35 @@ const storage = getStorage(firebaseApp);
 const auth = initializeAuth(firebaseApp, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
+
 export const uploadImageToStorage = async (
   imageUri: string,
-  binID: string,
-  listingName: string
+  listingData: any
 ) => {
   try {
+    const docRef = await addDoc(collection(firestore, "items"), listingData);
     const response = await fetch(imageUri);
     const blob = await response.blob();
-    const imageName = listingName; // Set a unique name for your image
-    const storageRef = ref(storage, `${binID}/${imageName}`);
-    await uploadBytesResumable(storageRef, blob);
+    const imageName = listingData.itemID;
+    const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);
+    updateDoc(docRef, {
+      imgRef: "/" + listingData.binID + "/" + docRef.id,
+    });
+    const metadata = {
+      contentType: blob.type,
+      customMetadata: {
+        binID: listingData.binID,
+        itemID: listingData.itemID,
+        userID: auth.currentUser.uid,
+        timestamp: new Date().toString(), // Custom metadata field (e.g., timestamp)
+        // Add more custom metadata fields as needed
+      },
+    };
+    await uploadBytesResumable(storageRef, blob, metadata);
     console.log("Image uploaded successfully");
     return 200;
-  } catch {
-    console.log("Issue storing image in FBS");
+  } catch (error) {
+    console.log("Issue storing image in FBS: ", error);
     return 400;
   }
 };
@@ -99,6 +120,32 @@ export const fetchAllBins = async () => {
   }
 };
 
+export const fetchBinItems = async (binID: string) => {
+  try {
+    const querySnapshot = await getDocs(
+      query(collection(firestore, "items"), where("binID", "==", binID))
+    );
+    return querySnapshot.docs.map((doc) => {
+      return doc.id;
+    });
+  } catch (error) {
+    console.log("Issue getting bin items: ", error);
+    return [];
+  }
+};
+
+export const fetchImageRefFromItem = async (itemID: string) => {
+  try {
+    const docRef = doc(firestore, "items", itemID);
+    const docSnap = await getDoc(docRef);
+    return docSnap.data().imgRef;
+    return;
+  } catch (error) {
+    console.log("Issue getting bin items: ", error);
+    return "";
+  }
+};
+
 export const fetchBinSize = async (binID: string) => {
   try {
     const querySnapshot = await getDocs(
@@ -121,7 +168,8 @@ export const fetchURLs = async (binID: string) => {
       query(collection(firestore, "items"), where("binID", "==", binID))
     );
     const imgRefs = itemQuerySnapshot.docs.map((doc) => {
-      return ref(storage, "/" + binID + "/" + doc.id);
+      const imgRef = ref(storage, "/" + binID + "/" + doc.id);
+      return imgRef;
     });
     const urls = await Promise.all(
       imgRefs.map(async (ref) => {
@@ -137,4 +185,4 @@ export const fetchURLs = async (binID: string) => {
   }
 };
 
-export { firestore, storage, auth };
+export { firestore, firebaseApp, storage, auth };

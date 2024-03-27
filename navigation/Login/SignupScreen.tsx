@@ -4,7 +4,8 @@ import { auth } from "../../database/index";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
 import { addDoc, collection } from "firebase/firestore";
-import { AuthContext, firestore } from "../../database/index";
+import { refFromURL } from "firebase/storage";
+import { firestore, storage, firebaseApp } from "../../database/index";
 
 interface LoginScreenProps {
   onSignUp: () => void;

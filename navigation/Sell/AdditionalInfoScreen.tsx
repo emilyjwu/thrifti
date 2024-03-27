@@ -46,11 +46,8 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
     listingData.description = inputValue;
     listingData.listingName = listingName;
     listingData.userID = uid;
-    const docRef = await addDoc(collection(firestore, "items"), listingData);
-    if (
-      (await uploadImageToStorage(imageUri, listingData.binID, docRef.id)) ==
-      400
-    ) {
+    if ((await uploadImageToStorage(imageUri, listingData)) == 400) {
+      console.log("Unable to store image.");
       return;
     }
     setIsModalVisible(true);
