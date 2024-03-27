@@ -1,30 +1,25 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  TextInput,
-  ScrollView,
-  Dimensions,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import axios from "axios";
-import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import SelectDropdown from "react-native-select-dropdown";
-import EntypoIcon from "react-native-vector-icons/Entypo";
-import IconWithBackground from "../components/IconWithBackground";
-import { limit, getDocs, collection, query, where } from "firebase/firestore";
+import React, { useState } from "react";
+import { getDocs, collection, query, where } from "firebase/firestore";
 
 // FIREBASE IN QUARANTINE UNTIL IT WORKS
 import { initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
-import { getFirestore } from "firebase/firestore";
-import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
-import { User, getAuth } from "firebase/auth";
+import {
+  getFirestore,
+  updateDoc,
+  addDoc,
+  doc,
+  getDoc,
+} from "firebase/firestore";
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  StringFormat,
+} from "firebase/storage";
+import { User } from "firebase/auth";
 import { createContext } from "react";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -49,21 +44,35 @@ const storage = getStorage(firebaseApp);
 const auth = initializeAuth(firebaseApp, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
+
 export const uploadImageToStorage = async (
   imageUri: string,
-  binID: string,
-  listingName: string
+  listingData: any
 ) => {
   try {
+    const docRef = await addDoc(collection(firestore, "items"), listingData);
     const response = await fetch(imageUri);
     const blob = await response.blob();
-    const imageName = listingName; // Set a unique name for your image
-    const storageRef = ref(storage, `${binID}/${imageName}`);
-    await uploadBytesResumable(storageRef, blob);
+    const imageName = listingData.itemID;
+    const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);
+    updateDoc(docRef, {
+      imgRef: "/" + listingData.binID + "/" + docRef.id,
+    });
+    const metadata = {
+      contentType: blob.type,
+      customMetadata: {
+        binID: listingData.binID,
+        itemID: listingData.itemID,
+        userID: auth.currentUser.uid,
+        timestamp: new Date().toString(), // Custom metadata field (e.g., timestamp)
+        // Add more custom metadata fields as needed
+      },
+    };
+    await uploadBytesResumable(storageRef, blob, metadata);
     console.log("Image uploaded successfully");
     return 200;
-  } catch {
-    console.log("Issue storing image in FBS");
+  } catch (error) {
+    console.log("Issue storing image in FBS: ", error);
     return 400;
   }
 };
@@ -84,4 +93,96 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export { firestore, storage, auth };
+// retrives the ID of all of a user's bins as a [] of binIDs
+export const fetchUserBins = async (userID: string) => {
+  try {
+    const binQuerySnapshot = await getDocs(
+      query(collection(firestore, "bins"), where("userID", "==", userID))
+    );
+    const binIDs = binQuerySnapshot.docs.map((doc) => doc.id);
+    console.log("Bins: ", binIDs);
+    return binIDs;
+  } catch (error) {
+    console.error("Error retrieving data:", error);
+    return [];
+  }
+};
+
+// retrives the ID of all bin in the DB as a [] of binIDs
+export const fetchAllBins = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(firestore, "bins"));
+    const ids = querySnapshot.docs.map((doc) => doc.id);
+    return ids;
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+    return [];
+  }
+};
+
+export const fetchBinItems = async (binID: string) => {
+  try {
+    const querySnapshot = await getDocs(
+      query(collection(firestore, "items"), where("binID", "==", binID))
+    );
+    return querySnapshot.docs.map((doc) => {
+      return doc.id;
+    });
+  } catch (error) {
+    console.log("Issue getting bin items: ", error);
+    return [];
+  }
+};
+
+export const fetchImageRefFromItem = async (itemID: string) => {
+  try {
+    const docRef = doc(firestore, "items", itemID);
+    const docSnap = await getDoc(docRef);
+    return docSnap.data().imgRef;
+    return;
+  } catch (error) {
+    console.log("Issue getting bin items: ", error);
+    return "";
+  }
+};
+
+export const fetchBinSize = async (binID: string) => {
+  try {
+    const querySnapshot = await getDocs(
+      query(collection(firestore, "items"), where("binID", "==", binID))
+    );
+    return querySnapshot.size;
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+    return 0;
+  }
+};
+
+// accesses items for a given bin and returns the image URLs as a [] of URLs
+export const fetchURLs = async (binID: string) => {
+  if (!binID) {
+    return [];
+  }
+  try {
+    const itemQuerySnapshot = await getDocs(
+      query(collection(firestore, "items"), where("binID", "==", binID))
+    );
+    const imgRefs = itemQuerySnapshot.docs.map((doc) => {
+      const imgRef = ref(storage, "/" + binID + "/" + doc.id);
+      return imgRef;
+    });
+    const urls = await Promise.all(
+      imgRefs.map(async (ref) => {
+        const downloadURL = await getDownloadURL(ref);
+        return downloadURL;
+      })
+    );
+    console.log("URLs: ", urls);
+    return urls;
+  } catch (error) {
+    console.error("Problem retrieving URLs:", error);
+    return [];
+  }
+};
+
+export { firestore, firebaseApp, storage, auth };
