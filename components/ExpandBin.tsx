@@ -34,26 +34,37 @@ const ExpandBin: React.FC<ExpandBinProps> = ({ navigation }) => {
   const data = Array.from(Array(100).keys());
 
   return (
-    <FlatList
-      data={data}
-      renderItem={renderListing}
-      keyExtractor={(item, index) => index.toString()}
-      numColumns={2}
-
-    />
+    <View style={styles.container}>
+      <View style={styles.topBar}>
+        <Text style={styles.title}>Bin Name</Text>
+      </View>
+      <FlatList
+        data={data}
+        renderItem={renderListing}
+        keyExtractor={(item, index) => index.toString()}
+        numColumns={2}
+      />
+    </View>
   );
 };
 
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    backgroundColor: '#fff',
+  },
+  topBar: {
+    justifyContent: 'center',
+    padding: 10,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    padding: 5,
-    paddingBottom: 200,
+    alignItems: 'center',
+  },
+  title: {
+    marginTop: 10,
+    marginRight: 5,
+    marginBottom: 5,
+    fontSize: 25,
+    fontWeight: 'bold',
   },
   flatList: {
     paddingLeft: 15,
