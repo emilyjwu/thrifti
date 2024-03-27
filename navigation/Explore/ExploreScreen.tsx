@@ -7,6 +7,8 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { useNavigation } from "@react-navigation/native";
 import { sys } from "typescript";
+import FilteredFeed from '../../components/FilteredFeed';
+import { ScrollView } from 'react-native';
 import MixedFeed from "../../components/MixedFeed";
 
 interface ExploreScreenProps {
@@ -54,11 +56,10 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
       <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
         <Text>Go to Bins!</Text>
       </TouchableOpacity>
-    </View>
+       </View>
   );
 };
 
-// navigation.navigate("Listing")
 
 const styles = StyleSheet.create({
   container: {
