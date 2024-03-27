@@ -37,7 +37,7 @@ const Stack = createStackNavigator();
 const ExploreStack = ({ navigation }) => (
   <Stack.Navigator>
     <Stack.Screen
-      name="Explore"
+      name="ExploreFeed"
       component={ExploreScreen}
       options={{ headerShown: false }}
     />
