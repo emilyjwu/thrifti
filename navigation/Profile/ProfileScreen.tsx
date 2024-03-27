@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
+import ListingScroll from '../../components/ListingScroll';
+import { ScrollView } from 'react-native';
 
 
 interface ProfileScreenProps {
