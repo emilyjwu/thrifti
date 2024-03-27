@@ -2,7 +2,7 @@ import * as React from "react";
 import MainContainer from "./navigation/MainContainer";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { AuthProvider } from "./api/index";
+import { AuthProvider } from "./database/index";
 
 const App: React.FC = () => {
   return (

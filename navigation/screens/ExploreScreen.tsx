@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useEffect, useState, useContext } from "react";
 import { FlatList, View, Text, StyleSheet, Image } from "react-native";
-import { AuthContext, storage, firestore } from "../../api/index";
+import { AuthContext, storage, firestore } from "../../database/index";
 import { limit, getDocs, collection, query, where } from "firebase/firestore";
 import { ref, getDownloadURL } from "firebase/storage";
 
