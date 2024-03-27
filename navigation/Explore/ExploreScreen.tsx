@@ -86,6 +86,8 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
     the();
   }, []);
 
+  
+
   return (
     <View style={styles.container}>
       {imgURLs.map((url, index) => (
