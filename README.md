@@ -6,5 +6,5 @@ To run this app locally, follow these steps:
    If you are a Mac user and this errors, try `sudo npm install` instead.
 4. Install the Expo Go app from the App Store or Google Play
 5. Start the development server <br/>
-   `npx expo start` <br/>
-   Scan the QR code in terminal to run the app directly on your phone! 
+   `npx expo start --go` <br/>
+   Scan the QR code in terminal to run the app directly on your phone!
