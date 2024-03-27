@@ -99,6 +99,19 @@ export const fetchAllBins = async () => {
   }
 };
 
+export const fetchBinSize = async (binID: string) => {
+  try {
+    let numItems = 0;
+    const querySnapshot = await getDocs(
+      query(collection(firestore, "items"), where("binID", "==", binID))
+    );
+    return querySnapshot.size;
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+    return 0;
+  }
+};
+
 // accesses items for a given bin and returns the image URLs as a [] of URLs
 export const fetchURLs = async (binID: string) => {
   if (!binID) {
