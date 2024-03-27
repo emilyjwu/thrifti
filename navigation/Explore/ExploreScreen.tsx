@@ -10,6 +10,7 @@ import { useNavigation } from "@react-navigation/native";
 import { sys } from "typescript";
 import FilteredFeed from '../../components/FilteredFeed';
 import { ScrollView } from 'react-native';
+import MixedFeed from "../../components/MixedFeed";
 
 
 
