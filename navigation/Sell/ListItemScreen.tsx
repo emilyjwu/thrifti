@@ -18,11 +18,7 @@ import SelectDropdown from "react-native-select-dropdown";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import IconWithBackground from "../../components/IconWithBackground";
 import { limit, getDocs, collection, query, where } from "firebase/firestore";
-<<<<<<< HEAD:navigation/Sell/ListItemScreen.tsx
-import { firestore, AuthContext } from "../../api/index";
-=======
-import { firestore, AuthContext } from "../../../database/index";
->>>>>>> main:navigation/screens/SellScreen/ListItemScreen.tsx
+import { firestore, AuthContext } from "../../database/index";
 
 interface ListItemScreenProps {
   navigation: any;
