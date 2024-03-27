@@ -11,8 +11,8 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("a@a.com");
+  const [password, setPassword] = useState("aaaaaa");
   const { setAuthAfterLogin } = useContext(AuthContext);
 
   const handleLogin = () => {

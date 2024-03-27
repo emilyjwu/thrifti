@@ -27,17 +27,13 @@ const profileName = "Profile";
 const loginName = "LoginScreen";
 const signupName = "SignupScreen";
 
-// //Explore Screen Names
-// const listComponent = "List";
-// const expandBinComponent = "ExpandBin"
-
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
 const ExploreStack = ({ navigation }) => (
   <Stack.Navigator>
     <Stack.Screen
-      name="Explore"
+      name="ExploreFeed"
       component={ExploreScreen}
       options={{ headerShown: false }}
     />
