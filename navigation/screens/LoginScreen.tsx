@@ -1,9 +1,9 @@
 import React, { useState, useContext } from "react";
 import { View, TextInput, Button, StyleSheet, Text } from "react-native";
-import { auth } from "../../api/index";
+import { auth } from "../../database/index";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
-import { AuthContext } from "../../api/index";
+import { AuthContext } from "../../database/index";
 
 interface LoginScreenProps {
   onLogin: () => void;

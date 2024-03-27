@@ -5,12 +5,14 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard
 } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import DoneListingModal from "../../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
-import { firestore, uploadImageToStorage } from "../../../api";
+import { firestore, uploadImageToStorage } from "../../../database";
 import { addDoc, collection } from "firebase/firestore";
 interface ExploreScreenProps {
   navigation: any;
@@ -53,6 +55,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
     <View style={styles.container}>
       <Text style={styles.title}>Optional Info</Text>
       <View style={styles.subContainer}>
@@ -126,6 +129,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         selectedBin={selectedBin}
       />
     </View>
+    </TouchableWithoutFeedback>
   );
 };
 
