@@ -11,6 +11,7 @@ import ListItemScreen from "./Sell/ListItemScreen";
 import SellScreen from "./Sell/SellScreenMain";
 import MessageScreen from "./Messaging/MessageScreen";
 import RequestsScreen from "./Requests/RequestsScreen";
+import RequestListing from "./Requests/RequestListing";
 import ProfileScreen from "./Profile/ProfileScreen";
 import AdditionalInformationScreen from "./Sell/AdditionalInfoScreen";
 import LoginScreen from "./Login/LoginScreen";
@@ -50,7 +51,21 @@ const ExploreStack = ({ navigation }) => (
   </Stack.Navigator>
 );
 
-
+const RequestStack = ({ navigation }) => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="RequestFeed"
+      component={RequestsScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="RequestListing"
+      component={RequestListing}
+      options={{ headerShown: false }}
+    />
+    
+  </Stack.Navigator>
+);
 
 const SellStack = ({ navigation }) => (
   <Stack.Navigator>
@@ -126,10 +141,9 @@ const MainContainer: React.FC = () => {
             tabBarLabelStyle: { fontSize: 10, paddingBottom: 10 },
           })}
         >
-          <Tab.Screen name={requestName} component={RequestsScreen} />
+          <Tab.Screen name="Request" component={RequestStack} />
           <Tab.Screen name="Sell" component={SellStack} />
           <Tab.Screen name="Explore" component={ExploreStack} />
-          {/* <Tab.Screen name={exploreName} component={ExploreScreen} /> */}
           <Tab.Screen name={messageName} component={MessageScreen} />
           <Tab.Screen name={profileName} component={ProfileScreen} />
         </Tab.Navigator>
