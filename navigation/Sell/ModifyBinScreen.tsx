@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
-import Bins from "../../../components/Bins";
+import Bins from "../../components/DynamicAdd";
 
 interface SellScreenProps {
   navigation: NavigationProp<any>;

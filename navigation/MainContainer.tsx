@@ -6,15 +6,17 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { createStackNavigator } from "@react-navigation/stack";
 
 // Screens
-import ExploreScreen from "./screens/ExploreScreen";
-import ListItemScreen from "./screens/SellScreen/ListItemScreen";
-import SellScreen from "./screens/SellScreen/SellScreenMain";
-import MessageScreen from "./screens/MessageScreen";
-import RequestsScreen from "./screens/RequestsScreen";
-import ProfileScreen from "./screens/ProfileScreen";
-import AdditionalInformationScreen from "./screens/SellScreen/AdditionalInfoScreen";
-import LoginScreen from "./screens/LoginScreen";
-import SignupScreen from "./screens/SignupScreen";
+import ExploreScreen from "./Explore/ExploreScreen";
+import ListItemScreen from "./Sell/ListItemScreen";
+import SellScreen from "./Sell/SellScreenMain";
+import MessageScreen from "./Messaging/MessageScreen";
+import RequestsScreen from "./Requests/RequestsScreen";
+import ProfileScreen from "./Profile/ProfileScreen";
+import AdditionalInformationScreen from "./Sell/AdditionalInfoScreen";
+import LoginScreen from "./Login/LoginScreen";
+import SignupScreen from "./Login/SignupScreen";
+import Listing from "../components/Listing";
+import ExpandBin from "../components/ExpandBin";
 
 // Screen names
 const exploreName = "Explore";
@@ -25,8 +27,34 @@ const profileName = "Profile";
 const loginName = "LoginScreen";
 const signupName = "SignupScreen";
 
+// //Explore Screen Names
+// const listComponent = "List";
+// const expandBinComponent = "ExpandBin"
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
+
+const ExploreStack = ({ navigation }) => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="Explore"
+      component={ExploreScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="Listing"
+      component={Listing}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="ExpandBin"
+      component={ExpandBin}
+      options={{ headerShown: false }}
+    />
+  </Stack.Navigator>
+);
+
+
 
 const SellStack = ({ navigation }) => (
   <Stack.Navigator>
@@ -104,7 +132,8 @@ const MainContainer: React.FC = () => {
         >
           <Tab.Screen name={requestName} component={RequestsScreen} />
           <Tab.Screen name="Sell" component={SellStack} />
-          <Tab.Screen name={exploreName} component={ExploreScreen} />
+          <Tab.Screen name="Explore" component={ExploreStack} />
+          {/* <Tab.Screen name={exploreName} component={ExploreScreen} /> */}
           <Tab.Screen name={messageName} component={MessageScreen} />
           <Tab.Screen name={profileName} component={ProfileScreen} />
         </Tab.Navigator>

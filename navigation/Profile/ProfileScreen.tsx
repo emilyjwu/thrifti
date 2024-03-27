@@ -2,8 +2,9 @@ import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 
+
 interface ProfileScreenProps {
-  navigation: NavigationProp<any>; 
+  navigation: NavigationProp<any>;
 }
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
