@@ -17,8 +17,9 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [bins, setBins] = useState([]);
 
   return (
-    <View style={styles.container}>
-    </View>
+    // <View style={styles.container}>
+    // </View>
+    <FilteredFeed navigation={navigation} />
     );
   };
 

@@ -19,6 +19,7 @@ import SignupScreen from "./Login/SignupScreen";
 import Listing from "../components/Listing";
 import ExpandBin from "../components/ExpandBin";
 import ListingScroll from "../components/ListingScroll";
+import FilteredFeed from "../components/FilteredFeed";
 
 // Screen names
 const exploreName = "Explore";
@@ -37,6 +38,11 @@ const ExploreStack = ({ navigation }) => (
     <Stack.Screen
       name="ExploreFeed"
       component={ExploreScreen}
+      options={{ headerShown: false }}
+    />
+     <Stack.Screen
+      name="FilteredFeed"
+      component={FilteredFeed}
       options={{ headerShown: false }}
     />
     <Stack.Screen
