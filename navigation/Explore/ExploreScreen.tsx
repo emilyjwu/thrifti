@@ -10,6 +10,8 @@ import { sys } from "typescript";
 import FilteredFeed from '../../components/FilteredFeed';
 import { ScrollView } from 'react-native';
 import MixedFeed from "../../components/MixedFeed";
+import { fetchAllBins } from "../../database/index";
+
 
 interface ExploreScreenProps {
   navigation: any;
@@ -18,6 +20,8 @@ interface ExploreScreenProps {
 const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [imgURLs, setImgURLs] = useState([]);
   const uid = useContext(AuthContext).userAuth.uid;
+  const [bins, setBins] = useState([]);
+
 
   useEffect(() => {
     const the = async () => {
@@ -39,26 +43,37 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
     the();
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const binsData = await fetchAllBins();
+      setBins(binsData);
+    };
+
+    fetchData();
+  }, []);
+
+
   return (
     <View style={styles.container}>
-      {imgURLs.map((url, index) => (
-        <Image key={index} style={styles.image} source={{ uri: url }} />
-      ))}
-      <Text
-        onPress={() => navigation.navigate("Listing")}
-        style={{ fontSize: 26, fontWeight: "bold" }}
-      >
-        Explore Screen
-      </Text>
-      <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
-        <Text>Go to Listing!</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
-        <Text>Go to Bins!</Text>
-      </TouchableOpacity>
-       </View>
-  );
-};
+    {imgURLs.map((url, index) => (
+      <Image key={index} style={styles.image} source={{ uri: url }} />
+    ))}
+    <Text
+      onPress={() => navigation.navigate("Listing")}
+      style={{ fontSize: 26, fontWeight: "bold" }}
+    >
+      Explore Screen
+    </Text>
+    <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
+      <Text>Go to Listing!</Text>
+    </TouchableOpacity>
+    <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
+      <Text>Go to Bins!</Text>
+    </TouchableOpacity>
+     </View>
+    );
+  };
+
 
 
 const styles = StyleSheet.create({

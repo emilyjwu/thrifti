@@ -7,15 +7,17 @@ import { useNavigation, NavigationProp} from "@react-navigation/native";
 import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { fetchAllBins } from "../database/index";
 
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Button } from 'react-native';
 interface FilteredFeedProps {
     navigation: NavigationProp<any>;
-  }
+    bins: [];
+}
 
-const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) =>  {
+const FilteredFeed: React.FC<FilteredFeedProps> = ({navigation, bins }) =>  {
     //need the bin name and images in the bin
-    const renderBinItem = ({binData}) => {
+    const renderBinItem = (bin: string, index: number) => {
     return (
     <View style={styles.itemContainer} >
         <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
@@ -33,10 +35,19 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) =>  {
     );
   };
 
-  const data = Array.from(Array(100).keys());
+  // const data = Array.from(Array(100).keys());
+  const data = bins;
 
   return (
-    <View style={{ flex: 1 }}>
+  <View style={{ flex: 1 }}>
+  <View style={styles.titleContainer}>
+      <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
+        <Text style={styles.title}>Bin Name</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("Message")} style={styles.message}>
+            <MaterialCommunityIcon name="message" size={30} color="#75D7FF" />
+        </TouchableOpacity>
+      </View>
   <View style={{ flexDirection: 'row', backgroundColor: 'white', padding: 10 }}>
     <TouchableOpacity onPress={() => navigation.navigate("ListingScroll")}
       style={styles.button}>
@@ -54,22 +65,13 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) =>  {
   <View style={{ flexDirection: 'row', alignItems: 'flex-start', paddingLeft: 10 }}>
   <ScrollView>
   <View style={styles.container}>
-    <View style={styles.titleContainer}>
-      <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
-        <Text style={styles.title}>Bin Name</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate("Message")} style={styles.message}>
-            <MaterialCommunityIcon name="message" size={30} color="#75D7FF" />
-        </TouchableOpacity>
-      </View>
       <FlatList
         horizontal
-        data={data}
+        data={bins}
         renderItem={renderBinItem}
         keyExtractor={(item, index) => index.toString()}
       />
     </View>
-
     </ScrollView>
   </View>
 </View>
