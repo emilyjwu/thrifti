@@ -1,24 +1,26 @@
-import { doc, getDoc } from 'firebase/firestore';
-import React, { useState } from 'react'
-import { Text, View, ScrollView, StyleSheet, Image} from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import EntypoIcon from 'react-native-vector-icons/Entypo';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { firestore } from '../database';
+import { doc, getDoc } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import { Text, View, ScrollView, StyleSheet, Image } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import EntypoIcon from "react-native-vector-icons/Entypo";
+import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
+import { firestore } from "../database";
+import { usePostHog } from "posthog-react-native";
 
 interface ListingProps {
   navigation: any;
   route: any;
 }
 
-const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
+const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
   const [liked, setLiked] = useState(false);
-  const labels = ['Denim', 'Blue', 'Outerwear'];
-  const { imageUri, binItemInfo} = route.params;
-  console.log()
-  console.log("inListing")
-  console.log(binItemInfo)
-  console.log()
+  const labels = ["Denim", "Blue", "Outerwear"];
+  const { imageUri, binItemInfo } = route.params;
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    posthog.capture("FOUND_LISTING");
+  }, []);
 
   // const fetchData = async () => {
   //   try {
@@ -32,60 +34,63 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
 
   // Call the async function
 
-
   // const name = (await getDoc(doc(firestore, "items", binItem))).data().listingName;
 
-    return (
-      <View style={styles.container}>
-        <ScrollView style={styles.scrollContainer}>
-          <View style={styles.horizontalBox}>
-            <View style={styles.profilePhoto}/>
-            <Text style={styles.profileName}>@janeDoe</Text>
-          </View>
-          <View style={styles.imageContainer}>
-            <Image
-            style={styles.square}
-            source={{ uri: imageUri }}
-            />
-          </View>
-          <View style={styles.horizontalBox}>
+  return (
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollContainer}>
+        <View style={styles.horizontalBox}>
+          <View style={styles.profilePhoto} />
+          <Text style={styles.profileName}>@janeDoe</Text>
+        </View>
+        <View style={styles.imageContainer}>
+          <Image style={styles.square} source={{ uri: imageUri }} />
+        </View>
+        <View style={styles.horizontalBox}>
           {binItemInfo.listingName !== "" ? (
-          <Text style={styles.title}>{binItemInfo.listingName}</Text>
+            <Text style={styles.title}>{binItemInfo.listingName}</Text>
           ) : null}
-            <TouchableOpacity onPress={() => {setLiked(!liked)}}>
-              <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
-            </TouchableOpacity>
-          </View>
-          {binItemInfo.description !== "" ? (
-          <View style={styles.listingDescription}>
-          <Text>{binItemInfo.description}</Text>
-          </View>
-          ) : null}
-          <View style={styles.horizontalBox}>
-              <Text style={styles.subtitle}>{binItemInfo.condition}</Text>
-            <View style={styles.listingCondition}>
-              <Text>Like New</Text>
-            </View>
-          </View>
-          <Text style={styles.subtitle}>Tags</Text>
-          <View style={styles.labelsContainer}>
-            {labels.map((label, index) => (
-              <View key={index} style={styles.labelPill}>
-                <Text style={styles.labelText}>{label}</Text>
-              </View>
-            ))}
-          </View>
-        </ScrollView>
-        <View style={styles.bottomBar}>
-          <Text style={styles.title}>${binItemInfo.price}</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Message")}>
-            <MaterialCommunityIcon name="message" size={65} color="white" />
+          <TouchableOpacity
+            onPress={() => {
+              setLiked(!liked);
+            }}
+          >
+            <EntypoIcon
+              name={liked ? "heart" : "heart-outlined"}
+              size={25}
+              color={liked ? "red" : "black"}
+            />
           </TouchableOpacity>
         </View>
+        {binItemInfo.description !== "" ? (
+          <View style={styles.listingDescription}>
+            <Text>{binItemInfo.description}</Text>
+          </View>
+        ) : null}
+        <View style={styles.horizontalBox}>
+          <Text style={styles.subtitle}>{binItemInfo.condition}</Text>
+          <View style={styles.listingCondition}>
+            <Text>Like New</Text>
+          </View>
+        </View>
+        <Text style={styles.subtitle}>Tags</Text>
+        <View style={styles.labelsContainer}>
+          {labels.map((label, index) => (
+            <View key={index} style={styles.labelPill}>
+              <Text style={styles.labelText}>{label}</Text>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
+      <View style={styles.bottomBar}>
+        <Text style={styles.title}>${binItemInfo.price}</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Message")}>
+          <MaterialCommunityIcon name="message" size={65} color="white" />
+        </TouchableOpacity>
       </View>
-    )
-  }
-
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -96,22 +101,22 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   horizontalBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     // backgroundColor: 'pink',
   },
   profilePhoto: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: 'lightblue',
+    backgroundColor: "lightblue",
     marginRight: 5,
   },
   profileName: {
     fontSize: 16,
   },
   imageContainer: {
-    position: 'relative',
+    position: "relative",
     aspectRatio: 1,
   },
   square: {
@@ -121,15 +126,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   titleContainer: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   title: {
     marginRight: 5,
     fontSize: 25,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   listingDescription: {
-    backgroundColor: '#eBeBeB',
+    backgroundColor: "#eBeBeB",
     padding: 10,
     borderRadius: 10,
     alignItems: "center",
@@ -137,7 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   listingCondition: {
-    backgroundColor: '#eBeBeB',
+    backgroundColor: "#eBeBeB",
     padding: 10,
     borderRadius: 10,
     alignItems: "center",
@@ -147,7 +152,7 @@ const styles = StyleSheet.create({
   subtitle: {
     marginTop: 10,
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   labelsContainer: {
     flexDirection: "row",
@@ -169,12 +174,11 @@ const styles = StyleSheet.create({
   bottomBar: {
     padding: 20,
     height: 100,
-    backgroundColor: '#778899',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "#778899",
+    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
   },
 });
 
 export default Listing;
-

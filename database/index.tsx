@@ -238,3 +238,15 @@ export const fetchBinItemsInfo = async (
 };
 
 export { firestore, firebaseApp, storage, auth };
+
+// posthog
+import PostHog from "posthog-react-native";
+
+export const posthog = new PostHog(
+  "phc_aXULs8cpOn5cz6RR3ASO0PhAWgX0gNEz0euQSMDX2vn",
+  {
+    // usually 'https://app.posthog.com' or 'https://eu.posthog.com'
+
+    host: "https://us.posthog.com",
+  }
+);

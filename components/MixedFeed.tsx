@@ -1,30 +1,41 @@
-import React from 'react';
-import { View, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect } from "react";
+import {
+  View,
+  FlatList,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { usePostHog } from "posthog-react-native";
 
 const ListingSquare = ({ marginBottom = false }) => {
-    const navigation = useNavigation();
-  
-    return (
-      <TouchableOpacity onPress={() => navigation.navigate('Listing')}>
-        <View style={[styles.listingSquare, marginBottom && { marginBottom: 5 }]} />
-      </TouchableOpacity>
-    );
+  const navigation = useNavigation();
+
+  return (
+    <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
+      <View
+        style={[styles.listingSquare, marginBottom && { marginBottom: 5 }]}
+      />
+    </TouchableOpacity>
+  );
 };
 
 const BinSquare = ({ marginLeft = false, marginRight = false }) => {
-    const navigation = useNavigation();
-  
-    return (
-      <TouchableOpacity onPress={() => navigation.navigate('ExpandBin')}>
-        <View style={[
+  const navigation = useNavigation();
+
+  return (
+    <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
+      <View
+        style={[
           styles.binSquare,
           marginLeft && { marginLeft: 5 },
-          marginRight && { marginRight: 5 }
-        ]} />
-      </TouchableOpacity>
-    );
-  };
+          marginRight && { marginRight: 5 },
+        ]}
+      />
+    </TouchableOpacity>
+  );
+};
 
 const Type1Component = ({ item }) => (
   <View style={styles.type1}>
@@ -37,18 +48,18 @@ const Type1Component = ({ item }) => (
 const Type2Component = ({ item }) => (
   <View style={styles.type2}>
     <BinSquare marginRight />
-    <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
-        <ListingSquare marginBottom/>
-        <ListingSquare />
+    <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
+      <ListingSquare marginBottom />
+      <ListingSquare />
     </View>
   </View>
 );
 
 const Type3Component = ({ item }) => (
   <View style={styles.type2}>
-    <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
-        <ListingSquare marginBottom/>
-        <ListingSquare />
+    <View style={{ flexDirection: "column", justifyContent: "space-between" }}>
+      <ListingSquare marginBottom />
+      <ListingSquare />
     </View>
     <BinSquare marginLeft />
   </View>
@@ -56,11 +67,11 @@ const Type3Component = ({ item }) => (
 
 // Set up your data
 const data = [
-  { id: '1', type: 1, /* other data */ },
-  { id: '2', type: 2, /* other data */ },
-  { id: '1', type: 1, /* other data */ },
-  { id: '1', type: 1, /* other data */ },
-  { id: '3', type: 3, /* other data */ },
+  { id: "1", type: 1 /* other data */ },
+  { id: "2", type: 2 /* other data */ },
+  { id: "1", type: 1 /* other data */ },
+  { id: "1", type: 1 /* other data */ },
+  { id: "3", type: 3 /* other data */ },
 ];
 
 const renderItem = ({ item }) => {
@@ -77,12 +88,17 @@ const renderItem = ({ item }) => {
 };
 
 const MixedFeed = () => {
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    posthog.capture("MIXED_FEED");
+  }, []);
   return (
     <View style={styles.container}>
       <FlatList
         data={data}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
       />
     </View>
   );
@@ -91,32 +107,32 @@ const MixedFeed = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
+    width: "100%",
     padding: 9,
   },
   listingSquare: {
-    backgroundColor: 'lightblue',
+    backgroundColor: "lightblue",
     width: 120,
     height: 120,
     borderRadius: 10,
   },
   binSquare: {
-    backgroundColor: 'blue',
+    backgroundColor: "blue",
     width: 246,
     height: 246,
     borderRadius: 10,
   },
   type1: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 5,
   },
   type2: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 5,
   },
   type3: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 5,
   },
 });

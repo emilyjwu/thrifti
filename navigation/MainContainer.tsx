@@ -20,6 +20,7 @@ import Listing from "../components/Listing";
 import ExpandBin from "../components/ExpandBin";
 import ListingScroll from "../components/ListingScroll";
 import { PostHogProvider } from "posthog-react-native";
+import { posthog } from "../database/index";
 
 // Screen names
 const exploreName = "Explore";
@@ -101,10 +102,13 @@ const TutorialStack = ({ setIsLoggedIn }) => {
 const MainContainer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
-  const [email, setEmail] = useState("");
 
-  const login = (email) => {
-    setEmail(email);
+  const login = (emailIn) => {
+    console.log(emailIn);
+    posthog.identify(emailIn, {
+      // Replace "distinct_id" with your user's unique identifier
+      email: emailIn, // optional: set additional user properties
+    });
     setIsLoggedIn(true);
   };
 
@@ -113,7 +117,7 @@ const MainContainer: React.FC = () => {
   if (!isNewUser && !isLoggedIn) {
     return (
       <LoginScreen
-        onLogin={() => login(email)}
+        onLogin={(email) => login(email)}
         onSignUp={() => setIsNewUser(true)}
       />
     );
@@ -122,10 +126,7 @@ const MainContainer: React.FC = () => {
   } else {
     return (
       <NavigationContainer>
-        <PostHogProvider
-          apiKey="phc_aXULs8cpOn5cz6RR3ASO0PhAWgX0gNEz0euQSMDX2vn"
-          autocapture
-        >
+        <PostHogProvider client={posthog}>
           <Tab.Navigator
             initialRouteName={exploreName}
             screenOptions={({ route }) => ({

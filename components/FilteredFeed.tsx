@@ -88,15 +88,16 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
     ));
   };
 
+  useEffect(() => {
+    posthog.capture("VIEWED_FILTERED_FEED");
+  }, []);
+
   return (
     <ScrollView>
       <View style={styles.container}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("ListingScroll");
-              posthog.capture("VIEWING LISTING");
-            }}
+            onPress={() => navigation.navigate("ListingScroll")}
             style={styles.button}
           >
             <Text style={styles.buttonText}>Listings</Text>
