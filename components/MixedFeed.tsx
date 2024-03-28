@@ -98,13 +98,13 @@ const BinSquare = ({ marginLeft = false, marginRight = false }) => {
 
 const renderItem = ({ item }: { item: DataEntry }) => {
   switch (item.type) {
+    case 0:
+      return <ListingRow item={item} />;
     case 1:
-      return <ListingRow item={item} />;
-    case 2:
       return <BinListingRow item={item} />;
-    case 3:
+    case 2:
       return <ListingRow item={item} />;
-    case 4:
+    case 3:
       return <ListingBinRow item={item} />;
     default:
       return null;
@@ -113,7 +113,7 @@ const renderItem = ({ item }: { item: DataEntry }) => {
 
 const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
   const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
-  const [currentType, setCurrentType] = useState<number>(1);
+  const [currentType, setCurrentType] = useState<number>(0);
   const [data, setData] = useState<DataEntry[]>([]);
 
   useEffect(() => {
@@ -134,17 +134,33 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
 
   useEffect(() => {
     const newData = [];
-    let currentType = 1;
+    let currentType = 0;
     binsInfo.forEach((binItems, index) => {
       let j = 0;
       while (j < binItems.length) {
+        console.log(currentType);
         const dataEntry = {
           id: `${index}-${j / 3}`,
           type: currentType,
           binItems: binItems.slice(j, j + 3),
         };
         newData.push(dataEntry);
-        currentType = (currentType + 1) % 5; 
+        switch (currentType) {
+          case 0:
+            currentType = 1;
+            break;
+          case 1:
+            currentType = 2;
+            break;
+          case 2:
+            currentType = 3;
+            break;
+          case 3:
+            currentType = 0;
+            break;
+          default:
+            break;
+        }
         j += 3;
       }
     });
@@ -169,7 +185,6 @@ const styles = StyleSheet.create({
     padding: 9,
   },
   listingSquare: {
-    backgroundColor: 'lightblue',
     width: 120,
     height: 120,
     borderRadius: 10,
