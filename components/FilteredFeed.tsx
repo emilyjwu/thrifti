@@ -6,6 +6,7 @@ import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { usePostHog } from "posthog-react-native";
 
 interface FilteredFeedProps {
     navigation: NavigationProp<any>;
@@ -18,6 +19,12 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
 
     const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
     const [binNames, setBinNames] = useState<string[]>([]);
+
+    const posthog = usePostHog();
+
+    useEffect(() => {
+      posthog.capture("VIEWED_FILTERED_FEED");
+    }, []);
 
 
 
