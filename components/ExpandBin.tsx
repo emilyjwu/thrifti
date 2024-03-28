@@ -100,6 +100,7 @@ const styles = StyleSheet.create({
   image: {
     width: 170,
     height: 170,
+    borderRadius: 7
   },
   loadingIndicator: {
     marginBottom: 10, // Adjust spacing between loading indicators and images
