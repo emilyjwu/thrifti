@@ -22,56 +22,12 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const uid = useContext(AuthContext).userAuth.uid;
   const [bins, setBins] = useState([]);
 
-
-  useEffect(() => {
-    const the = async () => {
-      // these generally should be called in series with await
-      // unless you already have a bin ID you want to get image URLs for
-      // *** uid is temporary to retrieve your own bins
-      //const bins = await fetchBins(uid);
-      // this will likely be called for each bin that will be displayed
-      // on the screen
-      /* TODO: figure out how to store image links for various bins instead of just 1
-          to show multiple bins on explore page */
-      // bins[0] will retrieve a random bin of yours bc the queries do not order items
-      //const urls = await fetchURLs(bins[0]);
-      // this just sets the images them to render
-      //setImgURLs(urls);
-    };
-
-    // Call fetchStoragePath to start the data fetching process
-    the();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const binsData = await fetchAllBins();
-      setBins(binsData);
-    };
-
-    fetchData();
-  }, []);
-
-
   return (
     <View style={styles.container}>
-    {imgURLs.map((url, index) => (
-      <Image key={index} style={styles.image} source={{ uri: url }} />
-    ))}
-    <Text
-      onPress={() => navigation.navigate("Listing")}
-      style={{ fontSize: 26, fontWeight: "bold" }}
-    >
-      Explore Screen
-    </Text>
-    <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
-      <Text>Go to Listing!</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
-      <Text>Go to Bins!</Text>
-    </TouchableOpacity>
-     </View>
-
+      <Text style={{ fontSize: 26, fontWeight: "bold" }}>
+        Explore Screen
+      </Text>
+    </View>
     );
   };
 
