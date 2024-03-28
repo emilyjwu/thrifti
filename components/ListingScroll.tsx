@@ -68,8 +68,8 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
         <View style={styles.container}>
             <View style={styles.buttonContainer}>
                     <TouchableOpacity onPress={() => navigation.navigate("ListingScroll")}
-                      style={styles.button}>
-                      <Text style={styles.buttonText}>
+                      style={styles.buttonGray}>
+                      <Text style={styles.buttonGrayText}>
                         Listings
                       </Text>
                     </TouchableOpacity>
@@ -126,29 +126,45 @@ const styles = StyleSheet.create({
     flatList: {
         alignItems: 'flex-start',
     },
-    buttonText: {
+    button: {
+        width: 100,
+        height: 50,
+        borderWidth: 2,
+        borderColor: 'black',
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'transparent',
+        marginRight: 10
+      },
+      buttonText: {
         fontSize: 20,
         fontWeight: 'bold',
         color: 'black',
-    },
-    button: {
-      width: 100,
-      height: 50,
-      borderWidth: 2,
-      borderColor: 'black',
-      borderRadius: 5,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'transparent',
-      marginRight: 10
-    },
+      },
     buttonContainer: {
       flexDirection: 'row',
       justifyContent: 'center',
       marginBottom: 10,
       marginLeft: 0, // Adjusted to move buttons left
       marginRight: 10
-    }
+    },
+    buttonGray: {
+        width: 100,
+        height: 50,
+        borderWidth: 2,
+        borderColor: 'gray', // Set border color to gray
+        borderRadius: 5,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'transparent', // Keep background transparent
+        marginRight: 10
+      },
+      buttonGrayText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: 'gray', // Set text color to gray
+      },
 });
 
 export default ListingScroll;

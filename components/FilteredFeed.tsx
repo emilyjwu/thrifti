@@ -5,18 +5,20 @@ import { fetchAllBins, fetchBinItemsInfo, BinItemInfo } from "../database/index"
 import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 interface FilteredFeedProps {
     navigation: NavigationProp<any>;
+    bins: string[]; // Assuming bins is an array of bin names
 }
 
 const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
     const windowWidth = Dimensions.get('window').width;
     const itemWidth = (windowWidth - 40) / 3;
-    const [listingTab, setListingTab] = useState(false);
-    const [binsTab, setBinsTab] = useState(true);
 
     const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -26,6 +28,9 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                     return await fetchBinItemsInfo(bin);
                 }));
                 setBinsInfo(binsInfoArray);
+                // console.log(binsInfoArray[0])
+                // console.log(binsInfoArray[3])
+
             } catch (error) {
                 console.error("Error fetching bin items info:", error);
             }
@@ -43,7 +48,6 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                         style={{
                             width: 115,
                             height: 115,
-                            borderRadius: 7,
                         }}
                     />
                 </TouchableOpacity>
@@ -68,18 +72,18 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
         <ScrollView>
             <View style={styles.container}>
             <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate("ListingScroll")}
-                style={styles.button}>
-                <Text style={styles.buttonText}>
-                Listings
-                </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate("ExploreFeed")}
-                style={styles.button}>
-                <Text style={styles.buttonText}>
-                Bins
-                </Text>
-            </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate("ListingScroll")}
+                      style={styles.button}>
+                      <Text style={styles.buttonText}>
+                        Listings
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate("ExploreFeed")}
+                      style={styles.buttonGray}>
+                      <Text style={styles.buttonGrayText}>
+                        Bins
+                      </Text>
+                    </TouchableOpacity>
               </View>
                 {binsInfo.map((binItems, index) => (
                     <View key={index}>
@@ -88,6 +92,9 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                                 <View style={styles.titleContainer}>
                                     <TouchableOpacity onPress={() => navigation.navigate("ExpandBin", {binItems})}>
                                         <Text style={styles.title}>Bin Name</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => navigation.navigate("Message")} style={styles.message}>
+                                        <MaterialCommunityIcon name="message" size={30} color="#75D7FF" />
                                     </TouchableOpacity>
                                 </View>
                                 <View style={styles.contentContainer}>
@@ -137,40 +144,49 @@ const styles = StyleSheet.create({
     contentContainer: {
         flex: 1,
     },
-    buttonText: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: 'black',
-  },
-  button: {
-    width: 100,
-    height: 50,
-    borderWidth: 2,
-    borderColor: 'black',
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    marginRight: 10
-  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 10,
-    marginLeft: 0, 
+    marginLeft: 0, // Adjusted to move buttons left
     marginRight: 10
+  },
+
+  buttonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'black',
 },
-inactiveButton: {
-    width: 100,
-    height: 50,
-    borderWidth: 2,
-    borderColor: 'ccc',
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-    marginRight: 10
+button: {
+  width: 100,
+  height: 50,
+  borderWidth: 2,
+  borderColor: 'black',
+  borderRadius: 5,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'transparent',
+  marginRight: 10
 },
+buttonGray: {
+  width: 100,
+  height: 50,
+  borderWidth: 2,
+  borderColor: 'gray', // Set border color to gray
+  borderRadius: 5,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'transparent', // Keep background transparent
+  marginRight: 10
+},
+buttonGrayText: {
+  fontSize: 20,
+  fontWeight: 'bold',
+  color: 'gray', // Set text color to gray
+},
+
+
+
 });
 
 export default FilteredFeed;
