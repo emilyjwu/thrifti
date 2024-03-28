@@ -1,16 +1,9 @@
 import * as React from "react";
-import { useEffect, useState, useContext } from "react";
-import { FlatList, View, Text, StyleSheet, Image } from "react-native";
-import { AuthContext, storage, firestore } from "../../database/index";
-import { limit, getDocs, collection, query, where } from "firebase/firestore";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { useState, useContext } from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { AuthContext} from "../../database/index";
 
-import { useNavigation } from "@react-navigation/native";
-import { sys } from "typescript";
-import FilteredFeed from '../../components/FilteredFeed';
-import { ScrollView } from 'react-native';
 import MixedFeed from "../../components/MixedFeed";
-import { fetchAllBins } from "../../database/index";
 
 
 interface ExploreScreenProps {
@@ -27,6 +20,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
       <Text style={{ fontSize: 26, fontWeight: "bold" }}>
         Explore Screen
       </Text>
+      <MixedFeed navigation={navigation} />
     </View>
     );
   };
