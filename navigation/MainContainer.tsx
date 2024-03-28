@@ -69,7 +69,7 @@ const RequestStack = ({ navigation }) => (
       component={RequestListing}
       options={{ headerShown: false }}
     />
-    
+
   </Stack.Navigator>
 );
 

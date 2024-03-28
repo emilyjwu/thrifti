@@ -71,6 +71,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
       <Text>Go to Bins!</Text>
     </TouchableOpacity>
      </View>
+
     );
   };
 

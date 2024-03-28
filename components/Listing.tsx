@@ -14,8 +14,11 @@ interface ListingProps {
 const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   const [liked, setLiked] = useState(false);
   const labels = ['Denim', 'Blue', 'Outerwear'];
-  const { imageUri} = route.params;
-
+  const { imageUri, binItemInfo} = route.params;
+  console.log()
+  console.log("inListing")
+  console.log(binItemInfo)
+  console.log()
 
   // const fetchData = async () => {
   //   try {
@@ -46,16 +49,20 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
             />
           </View>
           <View style={styles.horizontalBox}>
-            <Text style={styles.title}>Item for Sale</Text>
+          {binItemInfo.listingName !== "" ? (
+          <Text style={styles.title}>{binItemInfo.listingName}</Text>
+          ) : null}
             <TouchableOpacity onPress={() => {setLiked(!liked)}}>
               <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
             </TouchableOpacity>
           </View>
+          {binItemInfo.description !== "" ? (
           <View style={styles.listingDescription}>
-            <Text>Lightly worn but still in good condition! Fits size small.</Text>
+          <Text>{binItemInfo.description}</Text>
           </View>
+          ) : null}
           <View style={styles.horizontalBox}>
-              <Text style={styles.subtitle}>Condition:</Text>
+              <Text style={styles.subtitle}>{binItemInfo.condition}</Text>
             <View style={styles.listingCondition}>
               <Text>Like New</Text>
             </View>
@@ -70,7 +77,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
           </View>
         </ScrollView>
         <View style={styles.bottomBar}>
-          <Text style={styles.title}>$15</Text>
+          <Text style={styles.title}>${binItemInfo.price}</Text>
           <TouchableOpacity onPress={() => navigation.navigate("Message")}>
             <MaterialCommunityIcon name="message" size={65} color="white" />
           </TouchableOpacity>

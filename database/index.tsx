@@ -134,19 +134,6 @@ export const fetchBinItems = async (binID: string) => {
   }
 };
 
-export const fetchBinItemsInfo = async (binID: string) => {
-  try {
-    const querySnapshot = await getDocs(
-      query(collection(firestore, "items"), where("binID", "==", binID))
-    );
-    return querySnapshot.docs.map((doc) => {
-      return doc;
-    });
-  } catch (error) {
-    console.log("Issue getting bin items: ", error);
-    return [];
-  }
-};
 
 export const fetchImageRefFromItem = async (itemID: string) => {
   try {
@@ -199,6 +186,7 @@ export const fetchURLs = async (binID: string) => {
   }
 };
 
+//Emily and I added getImage
 export const getImage = async (imageRef: string) => {
   try {
     const storageRef = ref(storage, imageRef);
@@ -207,6 +195,43 @@ export const getImage = async (imageRef: string) => {
   } catch (error) {
     console.error("Error while downloading image:", error);
     return null;
+  }
+};
+
+//Isha adding below
+export interface BinItemInfo {
+  imageUri: any;
+  id: string;
+
+}
+
+export const fetchBinItemsInfo = async (binID: string): Promise<BinItemInfo[]> => {
+  try {
+      const querySnapshot = await getDocs(
+          query(collection(firestore, "items"), where("binID", "==", binID))
+      );
+
+      // Map each document to an object containing only the desired attributes
+      const binItemsInfoPromises: Promise<BinItemInfo>[] = querySnapshot.docs.map(async (doc) => {
+          const imageUri = await getImage(doc.data().imgRef);
+          return {
+              id: doc.id,
+              condition: doc.data().condition,
+              description: doc.data().description,
+              imgRef: doc.data().imgRef,
+              listingName: doc.data().listingName,
+              price: doc.data().price,
+              imageUri: imageUri
+          };
+      });
+
+      // Wait for all promises to resolve
+      const binItemsInfo: BinItemInfo[] = await Promise.all(binItemsInfoPromises);
+
+      return binItemsInfo;
+  } catch (error) {
+      console.log("Issue getting bin items: ", error);
+      return [];
   }
 };
 
