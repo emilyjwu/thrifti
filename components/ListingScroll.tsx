@@ -65,6 +65,20 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={() => navigation.navigate("ListingScroll")}
+                      style={styles.button}>
+                      <Text style={styles.buttonText}>
+                        Listings
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate("ExploreFeed")}
+                      style={styles.button}>
+                      <Text style={styles.buttonText}>
+                        Bins
+                      </Text>
+                    </TouchableOpacity>
+              </View>
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>Recent</Text>
             </View>
@@ -111,8 +125,32 @@ const styles = StyleSheet.create({
     flatList: {
         alignItems: 'flex-start',
     },
+    buttonText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: 'black',
+    },
+    button: {
+      width: 100,
+      height: 50,
+      borderWidth: 2,
+      borderColor: 'black',
+      borderRadius: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'transparent',
+      marginRight: 10
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      marginBottom: 10,
+      marginLeft: 0, // Adjusted to move buttons left
+      marginRight: 10
+    }
 });
 
 export default ListingScroll;
+
 
 
