@@ -120,6 +120,30 @@ export const fetchAllBins = async () => {
   }
 };
 
+export const fetchBinName = async (binID: string) => {
+  try {
+    const binDocRef = doc(firestore, "bins", binID);
+    const binDocSnap = await getDoc(binDocRef);
+    if (binDocSnap.exists()) {
+      const binData = binDocSnap.data();
+      if (binData && binData.binName) {
+        return binData.binName;
+      } else {
+        console.error("Bin document does not contain a name field.");
+        return null;
+      }
+    } else {
+      console.error("Bin document does not exist.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching bin name:", error);
+    return null;
+  }
+};
+
+
+
 export const fetchBinItems = async (binID: string) => {
   try {
     const querySnapshot = await getDocs(
@@ -235,6 +259,8 @@ export const fetchBinItemsInfo = async (binID: string): Promise<BinItemInfo[]> =
       return [];
   }
 };
+
+
 
 
 

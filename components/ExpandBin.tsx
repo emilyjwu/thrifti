@@ -11,7 +11,7 @@ interface ExpandBinProps {
 }
 
 const ExpandBin: React.FC<ExpandBinProps> = ({ navigation, route }) => {
-  const { binItems } = route.params;
+  const { binItems, binName } = route.params;
   const [loadingIndices, setLoadingIndices] = useState<number[]>([]); // State to track loading indices
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const ExpandBin: React.FC<ExpandBinProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
-        <Text style={styles.title}>Bin Name</Text>
+        <Text style={styles.title}>{binName}</Text>
       </View>
       <FlatList
         data={binItems}
