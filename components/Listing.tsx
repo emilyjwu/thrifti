@@ -1,17 +1,36 @@
+import { doc, getDoc } from 'firebase/firestore';
 import React, { useState } from 'react'
-import { Text, View, ScrollView, StyleSheet } from 'react-native'
+import { Text, View, ScrollView, StyleSheet, Image} from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { firestore } from '../database';
 
 interface ListingProps {
   navigation: any;
+  route: any;
 }
 
-const Listing: React.FC<ListingProps> = ({ navigation }) => {
+const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   const [liked, setLiked] = useState(false);
   const labels = ['Denim', 'Blue', 'Outerwear'];
+  const { imageUri} = route.params;
 
+
+  // const fetchData = async () => {
+  //   try {
+  //     const docSnapshot = await getDoc(doc(firestore, "items", binItem));
+  //     const listingName = docSnapshot.data().listingName;
+  //     console.log("Listing Name:", listingName);
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
+
+  // Call the async function
+
+
+  // const name = (await getDoc(doc(firestore, "items", binItem))).data().listingName;
 
     return (
       <View style={styles.container}>
@@ -21,10 +40,13 @@ const Listing: React.FC<ListingProps> = ({ navigation }) => {
             <Text style={styles.profileName}>@janeDoe</Text>
           </View>
           <View style={styles.imageContainer}>
-            <View style={styles.square}/>
+            <Image
+            style={styles.square}
+            source={{ uri: imageUri }}
+            />
           </View>
           <View style={styles.horizontalBox}>
-            <Text style={styles.title}>Denim Vest</Text>
+            <Text style={styles.title}>Item for Sale</Text>
             <TouchableOpacity onPress={() => {setLiked(!liked)}}>
               <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
             </TouchableOpacity>
@@ -89,7 +111,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     flex: 1,
-    backgroundColor: 'lightblue',
     borderRadius: 20,
   },
   titleContainer: {
@@ -140,8 +161,8 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     padding: 20,
-    height: 100, 
-    backgroundColor: '#778899', 
+    height: 100,
+    backgroundColor: '#778899',
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',

@@ -134,6 +134,20 @@ export const fetchBinItems = async (binID: string) => {
   }
 };
 
+export const fetchBinItemsInfo = async (binID: string) => {
+  try {
+    const querySnapshot = await getDocs(
+      query(collection(firestore, "items"), where("binID", "==", binID))
+    );
+    return querySnapshot.docs.map((doc) => {
+      return doc;
+    });
+  } catch (error) {
+    console.log("Issue getting bin items: ", error);
+    return [];
+  }
+};
+
 export const fetchImageRefFromItem = async (itemID: string) => {
   try {
     const docRef = doc(firestore, "items", itemID);
@@ -184,5 +198,21 @@ export const fetchURLs = async (binID: string) => {
     return [];
   }
 };
+
+export const getImage = async (imageRef: string) => {
+  try {
+    const storageRef = ref(storage, imageRef);
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+  } catch (error) {
+    console.error("Error while downloading image:", error);
+    return null;
+  }
+};
+
+
+
+
+
 
 export { firestore, firebaseApp, storage, auth };
