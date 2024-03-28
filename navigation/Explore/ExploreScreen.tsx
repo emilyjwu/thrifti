@@ -54,7 +54,23 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
 
   return (
-      <FilteredFeed navigation={navigation} bins={bins} />
+    <View style={styles.container}>
+    {imgURLs.map((url, index) => (
+      <Image key={index} style={styles.image} source={{ uri: url }} />
+    ))}
+    <Text
+      onPress={() => navigation.navigate("Listing")}
+      style={{ fontSize: 26, fontWeight: "bold" }}
+    >
+      Explore Screen
+    </Text>
+    <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
+      <Text>Go to Listing!</Text>
+    </TouchableOpacity>
+    <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
+      <Text>Go to Bins!</Text>
+    </TouchableOpacity>
+     </View>
     );
   };
 
