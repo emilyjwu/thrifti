@@ -178,6 +178,9 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
   
   return (
     <View style={styles.container}>
+      <Text style={{ fontSize: 26, fontWeight: "bold" }}>
+        Recent Listings
+      </Text>
       <FlatList
         data={data}
         renderItem={renderItem}

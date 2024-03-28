@@ -4,6 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { AuthContext} from "../../database/index";
 
 import MixedFeed from "../../components/MixedFeed";
+import FilteredFeed from "../../components/FilteredFeed";
 
 
 interface ExploreScreenProps {
@@ -17,10 +18,6 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 26, fontWeight: "bold" }}>
-        Explore Screen
-      </Text>
-      <MixedFeed navigation={navigation} />
     </View>
     );
   };

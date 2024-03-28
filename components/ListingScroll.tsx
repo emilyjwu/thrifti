@@ -43,6 +43,7 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
                         style={{
                             width: 115,
                             height: 115,
+                            borderRadius: 7,
                         }}
                     />
                 </TouchableOpacity>
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
         marginBottom: 7,
         marginRight: 7,
         alignItems: 'flex-start',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
     },
     titleContainer: {
         flexDirection: 'row',

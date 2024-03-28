@@ -13,9 +13,6 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   const [liked, setLiked] = useState(false);
   const labels = ['Denim', 'Blue', 'Outerwear'];
   const { imageUri, binItemInfo} = route.params;
-  console.log()
-  console.log("inListing")
-  console.log(binItemInfo)
 
     return (
       <View style={styles.container}>
@@ -31,19 +28,19 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
             />
           </View>
           <View style={styles.horizontalBox}>
-            {binItemInfo?.listingName !== undefined ? (
+            {binItemInfo.listingName ? (
             <Text style={styles.title}>{binItemInfo.listingName}</Text>
             ) : null}
               <TouchableOpacity onPress={() => {setLiked(!liked)}}>
                 <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
               </TouchableOpacity>
           </View>
-          {binItemInfo?.description !== undefined ? (
+          {binItemInfo.description !== "" ? (
             <View style={styles.listingDescription}>
             <Text>{binItemInfo.description}</Text>
             </View>
           ) : null}
-          {binItemInfo?.conditon !== undefined ? (
+          {binItemInfo.conditon !== "" ? (
             <View style={styles.horizontalBox}>
               <Text style={styles.subtitle}>Condition:</Text>
               <View style={styles.conditionContainer}>
@@ -51,7 +48,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
               </View>
             </View>
           ) : null}
-          {binItemInfo?.tags !== undefined ? (
+          {binItemInfo.tags ? (
             <View>
             <Text style={styles.subtitle}>Tags</Text>
             <View style={styles.labelsContainer}>
