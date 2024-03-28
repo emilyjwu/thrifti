@@ -27,7 +27,9 @@ const ExpandBin: React.FC<ExpandBinProps> = ({ navigation, route }) => {
         {isLoading && (
           <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
         )}
-        <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, item })}>
+        <TouchableOpacity onPress={() => {
+          navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo: item });
+        }}>
           <Image
             source={{ uri: item.imageUri }}
             style={styles.image}

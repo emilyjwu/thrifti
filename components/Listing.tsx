@@ -16,7 +16,6 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   console.log()
   console.log("inListing")
   console.log(binItemInfo)
-  console.log()
 
     return (
       <View style={styles.container}>
@@ -32,19 +31,19 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
             />
           </View>
           <View style={styles.horizontalBox}>
-            {binItemInfo.listingName ? (
+            {binItemInfo?.listingName !== undefined ? (
             <Text style={styles.title}>{binItemInfo.listingName}</Text>
             ) : null}
               <TouchableOpacity onPress={() => {setLiked(!liked)}}>
                 <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
               </TouchableOpacity>
           </View>
-          {binItemInfo.description ? (
+          {binItemInfo?.description !== undefined ? (
             <View style={styles.listingDescription}>
             <Text>{binItemInfo.description}</Text>
             </View>
           ) : null}
-          {binItemInfo.conditon ? (
+          {binItemInfo?.conditon !== undefined ? (
             <View style={styles.horizontalBox}>
               <Text style={styles.subtitle}>Condition:</Text>
               <View style={styles.conditionContainer}>
@@ -52,7 +51,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
               </View>
             </View>
           ) : null}
-          {binItemInfo.tags ? (
+          {binItemInfo?.tags !== undefined ? (
             <View>
             <Text style={styles.subtitle}>Tags</Text>
             <View style={styles.labelsContainer}>
