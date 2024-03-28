@@ -20,6 +20,9 @@ import Listing from "../components/Listing";
 import ExpandBin from "../components/ExpandBin";
 import ListingScroll from "../components/ListingScroll";
 import FilteredFeed from "../components/FilteredFeed";
+import {PostHogProvider} from "posthog-react-native";
+import {posthog} from "../database/index";
+
 
 // Screen names
 const exploreName = "Explore";
@@ -108,12 +111,21 @@ const MainContainer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
 
+  const login = (emailIn) => {
+    console.log(emailIn);
+    posthog.identify(emailIn, {
+      // Replace "distinct_id" with your user's unique identifier
+      email: emailIn, // optional: set additional user properties
+    });
+    setIsLoggedIn(true);
+  };
+
   // ***** TODO: Add 'Sign up' route for tutorial *****
   // *****    using the Tutorial Stack i think    *****
   if (!isNewUser && !isLoggedIn) {
     return (
       <LoginScreen
-        onLogin={() => setIsLoggedIn(true)}
+        onLogin={(email) => login(email)}
         onSignUp={() => setIsNewUser(true)}
       />
     );
@@ -122,6 +134,7 @@ const MainContainer: React.FC = () => {
   } else {
     return (
       <NavigationContainer>
+        <PostHogProvider client={posthog}>
         <Tab.Navigator
           initialRouteName={exploreName}
           screenOptions={({ route }) => ({
@@ -159,6 +172,7 @@ const MainContainer: React.FC = () => {
           <Tab.Screen name={messageName} component={MessageScreen} />
           <Tab.Screen name={profileName} component={ProfileScreen} />
         </Tab.Navigator>
+        </PostHogProvider>
       </NavigationContainer>
     );
   }

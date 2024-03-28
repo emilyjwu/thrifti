@@ -6,13 +6,13 @@ import Toast from "react-native-toast-message";
 import { AuthContext, fetchImageRefFromItem } from "../../database/index";
 
 interface LoginScreenProps {
-  onLogin: () => void;
+  onLogin: (email) => void;
   onSignUp: () => void;
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
-  const [email, setEmail] = useState("a@a.com");
-  const [password, setPassword] = useState("aaaaaa");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { setAuthAfterLogin } = useContext(AuthContext);
 
   const handleLogin = () => {
@@ -23,11 +23,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
         console.log("Password: ", password);
         console.log("UID: ", userCredential.user.uid);
         setAuthAfterLogin(userCredential.user);
-        onLogin();
+        onLogin(email);
       })
       .catch((error) => {
-        //console.log(error.code);
-        //console.log(error.message);
         console.log("Login Issue");
         setEmail("");
         setPassword("");

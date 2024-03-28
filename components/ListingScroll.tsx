@@ -5,6 +5,7 @@ import { fetchAllBins, fetchBinItemsInfo } from "../database/index";
 import { BinItemInfo } from "../database/index";
 import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
+import { usePostHog } from "posthog-react-native";
 
 interface ListingScrollProps {
     navigation: NavigationProp<any>;
@@ -15,6 +16,12 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
     const itemWidth = (windowWidth - 40) / 3;
 
     const [binItemsInfo, setBinItemsInfo] = useState<BinItemInfo[]>([]);
+
+    const posthog = usePostHog();
+
+    useEffect(() => {
+      posthog.capture("CHANGED_FILTER_TO_LISTINGSCROLL");
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {

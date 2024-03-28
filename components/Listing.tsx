@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Text, View, ScrollView, StyleSheet, Image, ActivityIndicator } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { usePostHog } from "posthog-react-native";
 
 interface ListingProps {
   navigation: any;
@@ -14,6 +15,12 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   const labels = ['Denim', 'Blue', 'Outerwear'];
   const { imageUri, binItemInfo} = route.params;
   const [imageLoading, setImageLoading] = useState(true);
+
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    posthog.capture("FOUND_LISTING");
+  }, []);
 
     return (
       <View style={styles.container}>

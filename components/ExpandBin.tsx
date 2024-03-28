@@ -4,6 +4,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
+import { usePostHog } from "posthog-react-native";
 
 interface ExpandBinProps {
   navigation: NavigationProp<any>;
@@ -13,6 +14,12 @@ interface ExpandBinProps {
 const ExpandBin: React.FC<ExpandBinProps> = ({ navigation, route }) => {
   const { binItems, binName } = route.params;
   const [loadingIndices, setLoadingIndices] = useState<number[]>([]); // State to track loading indices
+
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    posthog.capture("EXPANDED_BIN");
+  }, []);
 
   useEffect(() => {
     // Reset loading state when component unmounts
