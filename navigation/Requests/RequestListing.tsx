@@ -21,7 +21,7 @@ const RequestListing: React.FC<RequestListingProps> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} ph-label="single_request">
       <Text style={styles.name}>{requestDetails.name}</Text>
       <Text style={styles.description}>{requestDetails.description}</Text>
       <TouchableOpacity onPress={handleMessaging} style={styles.button}>

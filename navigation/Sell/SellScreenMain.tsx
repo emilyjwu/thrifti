@@ -32,7 +32,7 @@ const SquareButton = ({ onPress }) => {
 
 const Bin = ({ name }) => {
   return (
-    <View style={styles.binContainer}>
+    <View style={styles.binContainer} ph-label="sell_1">
       <FontAwesome5Icon name="box-open" size={80} color="#000" />
       <Text style={styles.binTitle}>{name}</Text>
     </View>

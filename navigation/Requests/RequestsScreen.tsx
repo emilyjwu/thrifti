@@ -1,6 +1,12 @@
-import * as React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { NavigationProp } from '@react-navigation/native';
+import * as React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import { NavigationProp } from "@react-navigation/native";
 
 interface RequestsScreenProps {
   navigation: NavigationProp<any>;
@@ -8,16 +14,18 @@ interface RequestsScreenProps {
 
 const RequestsScreen: React.FC<RequestsScreenProps> = ({ navigation }) => {
   const renderItem = ({ item }: { item: any }) => (
-    <TouchableOpacity onPress={() => navigation.navigate('RequestListing')}>
+    <TouchableOpacity onPress={() => navigation.navigate("RequestListing")}>
       <View style={styles.requestItem}>
         <Text style={styles.requestTitle}>Replace with random text</Text>
-        <Text style={styles.requestText}>This is where the text of the request will be placed</Text>
-      </View> 
+        <Text style={styles.requestText}>
+          This is where the text of the request will be placed
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} ph-label="requests">
       <FlatList
         data={Array.from({ length: 30 }, (_, index) => index)}
         renderItem={renderItem}
@@ -25,32 +33,32 @@ const RequestsScreen: React.FC<RequestsScreenProps> = ({ navigation }) => {
       />
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   requestItem: {
     height: 100,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     marginVertical: 5,
     marginHorizontal: 10,
     borderRadius: 10,
   },
   requestText: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333', // Custom text color
-    textAlign: 'center'
+    fontWeight: "bold",
+    color: "#333", // Custom text color
+    textAlign: "center",
   },
   requestTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center'
-  }
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+  },
 });
 
 export default RequestsScreen;

@@ -134,7 +134,6 @@ export const fetchBinItems = async (binID: string) => {
   }
 };
 
-
 export const fetchImageRefFromItem = async (itemID: string) => {
   try {
     const docRef = doc(firestore, "items", itemID);
@@ -202,42 +201,40 @@ export const getImage = async (imageRef: string) => {
 export interface BinItemInfo {
   imageUri: any;
   id: string;
-
 }
 
-export const fetchBinItemsInfo = async (binID: string): Promise<BinItemInfo[]> => {
+export const fetchBinItemsInfo = async (
+  binID: string
+): Promise<BinItemInfo[]> => {
   try {
-      const querySnapshot = await getDocs(
-          query(collection(firestore, "items"), where("binID", "==", binID))
-      );
+    const querySnapshot = await getDocs(
+      query(collection(firestore, "items"), where("binID", "==", binID))
+    );
 
-      // Map each document to an object containing only the desired attributes
-      const binItemsInfoPromises: Promise<BinItemInfo>[] = querySnapshot.docs.map(async (doc) => {
-          const imageUri = await getImage(doc.data().imgRef);
-          return {
-              id: doc.id,
-              condition: doc.data().condition,
-              description: doc.data().description,
-              imgRef: doc.data().imgRef,
-              listingName: doc.data().listingName,
-              price: doc.data().price,
-              imageUri: imageUri
-          };
-      });
+    // Map each document to an object containing only the desired attributes
+    const binItemsInfoPromises: Promise<BinItemInfo>[] = querySnapshot.docs.map(
+      async (doc) => {
+        const imageUri = await getImage(doc.data().imgRef);
+        return {
+          id: doc.id,
+          condition: doc.data().condition,
+          description: doc.data().description,
+          imgRef: doc.data().imgRef,
+          listingName: doc.data().listingName,
+          price: doc.data().price,
+          imageUri: imageUri,
+        };
+      }
+    );
 
-      // Wait for all promises to resolve
-      const binItemsInfo: BinItemInfo[] = await Promise.all(binItemsInfoPromises);
+    // Wait for all promises to resolve
+    const binItemsInfo: BinItemInfo[] = await Promise.all(binItemsInfoPromises);
 
-      return binItemsInfo;
+    return binItemsInfo;
   } catch (error) {
-      console.log("Issue getting bin items: ", error);
-      return [];
+    console.log("Issue getting bin items: ", error);
+    return [];
   }
 };
-
-
-
-
-
 
 export { firestore, firebaseApp, storage, auth };

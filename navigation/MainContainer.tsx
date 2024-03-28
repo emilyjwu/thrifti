@@ -19,6 +19,7 @@ import SignupScreen from "./Login/SignupScreen";
 import Listing from "../components/Listing";
 import ExpandBin from "../components/ExpandBin";
 import ListingScroll from "../components/ListingScroll";
+import { PostHogProvider } from "posthog-react-native";
 
 // Screen names
 const exploreName = "Explore";
@@ -69,7 +70,6 @@ const RequestStack = ({ navigation }) => (
       component={RequestListing}
       options={{ headerShown: false }}
     />
-
   </Stack.Navigator>
 );
 
@@ -101,13 +101,19 @@ const TutorialStack = ({ setIsLoggedIn }) => {
 const MainContainer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
+  const [email, setEmail] = useState("");
+
+  const login = (email) => {
+    setEmail(email);
+    setIsLoggedIn(true);
+  };
 
   // ***** TODO: Add 'Sign up' route for tutorial *****
   // *****    using the Tutorial Stack i think    *****
   if (!isNewUser && !isLoggedIn) {
     return (
       <LoginScreen
-        onLogin={() => setIsLoggedIn(true)}
+        onLogin={() => login(email)}
         onSignUp={() => setIsNewUser(true)}
       />
     );
@@ -116,43 +122,50 @@ const MainContainer: React.FC = () => {
   } else {
     return (
       <NavigationContainer>
-        <Tab.Navigator
-          initialRouteName={exploreName}
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color, size }) => {
-              let iconName;
-              let routeName = route.name;
-
-              if (routeName === exploreName) {
-                iconName = focused ? "home" : "home-outline";
-              } else if (routeName === sellName) {
-                iconName = focused ? "cube" : "cube-outline";
-              } else if (routeName === messageName) {
-                iconName = focused ? "chatbubble" : "chatbubble-outline";
-              } else if (routeName === requestName) {
-                iconName = focused ? "help-circle" : "help-circle-outline";
-              } else if (routeName === profileName) {
-                iconName = focused ? "person-circle" : "person-circle-outline";
-              }
-
-              return <Ionicons name={iconName} size={size} color={color} />;
-            },
-            tabBarStyle: {
-              height: 100,
-              paddingVertical: 5,
-              paddingHorizontal: 10,
-            },
-            tabBarActiveTintColor: "#9747FF",
-            tabBarInactiveTintColor: "#9DB2CE",
-            tabBarLabelStyle: { fontSize: 10, paddingBottom: 10 },
-          })}
+        <PostHogProvider
+          apiKey="phc_aXULs8cpOn5cz6RR3ASO0PhAWgX0gNEz0euQSMDX2vn"
+          autocapture
         >
-          <Tab.Screen name="Request" component={RequestStack} />
-          <Tab.Screen name="Sell" component={SellStack} />
-          <Tab.Screen name="Explore" component={ExploreStack} />
-          <Tab.Screen name={messageName} component={MessageScreen} />
-          <Tab.Screen name={profileName} component={ProfileScreen} />
-        </Tab.Navigator>
+          <Tab.Navigator
+            initialRouteName={exploreName}
+            screenOptions={({ route }) => ({
+              tabBarIcon: ({ focused, color, size }) => {
+                let iconName;
+                let routeName = route.name;
+
+                if (routeName === exploreName) {
+                  iconName = focused ? "home" : "home-outline";
+                } else if (routeName === sellName) {
+                  iconName = focused ? "cube" : "cube-outline";
+                } else if (routeName === messageName) {
+                  iconName = focused ? "chatbubble" : "chatbubble-outline";
+                } else if (routeName === requestName) {
+                  iconName = focused ? "help-circle" : "help-circle-outline";
+                } else if (routeName === profileName) {
+                  iconName = focused
+                    ? "person-circle"
+                    : "person-circle-outline";
+                }
+
+                return <Ionicons name={iconName} size={size} color={color} />;
+              },
+              tabBarStyle: {
+                height: 100,
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+              },
+              tabBarActiveTintColor: "#9747FF",
+              tabBarInactiveTintColor: "#9DB2CE",
+              tabBarLabelStyle: { fontSize: 10, paddingBottom: 10 },
+            })}
+          >
+            <Tab.Screen name="Request" component={RequestStack} />
+            <Tab.Screen name="Sell" component={SellStack} />
+            <Tab.Screen name="Explore" component={ExploreStack} />
+            <Tab.Screen name={messageName} component={MessageScreen} />
+            <Tab.Screen name={profileName} component={ProfileScreen} />
+          </Tab.Navigator>
+        </PostHogProvider>
       </NavigationContainer>
     );
   }

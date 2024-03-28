@@ -1,27 +1,30 @@
-import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { NavigationProp } from '@react-navigation/native';
+import * as React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { NavigationProp } from "@react-navigation/native";
 
 interface MessageScreenProps {
-  navigation: NavigationProp<any>; 
+  navigation: NavigationProp<any>;
 }
 
 const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} ph-label="messages">
       <Text
-        onPress={() => navigation.navigate('Explore')}
-        style={{ fontSize: 26, fontWeight: 'bold' }}>Message Screen</Text>
+        onPress={() => navigation.navigate("Explore")}
+        style={{ fontSize: 26, fontWeight: "bold" }}
+      >
+        Message Screen
+      </Text>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

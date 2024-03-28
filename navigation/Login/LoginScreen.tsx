@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { View, TextInput, Button, StyleSheet, Text } from "react-native";
 import { auth } from "../../database/index";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -6,7 +6,7 @@ import Toast from "react-native-toast-message";
 import { AuthContext, fetchImageRefFromItem } from "../../database/index";
 
 interface LoginScreenProps {
-  onLogin: () => void;
+  onLogin: (email) => void;
   onSignUp: () => void;
 }
 
@@ -23,7 +23,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
         console.log("Password: ", password);
         console.log("UID: ", userCredential.user.uid);
         setAuthAfterLogin(userCredential.user);
-        onLogin();
+        onLogin(email);
       })
       .catch((error) => {
         //console.log(error.code);
@@ -44,7 +44,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} ph-label="login">
       <Text>Login</Text>
       <TextInput
         style={styles.input}

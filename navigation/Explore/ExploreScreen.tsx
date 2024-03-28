@@ -7,11 +7,11 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { useNavigation } from "@react-navigation/native";
 import { sys } from "typescript";
-import FilteredFeed from '../../components/FilteredFeed';
-import { ScrollView } from 'react-native';
+import FilteredFeed from "../../components/FilteredFeed";
+import { ScrollView } from "react-native";
 import MixedFeed from "../../components/MixedFeed";
 import { fetchAllBins } from "../../database/index";
-
+import { useFeatureFlag } from "posthog-react-native";
 
 interface ExploreScreenProps {
   navigation: any;
@@ -21,7 +21,6 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [imgURLs, setImgURLs] = useState([]);
   const uid = useContext(AuthContext).userAuth.uid;
   const [bins, setBins] = useState([]);
-
 
   useEffect(() => {
     const the = async () => {
@@ -52,30 +51,38 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
     fetchData();
   }, []);
 
+  const variant = useFeatureFlag("experiment-feature-flag-key");
+
+  if (variant === undefined) {
+    // the response is undefined if the flags are being loaded
+    return null;
+  }
+
+  if (variant == "variant-name") {
+    // do something
+  }
 
   return (
-    <View style={styles.container}>
-    {imgURLs.map((url, index) => (
-      <Image key={index} style={styles.image} source={{ uri: url }} />
-    ))}
-    <Text
-      onPress={() => navigation.navigate("Listing")}
-      style={{ fontSize: 26, fontWeight: "bold" }}
-    >
-      Explore Screen
-    </Text>
-    <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
-      <Text>Go to Listing!</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
-      <Text>Go to Bins!</Text>
-    </TouchableOpacity>
-     </View>
-
-    );
-  };
-
-
+    <View style={styles.container} ph-label="explore">
+      {imgURLs.map((url, index) => (
+        <Image key={index} style={styles.image} source={{ uri: url }} />
+      ))}
+      <Text
+        onPress={() => navigation.navigate("Listing")}
+        style={{ fontSize: 26, fontWeight: "bold" }}
+      >
+        Explore Screen
+      </Text>
+      <TouchableOpacity onPress={() => navigation.navigate("Listing")}>
+        <Text>Go to Listing!</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("ExpandBin")}>
+        <Text>Go to Bins!</Text>
+      </TouchableOpacity>
+      <FilteredFeed navigation={navigation} bins={bins} />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {

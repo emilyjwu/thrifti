@@ -4,7 +4,6 @@ import { auth } from "../../database/index";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
 import { addDoc, collection } from "firebase/firestore";
-import { refFromURL } from "firebase/storage";
 import { firestore, storage, firebaseApp } from "../../database/index";
 
 interface LoginScreenProps {
@@ -39,7 +38,7 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} ph-label="signup">
       <Text>Sign Up</Text>
       <TextInput
         style={styles.input}
