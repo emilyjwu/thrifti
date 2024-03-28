@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image } from 'react-native'; // Import Image component
+import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
+import { fetchAllBins, fetchBinItemsInfo } from "../database/index";
+import { BinItemInfo } from "../database/index";
 import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import { fetchAllBins, fetchBinItems, fetchImageRefFromItem, getImage} from "../database/index"; // Import fetchImageRefFromItem function
-import { DocumentData, QueryDocumentSnapshot, QuerySnapshot } from 'firebase/firestore';
-
 
 interface ListingScrollProps {
     navigation: NavigationProp<any>;
@@ -14,60 +13,42 @@ interface ListingScrollProps {
 const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
     const windowWidth = Dimensions.get('window').width;
     const itemWidth = (windowWidth - 40) / 3;
-    //call fetch all bins --> fetch all bin items --> fetch item refs --> fetch image uris
-    const bins = fetchAllBins();
-    const [imageUris, setImageUris] = useState<string[]>([]);
-    const [imageRef, setItemRefs] = useState<string[]>([]);
-    const [binItems, setBinItems] = useState<string[]>([]);
+
+    const [binItemsInfo, setBinItemsInfo] = useState<BinItemInfo[]>([]);
 
     useEffect(() => {
-        const fetchItemRefs = async () => {
+        const fetchData = async () => {
             try {
                 const bins = await fetchAllBins();
-                const itemRefsPromises = bins.map(async (bin) => {
-                    const binItems = await fetchBinItems(bin);
-                    setBinItems(binItems)
-                    const binItemRefs = await Promise.all(binItems.map(fetchImageRefFromItem));
-                    return binItemRefs;
-                });
-                const itemRefsArray = await Promise.all(itemRefsPromises);
-                const flattenedItemRefs = itemRefsArray.flat();
-                setItemRefs(flattenedItemRefs);
-                // console.log("Item References:", flattenedItemRefs);
-                Array.from(flattenedItemRefs)
-                const urlsPromises = flattenedItemRefs.map(async (itemRef) => {
-                    const url = await getImage(itemRef);
-                    return url;
-                });
-                const urls = await Promise.all(urlsPromises);
-                setImageUris(urls);
-                // console.log("Image URLs:", urls);
-
+                const binItemsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
+                    return await fetchBinItemsInfo(bin);
+                }));
+                const flattenedBinItemsInfo = binItemsInfoArray.flat();
+                setBinItemsInfo(flattenedBinItemsInfo);
             } catch (error) {
-                console.error("Error fetching item references:", error);
+                console.error("Error fetching bin items info:", error);
             }
         };
 
-        fetchItemRefs();
+        fetchData();
     }, []);
 
-
-    const renderListing = ({ item: imageUri, index}) => {
+    const renderListing = ({ item }) => {
+        const binItemInfo = item;
         return (
             <View style={[styles.itemContainer, { width: itemWidth }]}>
-                <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri})}>
+                <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo })}>
                     <Image
-                        source={{ uri: imageUri }}
+                        source={{ uri: item.imageUri }}
                         style={{
                             width: 115,
                             height: 115,
                         }}
                     />
                 </TouchableOpacity>
-                {imageUri ? (
-                    null
-                ) : (
-                    <IconWithBackground
+                {item.imageUri ? null : (
+                    <View>
+                       <IconWithBackground
                         width={115}
                         height={115}
                         iconSize={60}
@@ -76,6 +57,7 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
                         iconName="image"
                         backgroundColor="#eBeBeB"
                     />
+                    </View>
                 )}
             </View>
         );
@@ -88,7 +70,7 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
             </View>
             <View style={styles.contentContainer}>
                 <FlatList
-                    data={imageUris}
+                    data={binItemsInfo}
                     renderItem={renderListing}
                     keyExtractor={(item, index) => index.toString()}
                     numColumns={3}
@@ -132,4 +114,5 @@ const styles = StyleSheet.create({
 });
 
 export default ListingScroll;
+
 
