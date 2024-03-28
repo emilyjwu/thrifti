@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { BinItemInfo, fetchAllBins, fetchBinItemsInfo, fetchBinItems } from '../database';
+import { BinItemInfo, fetchAllBins, fetchBinItemsInfo, fetchBinItems, fetchBinName } from '../database';
 
 interface MixedFeedProps {
   navigation: NavigationProp<any>;
@@ -25,7 +25,7 @@ const ListingSquare: React.FC<ListingSquareProps> = ({ imageUri, binItemInfo, ma
     const handlePress = () => {
       navigation.navigate('Listing', { imageUri, binItemInfo });
     };
-  
+
     return (
       <TouchableOpacity onPress={handlePress}>
         <Image style={[styles.listingSquare, marginBottom && { marginBottom: 5 }]}
@@ -47,7 +47,8 @@ const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, marginLeft
   const handlePress = async () => {
     try {
         const binItems = await fetchBinItemsInfo(binItemInfo.binID);
-        navigation.navigate('ExpandBin', { binItems });
+        const binName = await fetchBinName(binItemInfo.binID);
+        navigation.navigate('ExpandBin', { binItems, binName });
     } catch (error) {
         console.error("Error fetching bin items: ", error);
     }
@@ -64,9 +65,9 @@ const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, marginLeft
 
   const ListingRow = ({ item }: { item: DataEntry }) => {
     if (item.binItems.length < 3) {
-      return null; 
+      return null;
     }
-  
+
     return (
       <View style={styles.type1}>
         <ListingSquare imageUri={item.binItems[0].imageUri} binItemInfo={item.binItems[0]} />
@@ -78,7 +79,7 @@ const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, marginLeft
 
   const BinListingRow = ({ item }: { item: DataEntry }) => {
     if (item.binItems.length < 3) {
-      return null; 
+      return null;
     }
     return (
       <View style={styles.type2}>
@@ -93,7 +94,7 @@ const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, marginLeft
 
   const ListingBinRow = ({ item }: { item: DataEntry }) => {
     if (item.binItems.length < 3) {
-      return null; 
+      return null;
     }
     return (
       <View style={styles.type2}>
@@ -175,7 +176,7 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
     });
     setData(newData);
   }, [binsInfo]);
-  
+
   return (
     <View style={styles.container}>
       <Text style={{ fontSize: 26, fontWeight: "bold" }}>

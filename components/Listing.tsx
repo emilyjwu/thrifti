@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Text, View, ScrollView, StyleSheet, Image} from 'react-native'
+import { Text, View, ScrollView, StyleSheet, Image, ActivityIndicator } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -13,6 +13,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   const [liked, setLiked] = useState(false);
   const labels = ['Denim', 'Blue', 'Outerwear'];
   const { imageUri, binItemInfo} = route.params;
+  const [imageLoading, setImageLoading] = useState(true);
 
     return (
       <View style={styles.container}>
@@ -21,12 +22,18 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
             <View style={styles.profilePhoto}/>
             <Text style={styles.profileName}>@janeDoe</Text>
           </View>
-          <View style={styles.imageContainer}>
+            <View style={styles.imageContainer}>
+            {imageLoading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#0000ff" />
+              </View>
+            )}
             <Image
-            style={styles.square}
-            source={{ uri: imageUri }}
+              style={styles.square}
+              source={{ uri: imageUri }}
+              onLoad={() => setImageLoading(false)}
             />
-          </View>
+            </View>
           <View style={styles.horizontalBox}>
             {binItemInfo.listingName ? (
             <Text style={styles.title}>{binItemInfo.listingName}</Text>
@@ -124,7 +131,7 @@ const styles = StyleSheet.create({
   conditionContainer: {
     backgroundColor: '#eBeBeB',
     padding: 5,
-    borderRadius: 10, 
+    borderRadius: 10,
     marginLeft: 5,
   },
   subtitle: {
@@ -154,6 +161,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#778899',
     justifyContent: 'space-between',
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
     alignItems: 'center',
   },
 });

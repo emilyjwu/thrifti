@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image, ScrollView} from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
-import { fetchAllBins, fetchBinItemsInfo, BinItemInfo } from "../database/index";
+import { fetchAllBins, fetchBinItemsInfo, BinItemInfo, fetchBinName } from "../database/index";
 import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -17,6 +17,9 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
     const itemWidth = (windowWidth - 40) / 3;
 
     const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
+    const [binNames, setBinNames] = useState<string[]>([]);
+
+
 
 
 
@@ -28,8 +31,11 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                     return await fetchBinItemsInfo(bin);
                 }));
                 setBinsInfo(binsInfoArray);
-                // console.log(binsInfoArray[0])
-                // console.log(binsInfoArray[3])
+
+                const binNamesArray: string[] = await Promise.all(bins.map(async (bin) => {
+                  return await fetchBinName(bin);
+              }));
+              setBinNames(binNamesArray);
 
             } catch (error) {
                 console.error("Error fetching bin items info:", error);
@@ -90,8 +96,8 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                         {binItems.length !== 0 ? (
                             <View>
                                 <View style={styles.titleContainer}>
-                                    <TouchableOpacity onPress={() => navigation.navigate("ExpandBin", {binItems})}>
-                                        <Text style={styles.title}>Bin Name</Text>
+                                    <TouchableOpacity onPress={() => navigation.navigate("ExpandBin", {binItems, binName:binNames[index] })}>
+                                        <Text style={styles.title}>{binNames[index]}</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => navigation.navigate("Message")} style={styles.message}>
                                         <MaterialCommunityIcon name="message" size={30} color="#75D7FF" />
