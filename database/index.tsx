@@ -202,7 +202,6 @@ export const getImage = async (imageRef: string) => {
 export interface BinItemInfo {
   imageUri: any;
   id: string;
-
 }
 
 export const fetchBinItemsInfo = async (binID: string): Promise<BinItemInfo[]> => {
@@ -216,11 +215,13 @@ export const fetchBinItemsInfo = async (binID: string): Promise<BinItemInfo[]> =
           const imageUri = await getImage(doc.data().imgRef);
           return {
               id: doc.id,
+              binID: doc.data().binID,
               condition: doc.data().condition,
               description: doc.data().description,
               imgRef: doc.data().imgRef,
               listingName: doc.data().listingName,
               price: doc.data().price,
+              tags: doc.data().tags,
               imageUri: imageUri
           };
       });

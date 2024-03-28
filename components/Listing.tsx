@@ -1,10 +1,8 @@
-import { doc, getDoc } from 'firebase/firestore';
 import React, { useState } from 'react'
 import { Text, View, ScrollView, StyleSheet, Image} from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { firestore } from '../database';
 
 interface ListingProps {
   navigation: any;
@@ -15,25 +13,6 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   const [liked, setLiked] = useState(false);
   const labels = ['Denim', 'Blue', 'Outerwear'];
   const { imageUri, binItemInfo} = route.params;
-  console.log()
-  console.log("inListing")
-  console.log(binItemInfo)
-  console.log()
-
-  // const fetchData = async () => {
-  //   try {
-  //     const docSnapshot = await getDoc(doc(firestore, "items", binItem));
-  //     const listingName = docSnapshot.data().listingName;
-  //     console.log("Listing Name:", listingName);
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
-
-  // Call the async function
-
-
-  // const name = (await getDoc(doc(firestore, "items", binItem))).data().listingName;
 
     return (
       <View style={styles.container}>
@@ -49,37 +28,43 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
             />
           </View>
           <View style={styles.horizontalBox}>
-          {binItemInfo.listingName !== "" ? (
-          <Text style={styles.title}>{binItemInfo.listingName}</Text>
-          ) : null}
-            <TouchableOpacity onPress={() => {setLiked(!liked)}}>
-              <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
-            </TouchableOpacity>
+            {binItemInfo.listingName ? (
+            <Text style={styles.title}>{binItemInfo.listingName}</Text>
+            ) : null}
+              <TouchableOpacity onPress={() => {setLiked(!liked)}}>
+                <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
+              </TouchableOpacity>
           </View>
           {binItemInfo.description !== "" ? (
-          <View style={styles.listingDescription}>
-          <Text>{binItemInfo.description}</Text>
-          </View>
+            <View style={styles.listingDescription}>
+            <Text>{binItemInfo.description}</Text>
+            </View>
           ) : null}
-          <View style={styles.horizontalBox}>
-              <Text style={styles.subtitle}>{binItemInfo.condition}</Text>
-            <View style={styles.listingCondition}>
-              <Text>Like New</Text>
+          {binItemInfo.conditon !== "" ? (
+            <View style={styles.horizontalBox}>
+              <Text style={styles.subtitle}>Condition:</Text>
+              <View style={styles.conditionContainer}>
+                <Text>{binItemInfo.condition}</Text>
+              </View>
+            </View>
+          ) : null}
+          {binItemInfo.tags ? (
+            <View>
+            <Text style={styles.subtitle}>Tags</Text>
+            <View style={styles.labelsContainer}>
+              {binItemInfo.tags.map((tag, index) => (
+                <View key={index} style={styles.labelPill}>
+                  <Text style={styles.labelText}>{tag.description}</Text>
+                </View>
+              ))}
             </View>
           </View>
-          <Text style={styles.subtitle}>Tags</Text>
-          <View style={styles.labelsContainer}>
-            {labels.map((label, index) => (
-              <View key={index} style={styles.labelPill}>
-                <Text style={styles.labelText}>{label}</Text>
-              </View>
-            ))}
-          </View>
+          ) : null}
         </ScrollView>
         <View style={styles.bottomBar}>
           <Text style={styles.title}>${binItemInfo.price}</Text>
           <TouchableOpacity onPress={() => navigation.navigate("Message")}>
-            <MaterialCommunityIcon name="message" size={65} color="white" />
+            <MaterialCommunityIcon name="message" size={40} color="white" />
           </TouchableOpacity>
         </View>
       </View>
@@ -99,6 +84,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     // backgroundColor: 'pink',
+    marginBottom: 5,
   },
   profilePhoto: {
     width: 50,
@@ -118,7 +104,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     flex: 1,
-    borderRadius: 20,
+    borderRadius: 10,
   },
   titleContainer: {
     justifyContent: 'center',
@@ -132,20 +118,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#eBeBeB',
     padding: 10,
     borderRadius: 10,
-    alignItems: "center",
     marginTop: 5,
-    marginBottom: 5,
+    marginBottom: 10,
   },
-  listingCondition: {
+  conditionContainer: {
     backgroundColor: '#eBeBeB',
-    padding: 10,
-    borderRadius: 10,
-    alignItems: "center",
-    marginTop: 10,
+    padding: 5,
+    borderRadius: 10, 
     marginLeft: 5,
   },
   subtitle: {
-    marginTop: 10,
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -156,7 +138,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   labelPill: {
-    backgroundColor: "lightslategrey",
+    backgroundColor: "lightblue",
     borderRadius: 10,
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -164,11 +146,11 @@ const styles = StyleSheet.create({
   },
   labelText: {
     fontSize: 16,
-    color: "white",
+    color: "black",
   },
   bottomBar: {
-    padding: 20,
-    height: 100,
+    padding: 10,
+    height: 65,
     backgroundColor: '#778899',
     justifyContent: 'space-between',
     flexDirection: 'row',
