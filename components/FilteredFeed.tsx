@@ -86,14 +86,14 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
             <View style={styles.container}>
             <View style={styles.buttonContainer}>
                     <TouchableOpacity onPress={() => navigation.navigate("ListingScroll")}
-                      style={styles.button}>
-                      <Text style={styles.buttonText}>
+                      style={styles.buttonGray}>
+                      <Text style={styles.buttonGrayText}>
                         Listings
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => navigation.navigate("ExploreFeed")}
-                      style={styles.buttonGray}>
-                      <Text style={styles.buttonGrayText}>
+                      style={styles.button}>
+                      <Text style={styles.buttonText}>
                         Bins
                       </Text>
                     </TouchableOpacity>
