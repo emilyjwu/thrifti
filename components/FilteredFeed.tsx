@@ -60,6 +60,7 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                         style={{
                             width: 115,
                             height: 115,
+                            borderRadius: 7
                         }}
                     />
                 </TouchableOpacity>
