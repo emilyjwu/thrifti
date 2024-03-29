@@ -20,7 +20,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
     // <View style={styles.container}>
     // </View>
     // <FilteredFeed navigation={navigation} />
-    <MixedFeed navigation={navigation} />
+    <FilteredFeed navigation={navigation} />
     );
   };
 

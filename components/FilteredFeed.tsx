@@ -10,7 +10,6 @@ import { usePostHog } from "posthog-react-native";
 
 interface FilteredFeedProps {
     navigation: NavigationProp<any>;
-    bins: string[]; // Assuming bins is an array of bin names
 }
 
 const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
