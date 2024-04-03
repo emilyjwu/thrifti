@@ -3,8 +3,8 @@ import { useState, useContext } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { AuthContext} from "../../database/index";
 
-import MixedFeed from "../../components/MixedFeed";
-import FilteredFeed from "../../components/FilteredFeed";
+import MixedFeed from "./MixedFeed";
+import FilteredFeed from "./FilteredFeed";
 
 
 interface ExploreScreenProps {
@@ -17,10 +17,10 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [bins, setBins] = useState([]);
 
   return (
-    // <View style={styles.container}>
-    // </View>
-    // <FilteredFeed navigation={navigation} />
-    <FilteredFeed navigation={navigation} />
+    <View style={styles.container}>
+      <MixedFeed navigation={navigation} />
+      {/* <FilteredFeed navigation={navigation} /> */}
+    </View>
     );
   };
 

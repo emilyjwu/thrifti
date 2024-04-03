@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { BinItemInfo, fetchAllBins, fetchBinItemsInfo, fetchBinItems, fetchBinName } from '../database';
+import { BinItemInfo, fetchAllBins, fetchBinItemsInfo, fetchBinItems, fetchBinName } from '../../database';
 import { usePostHog } from "posthog-react-native";
 
 interface MixedFeedProps {
@@ -125,7 +125,6 @@ const renderItem = ({ item }: { item: DataEntry }) => {
 
 const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
   const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
-  const [currentType, setCurrentType] = useState<number>(0);
   const [data, setData] = useState<DataEntry[]>([]);
 
   const posthog = usePostHog();

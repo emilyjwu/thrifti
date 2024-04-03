@@ -19,7 +19,7 @@ import SignupScreen from "./Login/SignupScreen";
 import Listing from "../components/Listing";
 import ExpandBin from "../components/ExpandBin";
 import ListingScroll from "../components/ListingScroll";
-import FilteredFeed from "../components/FilteredFeed";
+import FilteredFeed from "./Explore/FilteredFeed";
 import {PostHogProvider} from "posthog-react-native";
 import {posthog} from "../database/index";
 
