@@ -8,7 +8,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 // Screens
 import ExploreScreen from "./Explore/ExploreScreen";
 import ListItemScreen from "./Sell/ListItemScreen";
-import SellScreen from "./Sell/SellScreenMain";
+import SellScreen from "./Sell/SellScreen";
 import MessageScreen from "./Messaging/MessageScreen";
 import RequestsScreen from "./Requests/RequestsScreen";
 import RequestListing from "./Requests/RequestListing";

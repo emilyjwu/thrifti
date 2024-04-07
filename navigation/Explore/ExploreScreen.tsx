@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState, useContext } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { AuthContext} from "../../database/index";
 
 import MixedFeed from "./MixedFeed";
@@ -12,14 +12,12 @@ interface ExploreScreenProps {
 }
 
 const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
-  const [imgURLs, setImgURLs] = useState([]);
   const uid = useContext(AuthContext).userAuth.uid;
-  const [bins, setBins] = useState([]);
 
   return (
     <View style={styles.container}>
-      <MixedFeed navigation={navigation} />
-      {/* <FilteredFeed navigation={navigation} /> */}
+      {/* <MixedFeed navigation={navigation} /> */}
+      <FilteredFeed navigation={navigation} />
     </View>
     );
   };
@@ -38,8 +36,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    width: "100%", // Adjust as needed
-    height: 200, // Adjust as needed
+    width: "100%", 
+    height: 200, 
   },
 });
 
