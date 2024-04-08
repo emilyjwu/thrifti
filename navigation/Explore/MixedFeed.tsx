@@ -23,8 +23,7 @@ interface ListingSquareProps {
 interface BinSquareProps {
   imageUri: string;
   binItemInfo: BinItemInfo;
-  marginLeft?: boolean;
-  marginRight?: boolean;
+  isLeftBin: boolean;
 }
 
 const ListingSquare: React.FC<ListingSquareProps> = ({ imageUri, binItemInfo, marginBottom = false }) => {
@@ -43,7 +42,7 @@ const ListingSquare: React.FC<ListingSquareProps> = ({ imageUri, binItemInfo, ma
     );
 };
 
-const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, marginLeft = false, marginRight = false }) => {
+const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, isLeftBin }) => {
   const navigation = useNavigation();
   const [binName, setBinName] = useState();
 
@@ -72,11 +71,11 @@ const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, marginLeft
   return (
     <TouchableOpacity onPress={handlePress}>
       <View style={styles.binContainer}>
-        <Image style={[styles.binImage, marginLeft && { marginLeft: 5 }, marginRight && { marginRight: 5 }]}
+        <Image style={[styles.binImage]}
                 source= {{ uri: imageUri }}
         />
-        <View style={[styles.binOverlay, marginLeft && { marginLeft: 5 }, marginRight && { marginRight: 5 }]} />
-        <Text style={[styles.binTitle, marginLeft && { right: 10 }, marginRight && { left: 10 }]}>{binName}</Text>
+        <View style={[styles.binOverlay]} />
+        <Text style={[styles.binTitle, isLeftBin && { left: 10 }, !isLeftBin && { right: 10 }]}>{binName}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -103,7 +102,7 @@ const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, marginLeft
 
     return (
       <View style={styles.type2}>
-      <BinSquare imageUri={item.binItems[0].imageUri} binItemInfo={item.binItems[0]} marginRight />
+      <BinSquare imageUri={item.binItems[0].imageUri} binItemInfo={item.binItems[0]} isLeftBin={true} />
       <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
           <ListingSquare imageUri={item.binItems[1].imageUri} binItemInfo={item.binItems[1]} marginBottom/>
           <ListingSquare imageUri={item.binItems[2].imageUri} binItemInfo={item.binItems[2]} />
@@ -123,7 +122,7 @@ const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, marginLeft
           <ListingSquare imageUri={item.binItems[0].imageUri} binItemInfo={item.binItems[0]} marginBottom/>
           <ListingSquare imageUri={item.binItems[1].imageUri} binItemInfo={item.binItems[1]} />
       </View>
-      <BinSquare imageUri={item.binItems[2].imageUri} binItemInfo={item.binItems[2]} marginLeft />
+      <BinSquare imageUri={item.binItems[2].imageUri} binItemInfo={item.binItems[2]} isLeftBin={false} />
     </View>
     );
   };
@@ -226,7 +225,7 @@ const styles = StyleSheet.create({
   binOverlay: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
   },
   binTitle: {
     fontSize: 23,
@@ -242,6 +241,7 @@ const styles = StyleSheet.create({
   },
   type2: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 5,
   },
 });
