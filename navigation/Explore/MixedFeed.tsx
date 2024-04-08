@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, FlatList, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { BinItemInfo, fetchAllBins, fetchBinItemsInfo, fetchBinItems, fetchBinName } from '../database';
+import { BinItemInfo, fetchAllBins, fetchBinItemsInfo, fetchBinName } from '../../database';
 import { usePostHog } from "posthog-react-native";
 
 interface MixedFeedProps {
@@ -20,6 +20,13 @@ interface ListingSquareProps {
   marginBottom?: boolean;
 }
 
+interface BinSquareProps {
+  imageUri: string;
+  binItemInfo: BinItemInfo;
+  marginLeft?: boolean;
+  marginRight?: boolean;
+}
+
 const ListingSquare: React.FC<ListingSquareProps> = ({ imageUri, binItemInfo, marginBottom = false }) => {
     const navigation = useNavigation();
 
@@ -35,13 +42,6 @@ const ListingSquare: React.FC<ListingSquareProps> = ({ imageUri, binItemInfo, ma
       </TouchableOpacity>
     );
 };
-
-interface BinSquareProps {
-  imageUri: string;
-  binItemInfo: BinItemInfo;
-  marginLeft?: boolean;
-  marginRight?: boolean;
-}
 
 const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, marginLeft = false, marginRight = false }) => {
   const navigation = useNavigation();
@@ -125,7 +125,6 @@ const renderItem = ({ item }: { item: DataEntry }) => {
 
 const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
   const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
-  const [currentType, setCurrentType] = useState<number>(0);
   const [data, setData] = useState<DataEntry[]>([]);
 
   const posthog = usePostHog();

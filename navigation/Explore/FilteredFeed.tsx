@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image, ScrollView} from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
-import { fetchAllBins, fetchBinItemsInfo, BinItemInfo, fetchBinName } from "../database/index";
-import IconWithBackground from "./IconWithBackground";
+import { fetchAllBins, fetchBinItemsInfo, BinItemInfo, fetchBinName } from "../../database/index";
+import IconWithBackground from "../../components/IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Ionicons from "react-native-vector-icons/Ionicons";
 import { usePostHog } from "posthog-react-native";
 
 interface FilteredFeedProps {
@@ -24,9 +23,6 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
     useEffect(() => {
       posthog.capture("VIEWED_FILTERED_FEED");
     }, []);
-
-
-
 
 
     useEffect(() => {
