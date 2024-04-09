@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 interface FilteredFeedProps {
-    navigation: NavigationProp<any>;r
+    navigation: NavigationProp<any>;
 }
 
 const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
@@ -70,7 +70,7 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
     }, []);
 
 
-    //TEST: Try to keep data in local storage so switching between screens does not cause a full data reload! 
+    //TEST: Try to keep data in local storage so switching between screens does not cause a full data reload!
 
     // useEffect(() => {
     //     const fetchData = async () => {
