@@ -13,7 +13,7 @@ interface ExpandBinProps {
 
 const ExpandBin: React.FC<ExpandBinProps> = ({ navigation, route }) => {
   const { binItems, binName } = route.params;
-  const [loadingIndices, setLoadingIndices] = useState<number[]>([]); // State to track loading indices
+  const [loadingIndices, setLoadingIndices] = useState<number[]>([]); 
 
   const posthog = usePostHog();
 
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     borderRadius: 7
   },
   loadingIndicator: {
-    marginBottom: 10, // Adjust spacing between loading indicators and images
+    marginBottom: 10, 
   },
 });
 
