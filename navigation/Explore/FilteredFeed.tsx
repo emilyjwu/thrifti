@@ -4,12 +4,9 @@ import { NavigationProp } from '@react-navigation/native';
 import { fetchAllBins, fetchBinItemsInfo, BinItemInfo, fetchBinName } from "../../database/index";
 import IconWithBackground from "../../components/IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-<<<<<<< HEAD:components/FilteredFeed.tsx
-=======
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
->>>>>>> main:navigation/Explore/FilteredFeed.tsx
 import { usePostHog } from "posthog-react-native";
-import ListingScroll from './ListingScroll';
+import ListingScroll from '../../components/ListingScroll';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -32,13 +29,10 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
       posthog.capture("VIEWED_FILTERED_FEED");
     }, []);
 
-<<<<<<< HEAD:components/FilteredFeed.tsx
     const handleIndexChange = (index: number) => {
         setIsBinsView(index === 0);
     };
 
-=======
->>>>>>> main:navigation/Explore/FilteredFeed.tsx
 
     useEffect(() => {
         const fetchData = async () => {
