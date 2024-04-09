@@ -73,7 +73,7 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.buttonContainer}>
+            {/* <View style={styles.buttonContainer}>
                     <TouchableOpacity onPress={() => navigation.navigate("ListingScroll")}
                       style={styles.button}>
                       <Text style={styles.buttonText}>
@@ -86,7 +86,7 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
                         Bins
                       </Text>
                     </TouchableOpacity>
-              </View>
+              </View> */}
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>Recent</Text>
             </View>
