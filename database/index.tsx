@@ -252,7 +252,6 @@ export const fetchBinItemsInfo = async (binID: string): Promise<BinItemInfo[]> =
 
       // Wait for all promises to resolve
       const binItemsInfo: BinItemInfo[] = await Promise.all(binItemsInfoPromises);
-
       return binItemsInfo;
   } catch (error) {
       console.log("Issue getting bin items: ", error);

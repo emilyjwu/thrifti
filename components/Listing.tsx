@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Text, View, ScrollView, StyleSheet, Image, ActivityIndicator } from 'react-native'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { usePostHog } from "posthog-react-native";
 
@@ -26,7 +27,14 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
       <View style={styles.container}>
         <ScrollView style={styles.scrollContainer}>
           <View style={styles.horizontalBox}>
-            <View style={styles.profilePhoto}/>
+            <TouchableOpacity onPress={()=>navigation.navigate("Profile")}>
+              <FontAwesome
+                  name="user-circle"
+                  size={50}
+                  color='gray'
+                  style={styles.profilePhoto}
+              />
+            </TouchableOpacity>
             <Text style={styles.profileName}>@janeDoe</Text>
           </View>
             <View style={styles.imageContainer}>
@@ -101,10 +109,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   profilePhoto: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'lightblue',
     marginRight: 5,
   },
   profileName: {
@@ -164,8 +168,8 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     padding: 10,
-    height: 65,
-    backgroundColor: '#778899',
+    height: 60,
+    backgroundColor: 'gray',
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',
