@@ -3,7 +3,7 @@ import { View, TextInput, Button, StyleSheet, Text } from "react-native";
 import { auth } from "../../database/index";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
-import { AuthContext, fetchImageRefFromItem } from "../../database/index";
+import { AuthContext, createTransaction } from "../../database/index";
 
 interface LoginScreenProps {
   onLogin: (email) => void;
