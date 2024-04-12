@@ -358,33 +358,36 @@ const addTransaction = async (
   buyerID: string,
   transactionID: string
 ) => {
-  const sellerRef = doc(firestore, "users", sellerID);
-  const buyerRef = doc(firestore, "users", buyerID);
-  updateDoc(sellerRef, {
-    transactions: arrayUnion(transactionID),
-  })
-    .then(() => {
-      console.log("Item added to transactions successfully!");
+  try {
+    const sellerRef = doc(firestore, "users", sellerID);
+    const buyerRef = doc(firestore, "users", buyerID);
+    updateDoc(sellerRef, {
+      transactions: arrayUnion(transactionID),
     })
-    .catch((error) => {
-      console.error("Error adding transaction ID to transactions: ", error);
-    });
-  updateDoc(buyerRef, {
-    transactions: arrayUnion(transactionID),
-  })
-    .then(() => {
-      console.log("Item added to transactions successfully!");
+      .then(() => {
+        console.log("Item added to transactions successfully!");
+      })
+      .catch((error) => {
+        console.error("Error adding transaction ID to transactions: ", error);
+      });
+    updateDoc(buyerRef, {
+      transactions: arrayUnion(transactionID),
     })
-    .catch((error) => {
-      console.error("Error adding transaction ID to transactions: ", error);
-    });
+      .then(() => {
+        console.log("Item added to transactions successfully!");
+      })
+      .catch((error) => {
+        console.error("Error adding transaction ID to transactions: ", error);
+      });
+  } catch (error) {
+    console.error("cannot add transaction for users given: ", error);
+  }
 };
 
 // ********** GET FIELDS **********
 export const fetchFieldsAnyCollection = async (
   collection: string,
-  ID: string,
-  attributes: string[]
+  ID: string
 ) => {
   const docRef = doc(firestore, collection, ID);
   const docSnap = await getDoc(docRef);
@@ -392,16 +395,7 @@ export const fetchFieldsAnyCollection = async (
     console.log("No such document!");
     return {};
   } else {
-    const data = docSnap.data();
-    const filteredData = {};
-
-    // Filtering attributes
-    attributes.forEach((attr) => {
-      if (data[attr] !== undefined) {
-        filteredData[attr] = data[attr];
-      }
-    });
-    return filteredData;
+    return docSnap.data();
   }
 };
 
@@ -424,6 +418,8 @@ export const createRequest = async (
       currentDate.getDate(),
   };
   try {
+    // THIS ASSUMES YOU ARE PASSING IN A VALID USERID
+    // can be handled later...
     const docRef = await addDoc(
       collection(firestore, "requests"),
       requestFields
@@ -452,8 +448,10 @@ export const createTransaction = async (
       currentDate.getDate(),
   };
   try {
+    // THIS ASSUMES YOU ARE PASSING IN A VALID SELLERID, BUYERID, AND LISTINGID
+    // i do not know what horrors our database will endure otherwise
     const docRef = await addDoc(
-      collection(firestore, "requests"),
+      collection(firestore, "transactions"),
       transactionFields
     );
     addTransaction(sellerID, buyerID, docRef.id);
