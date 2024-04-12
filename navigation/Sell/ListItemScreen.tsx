@@ -141,6 +141,10 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
             price: itemPrice,
             condition: "",
             description: "",
+            userID: "",
+            imgURL: "",
+            sold: false,
+            date: "",
           };
         } else {
           console.log("Bin not found.");
