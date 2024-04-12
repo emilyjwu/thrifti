@@ -1,6 +1,7 @@
 from pinecone import Pinecone
 from openai import OpenAI
 from flask import Flask, jsonify, request
+import os
 
 pc = Pinecone(api_key=
     ""
@@ -10,6 +11,9 @@ index = pc.Index("thrifti-bins")
 client = OpenAI()
 
 app = Flask("Pinecone")
+
+if __name__ == '__main__':
+    app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 8000)))
 
 @app.route("/")
 def hello_world():
