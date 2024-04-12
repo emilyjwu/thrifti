@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { getDocs, collection, query, where } from "firebase/firestore";
+import {
+  getDocs,
+  collection,
+  query,
+  where,
+  arrayUnion,
+} from "firebase/firestore";
 
 // FIREBASE IN QUARANTINE UNTIL IT WORKS
 import { initializeApp } from "firebase/app";
@@ -250,7 +256,7 @@ export const fetchBinItemsInfo = async (
   }
 };
 
-// ********** FETCHING LISTING INFORMATION **********
+// ********** LISTING INFORMATION **********
 
 export const getImageURL = async (listingID: string) => {
   try {
@@ -275,29 +281,137 @@ export const getImage = async (imageRef: string) => {
   }
 };
 
+const makeItemSold = async (listingID: string) => {
+  const docRef = doc(firestore, "items", listingID);
+  updateDoc(docRef, {
+    sold: true,
+  })
+    .then(() => {
+      console.log("Item set to sold");
+    })
+    .catch((error) => {
+      console.error("Failed to set Item to sold: ", error);
+    });
+};
+
 // ********** EDIT USER FIELDS **********
-// add transaction to transaction list
-const addTransaction = async (userID: string, transactionID: string) => {};
 
 // add follower to follower list
-const addFollower = async (userID: string, followerID: string) => {};
+export const addFollower = async (userID: string, followerID: string) => {
+  const docRef = doc(firestore, "users", userID);
+  updateDoc(docRef, {
+    followers: arrayUnion(followerID),
+  })
+    .then(() => {
+      console.log("Item added to followers successfully!");
+    })
+    .catch((error) => {
+      console.error("Error adding user to followers: ", error);
+    });
+};
 
 // add following to list of people user follows
-const addFollowing = async (userID: string, followingID: string) => {};
+export const addFollowing = async (userID: string, followingID: string) => {
+  const docRef = doc(firestore, "users", userID);
+  updateDoc(docRef, {
+    following: arrayUnion(followingID),
+  })
+    .then(() => {
+      console.log("Following user added successfully!");
+    })
+    .catch((error) => {
+      console.error("Error adding user to the following: ", error);
+    });
+};
 
 // add liked listing to likedListings list
-const addLikedListing = async (userID: string, listingID: string) => {};
+export const addLikedListing = async (userID: string, listingID: string) => {
+  const docRef = doc(firestore, "users", userID);
+  updateDoc(docRef, {
+    likedListings: arrayUnion(listingID),
+  })
+    .then(() => {
+      console.log("Listing added to LikedListings successfully!");
+    })
+    .catch((error) => {
+      console.error("Error adding listing to LikedListings: ", error);
+    });
+};
 
 // add request to requests list
-const addRequest = async (userID: string, requestID: string) => {};
+const addRequest = async (userID: string, requestID: string) => {
+  const docRef = doc(firestore, "users", userID);
+  updateDoc(docRef, {
+    requests: arrayUnion(requestID),
+  })
+    .then(() => {
+      console.log("Request added to the requests successfully!");
+    })
+    .catch((error) => {
+      console.error("Error adding request to the requests: ", error);
+    });
+};
+
+// add transaction to transaction list
+const addTransaction = async (
+  sellerID: string,
+  buyerID: string,
+  transactionID: string
+) => {
+  const sellerRef = doc(firestore, "users", sellerID);
+  const buyerRef = doc(firestore, "users", buyerID);
+  updateDoc(sellerRef, {
+    transactions: arrayUnion(transactionID),
+  })
+    .then(() => {
+      console.log("Item added to transactions successfully!");
+    })
+    .catch((error) => {
+      console.error("Error adding transaction ID to transactions: ", error);
+    });
+  updateDoc(buyerRef, {
+    transactions: arrayUnion(transactionID),
+  })
+    .then(() => {
+      console.log("Item added to transactions successfully!");
+    })
+    .catch((error) => {
+      console.error("Error adding transaction ID to transactions: ", error);
+    });
+};
+
+// ********** GET FIELDS **********
+export const fetchFieldsAnyCollection = async (
+  collection: string,
+  ID: string,
+  attributes: string[]
+) => {
+  const docRef = doc(firestore, collection, ID);
+  const docSnap = await getDoc(docRef);
+  if (!docSnap.exists()) {
+    console.log("No such document!");
+    return {};
+  } else {
+    const data = docSnap.data();
+    const filteredData = {};
+
+    // Filtering attributes
+    attributes.forEach((attr) => {
+      if (data[attr] !== undefined) {
+        filteredData[attr] = data[attr];
+      }
+    });
+    return filteredData;
+  }
+};
 
 // ********** REQUESTS **********
-const createRequest = async (
+export const createRequest = async (
   userID: string,
   title: string,
   description: string
 ) => {
-  // create transaction
+  // create request
   const requestFields = {
     userID: userID,
     title: title,
@@ -309,12 +423,45 @@ const createRequest = async (
       "-" +
       currentDate.getDate(),
   };
-  const docRef = await addDoc(collection(firestore, "requests"), requestFields);
-
-  // update listing to sold
+  try {
+    const docRef = await addDoc(
+      collection(firestore, "requests"),
+      requestFields
+    );
+    addRequest(userID, docRef.id);
+  } catch (error) {
+    console.error("Problem creating request: " + error);
+  }
 };
 
 // ********** TRANSACTIONS **********
+export const createTransaction = async (
+  buyerID: string,
+  sellerID: string,
+  listingID: string
+) => {
+  const transactionFields = {
+    buyerID: buyerID,
+    sellerID: sellerID,
+    listingID: listingID,
+    date:
+      currentDate.getFullYear() +
+      "-" +
+      (currentDate.getMonth() + 1) +
+      "-" +
+      currentDate.getDate(),
+  };
+  try {
+    const docRef = await addDoc(
+      collection(firestore, "requests"),
+      transactionFields
+    );
+    addTransaction(sellerID, buyerID, docRef.id);
+    makeItemSold(listingID);
+  } catch (error) {
+    console.error("Problem creating request: " + error);
+  }
+};
 
 export { firestore, firebaseApp, storage, auth };
 
