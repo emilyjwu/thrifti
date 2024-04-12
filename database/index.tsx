@@ -44,6 +44,7 @@ const storage = getStorage(firebaseApp);
 const auth = initializeAuth(firebaseApp, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
+const currentDate = new Date();
 
 export const uploadImageToStorage = async (
   imageUri: string,
@@ -53,11 +54,8 @@ export const uploadImageToStorage = async (
     const docRef = await addDoc(collection(firestore, "items"), listingData);
     const response = await fetch(imageUri);
     const blob = await response.blob();
-    const imageName = listingData.itemID;
     const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);
-    updateDoc(docRef, {
-      imgRef: "/" + listingData.binID + "/" + docRef.id,
-    });
+    const imgRef = "/" + listingData.binID + "/" + docRef.id;
     const metadata = {
       contentType: blob.type,
       customMetadata: {
@@ -70,6 +68,10 @@ export const uploadImageToStorage = async (
     };
     await uploadBytesResumable(storageRef, blob, metadata);
     console.log("Image uploaded successfully");
+    const imageURL = await getImage(imgRef);
+    updateDoc(docRef, {
+      imgURL: imageURL,
+    });
     return 200;
   } catch (error) {
     console.log("Issue storing image in FBS: ", error);
@@ -92,6 +94,8 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+// ********** FETCHING BIN INFORMATION **********
 
 // retrives the ID of all of a user's bins as a [] of binIDs
 export const fetchUserBins = async (userID: string) => {
@@ -142,8 +146,6 @@ export const fetchBinName = async (binID: string) => {
   }
 };
 
-
-
 export const fetchBinItems = async (binID: string) => {
   try {
     const querySnapshot = await getDocs(
@@ -158,13 +160,11 @@ export const fetchBinItems = async (binID: string) => {
   }
 };
 
-
 export const fetchImageRefFromItem = async (itemID: string) => {
   try {
     const docRef = doc(firestore, "items", itemID);
     const docSnap = await getDoc(docRef);
     return docSnap.data().imgRef;
-    return;
   } catch (error) {
     console.log("Issue getting bin items: ", error);
     return "";
@@ -210,6 +210,59 @@ export const fetchURLs = async (binID: string) => {
   }
 };
 
+export interface BinItemInfo {
+  imageUri: any;
+  id: string;
+}
+
+export const fetchBinItemsInfo = async (
+  binID: string
+): Promise<BinItemInfo[]> => {
+  try {
+    const querySnapshot = await getDocs(
+      query(collection(firestore, "items"), where("binID", "==", binID))
+    );
+
+    // Map each document to an object containing only the desired attributes
+    const binItemsInfoPromises: Promise<BinItemInfo>[] = querySnapshot.docs.map(
+      async (doc) => {
+        const imageUri = await getImage(doc.data().imgRef);
+        return {
+          id: doc.id,
+          binID: doc.data().binID,
+          condition: doc.data().condition,
+          description: doc.data().description,
+          imgRef: doc.data().imgRef,
+          listingName: doc.data().listingName,
+          price: doc.data().price,
+          tags: doc.data().tags,
+          imageUri: imageUri,
+        };
+      }
+    );
+
+    // Wait for all promises to resolve
+    const binItemsInfo: BinItemInfo[] = await Promise.all(binItemsInfoPromises);
+    return binItemsInfo;
+  } catch (error) {
+    console.log("Issue getting bin items: ", error);
+    return [];
+  }
+};
+
+// ********** FETCHING LISTING INFORMATION **********
+
+export const getImageURL = async (listingID: string) => {
+  try {
+    const docRef = doc(firestore, "items", listingID);
+    const docSnap = await getDoc(docRef);
+    return docSnap.data().imgURL;
+  } catch (error) {
+    console.log("Issue getting Listing Image URL.");
+    return null;
+  }
+};
+
 //Emily and I added getImage
 export const getImage = async (imageRef: string) => {
   try {
@@ -222,42 +275,46 @@ export const getImage = async (imageRef: string) => {
   }
 };
 
-//Isha adding below
-export interface BinItemInfo {
-  imageUri: any;
-  id: string;
-}
+// ********** EDIT USER FIELDS **********
+// add transaction to transaction list
+const addTransaction = async (userID: string, transactionID: string) => {};
 
-export const fetchBinItemsInfo = async (binID: string): Promise<BinItemInfo[]> => {
-  try {
-      const querySnapshot = await getDocs(
-          query(collection(firestore, "items"), where("binID", "==", binID))
-      );
+// add follower to follower list
+const addFollower = async (userID: string, followerID: string) => {};
 
-      // Map each document to an object containing only the desired attributes
-      const binItemsInfoPromises: Promise<BinItemInfo>[] = querySnapshot.docs.map(async (doc) => {
-          const imageUri = await getImage(doc.data().imgRef);
-          return {
-              id: doc.id,
-              binID: doc.data().binID,
-              condition: doc.data().condition,
-              description: doc.data().description,
-              imgRef: doc.data().imgRef,
-              listingName: doc.data().listingName,
-              price: doc.data().price,
-              tags: doc.data().tags,
-              imageUri: imageUri
-          };
-      });
+// add following to list of people user follows
+const addFollowing = async (userID: string, followingID: string) => {};
 
-      // Wait for all promises to resolve
-      const binItemsInfo: BinItemInfo[] = await Promise.all(binItemsInfoPromises);
-      return binItemsInfo;
-  } catch (error) {
-      console.log("Issue getting bin items: ", error);
-      return [];
-  }
+// add liked listing to likedListings list
+const addLikedListing = async (userID: string, listingID: string) => {};
+
+// add request to requests list
+const addRequest = async (userID: string, requestID: string) => {};
+
+// ********** REQUESTS **********
+const createRequest = async (
+  userID: string,
+  title: string,
+  description: string
+) => {
+  // create transaction
+  const requestFields = {
+    userID: userID,
+    title: title,
+    description: description,
+    date:
+      currentDate.getFullYear() +
+      "-" +
+      (currentDate.getMonth() + 1) +
+      "-" +
+      currentDate.getDate(),
+  };
+  const docRef = await addDoc(collection(firestore, "requests"), requestFields);
+
+  // update listing to sold
 };
+
+// ********** TRANSACTIONS **********
 
 export { firestore, firebaseApp, storage, auth };
 
@@ -265,10 +322,10 @@ export { firestore, firebaseApp, storage, auth };
 import PostHog from "posthog-react-native";
 
 export const posthog = new PostHog(
-"phc_aXULs8cpOn5cz6RR3ASO0PhAWgX0gNEz0euQSMDX2vn",
-{
-// usually 'https://app.posthog.com' or 'https://eu.posthog.com'
+  "phc_aXULs8cpOn5cz6RR3ASO0PhAWgX0gNEz0euQSMDX2vn",
+  {
+    // usually 'https://app.posthog.com' or 'https://eu.posthog.com'
 
-host: "https://us.posthog.com",
-}
+    host: "https://us.posthog.com",
+  }
 );
