@@ -1,9 +1,10 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import FollowButton from '../../components/FollowButton';
 
 
 interface ProfileScreenProps {
@@ -12,9 +13,18 @@ interface ProfileScreenProps {
 
 const screenWidth = Dimensions.get('window').width;
 const profilePhotoSize = screenWidth * 0.3; 
-const followButtonWidth = screenWidth * 0.5;
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const followUser = () => {
+    setIsFollowing(!isFollowing);
+  };
+
+  const unfollowUser = () => {
+    setIsFollowing(!isFollowing);
+  }
+
   return (
     <View style={styles.container}>
       {/* This header should only appear if you navigate to Profile from ANOTHER page */}
@@ -30,12 +40,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
           <View style={styles.verticalColumn}>
             <Text style={styles.nameText}>Jane Doe</Text>
             <View style={styles.horizontalRow}>
-              <TouchableOpacity style={styles.followButton} onPress={()=>console.log("following")}>
-                <View>
-                  <Text style={styles.followText}>Follow</Text>
-                </View>
-              </TouchableOpacity>
-              <Feather name="mail" size={35}/>
+              <FollowButton isFollowing={isFollowing} followUser={followUser} unfollowUser={unfollowUser} />
+              <Feather name="mail" size={40}/>
             </View>
           </View>
         </View>
@@ -102,18 +108,6 @@ const styles = StyleSheet.create({
   horizontalRow: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  followButton: {
-    backgroundColor: 'lightblue',
-    height: 35,
-    width: followButtonWidth,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 5,
-  },
-  followText: {
-    fontSize: 17,
   },
   statsContainer: {
     flexDirection: 'row',
