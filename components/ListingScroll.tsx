@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image } from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image, ActivityIndicator } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import { fetchAllBins, fetchBinItemsInfo } from "../database/index";
 import { BinItemInfo } from "../database/index";
@@ -10,11 +10,9 @@ import { usePostHog } from "posthog-react-native";
 
 const windowWidth = Dimensions.get('window').width;
 const numColumns = 3;
-const marginHorizontal = 6 * (numColumns - 1);
-// const itemWidth = (windowWidth - marginHorizontal) / numColumns;
-const itemWidth = (windowWidth - marginHorizontal) / numColumns - (marginHorizontal / numColumns);
+const marginHorizontal = 5 * (numColumns - 1);
+const itemWidth = (windowWidth - 20 * (numColumns - 1)) / numColumns;
 const totalMarginSpace = marginHorizontal / numColumns;
-const spacing = windowWidth - (itemWidth * 3) / 2
 
 interface ListingScrollProps {
     navigation: NavigationProp<any>;
@@ -52,11 +50,15 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
         fetchData();
     }, []);
 
-    const renderListing = ({ item }) => {
+    const renderListing = ({ item , index}) => {
         const binItemInfo = item;
+        const isLastInRow = (index + 1) % numColumns === 0;
+        const marginRight = isLastInRow ? 0 : totalMarginSpace;
+
         return (
-            <View style={[styles.itemContainer, { width: itemWidth}]}>
+            <View style={[styles.itemContainer, { width: itemWidth, marginRight }]}>
                 <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo })}>
+                {item.imageUri ? (
                     <Image
                         source={{ uri: item.imageUri }}
                         style={{
@@ -65,20 +67,10 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
                             borderRadius: 7,
                         }}
                     />
-                </TouchableOpacity>
-                {item.imageUri ? null : (
-                    <View>
-                       <IconWithBackground
-                        width={115}
-                        height={115}
-                        iconSize={60}
-                        iconColor="#000"
-                        iconComponent={EntypoIcon}
-                        iconName="image"
-                        backgroundColor="#eBeBeB"
-                    />
-                    </View>
+                ) : (
+                    <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
                 )}
+                </TouchableOpacity>
             </View>
         );
     };
@@ -116,6 +108,14 @@ const styles = StyleSheet.create({
     },
     flatList: {
         alignItems: 'flex-start',
+    },
+    loadingIndicator: {
+        marginBottom: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: itemWidth,
+        height: itemWidth,
+
     },
 });
 
