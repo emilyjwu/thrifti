@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import { fetchAllBins, fetchBinItemsInfo } from "../database/index";
 import { BinItemInfo } from "../database/index";
@@ -59,18 +59,28 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
             <View style={[styles.itemContainer, { width: itemWidth, marginRight }]}>
                 <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo })}>
                 {item.imageUri ? (
-                    <Image
-                        source={{ uri: item.imageUri }}
-                        style={{
-                            width: itemWidth,
-                            height: itemWidth,
-                            borderRadius: 7,
-                        }}
-                    />
-                ) : (
-                    <ActivityIndicator size="large" color="#0000ff" style={styles.loadingIndicator} />
-                )}
-                </TouchableOpacity>
+                        <Image
+                            source={{ uri: item.imageUri }}
+                            style={{
+                                width: itemWidth,
+                                height: itemWidth,
+                                borderRadius: 7,
+                            }}
+                        />
+                    ) : (
+                        <View style={styles.itemContainer}>
+                            <IconWithBackground
+                                width={itemWidth}
+                                height={itemWidth}
+                                iconSize={60}
+                                iconColor="#000"
+                                iconComponent={EntypoIcon}
+                                iconName="image"
+                                backgroundColor="#eBeBeB"
+                            />
+                        </View>
+                    )}
+                 </TouchableOpacity>
             </View>
         );
     };
@@ -108,14 +118,6 @@ const styles = StyleSheet.create({
     },
     flatList: {
         alignItems: 'flex-start',
-    },
-    loadingIndicator: {
-        marginBottom: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: itemWidth,
-        height: itemWidth,
-
     },
 });
 
