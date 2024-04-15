@@ -4,7 +4,6 @@ import { auth } from "../../database/index";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
 import { addDoc, collection } from "firebase/firestore";
-import { refFromURL } from "firebase/storage";
 import { firestore, storage, firebaseApp } from "../../database/index";
 
 interface LoginScreenProps {
@@ -15,6 +14,8 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
+  const currentDate = new Date();
 
   const handleSignUp = async () => {
     createUserWithEmailAndPassword(auth, email, password)
@@ -22,6 +23,19 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
         addDoc(collection(firestore, "users"), {
           userName: username,
           userID: userCredential.user.uid,
+          joinedDate:
+            currentDate.getFullYear() +
+            "-" +
+            (currentDate.getMonth() + 1) +
+            "-" +
+            currentDate.getDate(),
+          following: [],
+          followers: [],
+          likedListings: [],
+          transactions: [],
+          requestIDs: [],
+          bio: "",
+          profilePicURL: "",
         });
         onSignUp();
       })
@@ -46,6 +60,12 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
         placeholder="Username"
         value={username}
         onChangeText={setUsername}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Full Name"
+        value={fullName}
+        onChangeText={setFullName}
       />
       <TextInput
         style={styles.input}

@@ -32,6 +32,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const { selectedBin, listingData, imageUri } = route.params;
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const uid = useContext(AuthContext).userAuth.uid;
+  const currentDate = new Date();
 
   const handleInputChange = (text) => {
     setInputValue(text);
@@ -42,15 +43,27 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   };
 
   const onDonePress = async () => {
-    listingData.condition = itemCondition;
-    listingData.description = inputValue;
-    listingData.listingName = listingName;
-    listingData.userID = uid;
-    if ((await uploadImageToStorage(imageUri, listingData)) == 400) {
-      console.log("Unable to store image.");
-      return;
+    if (listingName == "") {
+      console.log("TYUIJHBVFGHJN");
+    } else {
+      listingData.condition = itemCondition;
+      listingData.description = inputValue;
+      listingData.listingName = listingName;
+      listingData.userID = uid;
+      listingData.date =
+        currentDate.getFullYear() +
+        "-" +
+        (currentDate.getMonth() + 1) +
+        "-" +
+        currentDate.getDate();
+      listingData.imgURL = "";
+      listingData.sold = false;
+      if ((await uploadImageToStorage(imageUri, listingData)) == 400) {
+        console.log("Unable to store image.");
+        return;
+      }
+      setIsModalVisible(true);
     }
-    setIsModalVisible(true);
   };
 
   const closeModal = () => {
