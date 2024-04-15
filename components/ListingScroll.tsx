@@ -42,6 +42,7 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
                 }));
                 const flattenedBinItemsInfo = binItemsInfoArray.flat();
                 setBinItemsInfo(flattenedBinItemsInfo);
+                console.log(flattenedBinItemsInfo);
             } catch (error) {
                 console.error("Error fetching bin items info:", error);
             }
@@ -54,10 +55,12 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
         const binItemInfo = item;
         const isLastInRow = (index + 1) % numColumns === 0;
         const marginRight = isLastInRow ? 0 : totalMarginSpace;
+        {console.log(item.imageUri)}
 
         return (
             <View style={[styles.itemContainer, { width: itemWidth, marginRight }]}>
                 <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo })}>
+
                 {item.imageUri ? (
                         <Image
                             source={{ uri: item.imageUri }}
