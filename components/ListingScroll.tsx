@@ -87,8 +87,6 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>Recent</Text>
             <View style={styles.contentContainer}>
                 <FlatList
                     data={binItemsInfo}
