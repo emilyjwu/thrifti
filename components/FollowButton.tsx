@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Modal, View, Dimensions } from 'react-native';
 
 interface FollowButtonProps {
-    isFollowing: boolean;
-    followUser: () => void; 
-    unfollowUser: () => void; 
-  }
+  isFollowing: boolean;
+  followUser: () => void; 
+  unfollowUser: () => void;
+  buttonWidth: number;
+  buttonHeight: number;
+  fontSize: number;
+}
 
-const screenWidth = Dimensions.get('window').width;
-const followButtonWidth = screenWidth * 0.5;
-
-const FollowButton: React.FC<FollowButtonProps> = ({ isFollowing, followUser, unfollowUser }) => {
+const FollowButton: React.FC<FollowButtonProps> = ({ isFollowing, followUser, unfollowUser, buttonWidth, buttonHeight, fontSize }) => {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
   const confirmUnfollow = () => {
@@ -33,13 +33,12 @@ const FollowButton: React.FC<FollowButtonProps> = ({ isFollowing, followUser, un
   return (
     <>
       <TouchableOpacity
-        style={[styles.followButton, isFollowing && styles.followingButton]}
+        style={[styles.followButton, { width: buttonWidth }, { height: buttonHeight}, isFollowing && styles.followingButton]}
         onPress={handlePress}
       >
-        <Text style={styles.followText}>{isFollowing ? 'Following' : 'Follow'}</Text>
+        <Text style={[styles.followText, {fontSize: fontSize }]}>{isFollowing ? 'Following' : 'Follow'}</Text>
       </TouchableOpacity>
 
-      {/* Modal */}
       <Modal animationType="slide" transparent={true} visible={showConfirmationModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -60,27 +59,21 @@ const FollowButton: React.FC<FollowButtonProps> = ({ isFollowing, followUser, un
 };
 
 const styles = StyleSheet.create({
-followButton: {
+  followButton: {
     backgroundColor: 'lightblue',
-    height: 35,
-    width: followButtonWidth,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 5,
-    },
-followText: {
+  },
+  followText: {
     fontSize: 17,
-},
-followingButton: {
+  },
+  followingButton: {
     backgroundColor: 'lightgrey',
-    height: 35,
-    width: followButtonWidth,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 5,
-},
+  },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
