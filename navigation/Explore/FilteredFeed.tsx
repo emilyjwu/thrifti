@@ -206,15 +206,18 @@ const styles = StyleSheet.create({
     },
     segmentedControl: {
         width: 200,
-        fontSize: 14,
-        position: 'absolute',
-        marginBottom: 20,
-        zIndex: 1,
-        left: 70
+        alignSelf: 'center',
+        marginBottom: 5
+        // width: 200,
+        // fontSize: 14,
+        // position: 'absolute',
+        // marginBottom: 20,
+        // zIndex: 1,
+        // left: 70,
     },
     scrollView: {
-        flex: 1,
-        marginTop: 20,
+        flex: 2,
+        marginTop: 5,
     },
     segmentContainer: {
         alignItems: 'center',
