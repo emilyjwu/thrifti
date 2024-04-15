@@ -20,6 +20,7 @@ import Listing from "../components/Listing";
 import ExpandBin from "../components/ExpandBin";
 import ListingScroll from "../components/ListingScroll";
 import FilteredFeed from "./Explore/FilteredFeed";
+import UserList from "./Profile/UserList";
 import {PostHogProvider} from "posthog-react-native";
 import {posthog} from "../database/index";
 
@@ -102,6 +103,21 @@ const SellStack = ({ navigation }) => (
   </Stack.Navigator>
 );
 
+const ProfileStack = ({ navigation }) => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="ProfileScreen"
+      component={ProfileScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="UserList"
+      component={UserList}
+      options={{ headerShown: false }}
+    />
+  </Stack.Navigator>
+);
+
 // ***** TODO: Implement tutorial *****
 const TutorialStack = ({ setIsLoggedIn }) => {
   // thought this should include Login and Signup but did not know how
@@ -170,7 +186,7 @@ const MainContainer: React.FC = () => {
           <Tab.Screen name="Sell" component={SellStack} />
           <Tab.Screen name="Explore" component={ExploreStack} />
           <Tab.Screen name={messageName} component={MessageScreen} />
-          <Tab.Screen name={profileName} component={ProfileScreen} />
+          <Tab.Screen name={profileName} component={ProfileStack} />
         </Tab.Navigator>
         </PostHogProvider>
       </NavigationContainer>

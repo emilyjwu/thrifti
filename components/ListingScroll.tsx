@@ -73,20 +73,6 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            {/* <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={() => navigation.navigate("ListingScroll")}
-                      style={styles.button}>
-                      <Text style={styles.buttonText}>
-                        Listings
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate("ExploreFeed")}
-                      style={styles.buttonGray}>
-                      <Text style={styles.buttonGrayText}>
-                        Bins
-                      </Text>
-                    </TouchableOpacity>
-              </View> */}
             <View style={styles.titleContainer}>
                 <Text style={styles.title}>Recent</Text>
             </View>
@@ -160,17 +146,17 @@ const styles = StyleSheet.create({
         width: 100,
         height: 50,
         borderWidth: 2,
-        borderColor: 'gray', // Set border color to gray
+        borderColor: 'gray', 
         borderRadius: 5,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'transparent', // Keep background transparent
+        backgroundColor: 'transparent', 
         marginRight: 10
       },
       buttonGrayText: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: 'gray', // Set text color to gray
+        color: 'gray', 
       },
 });
 

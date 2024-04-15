@@ -9,10 +9,11 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.23.1",
+    "@react-native-async-storage/async-storage": "^1.21.0",
     "@react-native-firebase/app": "^19.0.1",
     "@react-native-segmented-control/segmented-control": "^2.5.0",
     "@react-navigation/bottom-tabs": "^6.5.16",
+    "@react-navigation/material-top-tabs": "^6.6.13",
     "@react-navigation/native": "^6.1.14",
     "@react-navigation/stack": "^6.3.25",
     "@types/react": "~18.2.45",
