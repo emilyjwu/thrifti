@@ -14,7 +14,7 @@ import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
 import {
   firestore,
-  uploadImageToStorage,
+  uploadListing,
   AuthContext,
   addListingToUser,
 } from "../../database/index";
@@ -59,7 +59,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         currentDate.getDate();
       listingData.imgURL = "";
       listingData.sold = false;
-      if ((await uploadImageToStorage(imageUri, listingData)) == 400) {
+      if ((await uploadListing(imageUri, listingData)) == 400) {
         console.log("Unable to store image.");
         return;
       }

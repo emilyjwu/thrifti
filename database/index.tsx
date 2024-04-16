@@ -52,17 +52,14 @@ const auth = initializeAuth(firebaseApp, {
 });
 const currentDate = new Date();
 
-export const uploadImageToStorage = async (
-  imageUri: string,
-  listingData: any
-) => {
+export const uploadListing = async (imageUri: string, listingData: any) => {
   try {
     const docRef = await addDoc(collection(firestore, "items"), listingData);
     const response = await fetch(imageUri);
     const blob = await response.blob();
     const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);
     const imgRef = "/" + listingData.binID + "/" + docRef.id;
-    console.log(imgRef)
+    console.log(imgRef);
     const metadata = {
       contentType: blob.type,
       customMetadata: {
