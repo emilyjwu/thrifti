@@ -154,6 +154,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
         console.error("Error retrieving bin names:", error);
       }
     }
+
     const listingData = await createListingDetails();
 
     navigation.navigate("AdditionalInformationScreen", {
