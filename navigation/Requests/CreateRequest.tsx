@@ -14,7 +14,6 @@ import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
 import {
   firestore,
-  uploadImageToStorage,
   AuthContext,
 } from "../../database/index";
 import { addDoc, collection } from "firebase/firestore";
@@ -78,13 +77,12 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
             />
           </View>
         </View>
-        <TouchableOpacity style={styles.button} onPress={onDonePress}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MyRequests')}>
           <Text style={styles.subTitle}> Done </Text>
         </TouchableOpacity>
         <DoneListingModal
           isVisible={isModalVisible}
-          onClose={closeModal}
-        />
+          onClose={closeModal} selectedBin={""}        />
       </View>
     </TouchableWithoutFeedback>
   );
