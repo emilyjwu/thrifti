@@ -3,8 +3,13 @@ import { View, TextInput, Button, StyleSheet, Text } from "react-native";
 import { auth } from "../../database/index";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
-import { addDoc, collection } from "firebase/firestore";
-import { firestore, storage, firebaseApp } from "../../database/index";
+import { doc, setDoc, collection } from "firebase/firestore";
+import {
+  firestore,
+  storage,
+  firebaseApp,
+  AuthContext,
+} from "../../database/index";
 
 interface LoginScreenProps {
   onSignUp: () => void;
@@ -20,9 +25,14 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
   const handleSignUp = async () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        addDoc(collection(firestore, "users"), {
+        const myDocRef = doc(
+          collection(firestore, "users"),
+          userCredential.user.uid
+        );
+        setDoc(myDocRef, {
           userName: username,
-          userID: userCredential.user.uid,
+          fullName: fullName,
+          email: email,
           joinedDate:
             currentDate.getFullYear() +
             "-" +
@@ -34,6 +44,8 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
           likedListings: [],
           transactions: [],
           requestIDs: [],
+          binIDS: [],
+          listingIDs: [],
           bio: "",
           profilePicURL: "",
         });
@@ -42,7 +54,7 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
       .catch((error) => {
         //const errorCode = error.code;
         //const errorMessage = error.message;
-        console.log("Sign Up Issue");
+        console.log("Sign Up Issue: " + error);
         setEmail("");
         setPassword("");
         Toast.show({

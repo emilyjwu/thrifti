@@ -73,11 +73,16 @@ export const uploadImageToStorage = async (
       },
     };
     await uploadBytesResumable(storageRef, blob, metadata);
+
     console.log("Image uploaded successfully");
     const imageURL = await getImage(imgRef);
+
     updateDoc(docRef, {
       imgURL: imageURL,
     });
+    console.log(await (await getDoc(docRef)).data().imgURL);
+    console.log(docRef);
+    addListingToUser(listingData.uid, docRef.id);
     return 200;
   } catch (error) {
     console.log("Issue storing image in FBS: ", error);
@@ -102,21 +107,6 @@ export const AuthProvider = ({ children }) => {
 };
 
 // ********** FETCHING BIN INFORMATION **********
-
-// retrives the ID of all of a user's bins as a [] of binIDs
-export const fetchUserBins = async (userID: string) => {
-  try {
-    const binQuerySnapshot = await getDocs(
-      query(collection(firestore, "bins"), where("userID", "==", userID))
-    );
-    const binIDs = binQuerySnapshot.docs.map((doc) => doc.id);
-    console.log("Bins: ", binIDs);
-    return binIDs;
-  } catch (error) {
-    console.error("Error retrieving data:", error);
-    return [];
-  }
-};
 
 // retrives the ID of all bin in the DB as a [] of binIDs
 export const fetchAllBins = async () => {
@@ -238,11 +228,10 @@ export const fetchBinItemsInfo = async (
           binID: doc.data().binID,
           condition: doc.data().condition,
           description: doc.data().description,
-          imgRef: doc.data().imgRef,
           listingName: doc.data().listingName,
           price: doc.data().price,
           tags: doc.data().tags,
-          imageUri: imageUri,
+          imageUri: doc.data().imgURL,
         };
       }
     );
@@ -281,7 +270,7 @@ export const getImage = async (imageRef: string) => {
   }
 };
 
-const makeItemSold = async (listingID: string) => {
+export const makeItemSold = async (listingID: string) => {
   const docRef = doc(firestore, "items", listingID);
   updateDoc(docRef, {
     sold: true,
@@ -297,7 +286,7 @@ const makeItemSold = async (listingID: string) => {
 // ********** EDIT USER FIELDS **********
 
 // add follower to follower list
-export const addFollower = async (userID: string, followerID: string) => {
+export const addFollowerToUser = async (userID: string, followerID: string) => {
   const docRef = doc(firestore, "users", userID);
   updateDoc(docRef, {
     followers: arrayUnion(followerID),
@@ -311,7 +300,10 @@ export const addFollower = async (userID: string, followerID: string) => {
 };
 
 // add following to list of people user follows
-export const addFollowing = async (userID: string, followingID: string) => {
+export const addFollowingToUser = async (
+  userID: string,
+  followingID: string
+) => {
   const docRef = doc(firestore, "users", userID);
   updateDoc(docRef, {
     following: arrayUnion(followingID),
@@ -325,7 +317,10 @@ export const addFollowing = async (userID: string, followingID: string) => {
 };
 
 // add liked listing to likedListings list
-export const addLikedListing = async (userID: string, listingID: string) => {
+export const addLikedListingToUser = async (
+  userID: string,
+  listingID: string
+) => {
   const docRef = doc(firestore, "users", userID);
   updateDoc(docRef, {
     likedListings: arrayUnion(listingID),
@@ -339,7 +334,7 @@ export const addLikedListing = async (userID: string, listingID: string) => {
 };
 
 // add request to requests list
-const addRequest = async (userID: string, requestID: string) => {
+const addRequestToUser = async (userID: string, requestID: string) => {
   const docRef = doc(firestore, "users", userID);
   updateDoc(docRef, {
     requests: arrayUnion(requestID),
@@ -353,7 +348,7 @@ const addRequest = async (userID: string, requestID: string) => {
 };
 
 // add transaction to transaction list
-const addTransaction = async (
+const addTransactionToUser = async (
   sellerID: string,
   buyerID: string,
   transactionID: string
@@ -382,6 +377,34 @@ const addTransaction = async (
   } catch (error) {
     console.error("cannot add transaction for users given: ", error);
   }
+};
+
+// add Bin to Bin list
+export const addBinToUser = async (userID: string, binID: string) => {
+  const docRef = doc(firestore, "users", userID);
+  await updateDoc(docRef, {
+    binIDs: arrayUnion(binID),
+  })
+    .then(() => {
+      console.log("Bin added to the BinIDs successfully!");
+    })
+    .catch((error) => {
+      console.error("Error adding Bin to the BinIDs: ", error);
+    });
+};
+
+// add Listing to Listing list
+export const addListingToUser = async (userID: string, listingID: string) => {
+  const docRef = doc(firestore, "users", userID);
+  await updateDoc(docRef, {
+    listingIDs: arrayUnion(listingID),
+  })
+    .then(() => {
+      console.log("Listing added to the ListingIDs successfully!");
+    })
+    .catch((error) => {
+      console.error("Error adding Listing to the ListingxIDs: ", error);
+    });
 };
 
 // ********** GET FIELDS **********
@@ -424,7 +447,7 @@ export const createRequest = async (
       collection(firestore, "requests"),
       requestFields
     );
-    addRequest(userID, docRef.id);
+    addRequestToUser(userID, docRef.id);
   } catch (error) {
     console.error("Problem creating request: " + error);
   }
@@ -454,7 +477,7 @@ export const createTransaction = async (
       collection(firestore, "transactions"),
       transactionFields
     );
-    addTransaction(sellerID, buyerID, docRef.id);
+    addTransactionToUser(sellerID, buyerID, docRef.id);
     makeItemSold(listingID);
   } catch (error) {
     console.error("Problem creating request: " + error);
