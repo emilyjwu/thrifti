@@ -62,6 +62,7 @@ export const uploadImageToStorage = async (
     const blob = await response.blob();
     const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);
     const imgRef = "/" + listingData.binID + "/" + docRef.id;
+    console.log(imgRef)
     const metadata = {
       contentType: blob.type,
       customMetadata: {
@@ -69,6 +70,7 @@ export const uploadImageToStorage = async (
         itemID: listingData.itemID,
         userID: auth.currentUser.uid,
         timestamp: new Date().toString(), // Custom metadata field (e.g., timestamp)
+        // imgRef: imgRef
         // Add more custom metadata fields as needed
       },
     };
@@ -222,7 +224,7 @@ export const fetchBinItemsInfo = async (
     // Map each document to an object containing only the desired attributes
     const binItemsInfoPromises: Promise<BinItemInfo>[] = querySnapshot.docs.map(
       async (doc) => {
-        const imageUri = await getImage(doc.data().imgRef);
+        // const imageUri = await getImage(doc.data().imgRef);
         return {
           id: doc.id,
           binID: doc.data().binID,

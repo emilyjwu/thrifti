@@ -7,17 +7,27 @@ import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import { usePostHog } from "posthog-react-native";
 
+
+const windowWidth = Dimensions.get('window').width;
+const numColumns = 3;
+const marginHorizontal = 5 * (numColumns - 1);
+const itemWidth = (windowWidth - 20 * (numColumns - 1)) / numColumns;
+const totalMarginSpace = marginHorizontal / numColumns;
+
 interface ListingScrollProps {
     navigation: NavigationProp<any>;
 }
 
 const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
-    const windowWidth = Dimensions.get('window').width;
-    const itemWidth = (windowWidth - 40) / 3;
+
 
     const [binItemsInfo, setBinItemsInfo] = useState<BinItemInfo[]>([]);
 
+
     const posthog = usePostHog();
+
+
+
 
     useEffect(() => {
       posthog.capture("CHANGED_FILTER_TO_LISTINGSCROLL");
@@ -32,6 +42,7 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
                 }));
                 const flattenedBinItemsInfo = binItemsInfoArray.flat();
                 setBinItemsInfo(flattenedBinItemsInfo);
+                console.log(flattenedBinItemsInfo);
             } catch (error) {
                 console.error("Error fetching bin items info:", error);
             }
@@ -40,56 +51,45 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
         fetchData();
     }, []);
 
-    const renderListing = ({ item }) => {
+    const renderListing = ({ item , index}) => {
         const binItemInfo = item;
+        const isLastInRow = (index + 1) % numColumns === 0;
+        const marginRight = isLastInRow ? 0 : totalMarginSpace;
+        {console.log(item.imageUri)}
+
         return (
-            <View style={[styles.itemContainer, { width: itemWidth }]}>
+            <View style={[styles.itemContainer, { width: itemWidth, marginRight }]}>
                 <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo })}>
-                    <Image
-                        source={{ uri: item.imageUri }}
-                        style={{
-                            width: 115,
-                            height: 115,
-                            borderRadius: 7,
-                        }}
-                    />
-                </TouchableOpacity>
-                {item.imageUri ? null : (
-                    <View>
-                       <IconWithBackground
-                        width={115}
-                        height={115}
-                        iconSize={60}
-                        iconColor="#000"
-                        iconComponent={EntypoIcon}
-                        iconName="image"
-                        backgroundColor="#eBeBeB"
-                    />
-                    </View>
-                )}
+
+                {item.imageUri ? (
+                        <Image
+                            source={{ uri: item.imageUri }}
+                            style={{
+                                width: itemWidth,
+                                height: itemWidth,
+                                borderRadius: 7,
+                            }}
+                        />
+                    ) : (
+                        <View style={styles.itemContainer}>
+                            <IconWithBackground
+                                width={itemWidth}
+                                height={itemWidth}
+                                iconSize={60}
+                                iconColor="#000"
+                                iconComponent={EntypoIcon}
+                                iconName="image"
+                                backgroundColor="#eBeBeB"
+                            />
+                        </View>
+                    )}
+                 </TouchableOpacity>
             </View>
         );
     };
 
     return (
         <View style={styles.container}>
-            {/* <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={() => navigation.navigate("ListingScroll")}
-                      style={styles.button}>
-                      <Text style={styles.buttonText}>
-                        Listings
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate("ExploreFeed")}
-                      style={styles.buttonGray}>
-                      <Text style={styles.buttonGrayText}>
-                        Bins
-                      </Text>
-                    </TouchableOpacity>
-              </View> */}
-            <View style={styles.titleContainer}>
-                <Text style={styles.title}>Recent</Text>
-            </View>
             <View style={styles.contentContainer}>
                 <FlatList
                     data={binItemsInfo}
@@ -107,71 +107,21 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        padding: 9,
         flexDirection: 'column',
-    },
-    title: {
-        fontSize: 25,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        marginRight: 0
+        alignItems: 'flex-start',
     },
     itemContainer: {
         marginBottom: 7,
-        marginRight: 7,
         alignItems: 'flex-start',
-        justifyContent: 'space-between',
-    },
-    titleContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 5
+        paddingLeft: 0, // Ensure no padding on the left side
     },
     contentContainer: {
         flex: 1,
+        alignItems: 'flex-start',
     },
     flatList: {
         alignItems: 'flex-start',
     },
-    button: {
-        width: 100,
-        height: 50,
-        borderWidth: 2,
-        borderColor: 'black',
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'transparent',
-        marginRight: 10
-      },
-      buttonText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'black',
-      },
-    buttonContainer: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      marginBottom: 10,
-      marginLeft: 0, // Adjusted to move buttons left
-      marginRight: 10
-    },
-    buttonGray: {
-        width: 100,
-        height: 50,
-        borderWidth: 2,
-        borderColor: 'gray', // Set border color to gray
-        borderRadius: 5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'transparent', // Keep background transparent
-        marginRight: 10
-      },
-      buttonGrayText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: 'gray', // Set text color to gray
-      },
 });
 
 export default ListingScroll;

@@ -38,20 +38,21 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
         const fetchData = async () => {
             try {
                 // Check if data exists in local storage
-                const [storedBinsInfo, storedBinNames] = await Promise.all([
-                    AsyncStorage.getItem('binsInfo'),
-                    AsyncStorage.getItem('binNames')
-                ]);
+                // const [storedBinsInfo, storedBinNames] = await Promise.all([
+                //     AsyncStorage.getItem('binsInfo'),
+                //     AsyncStorage.getItem('binNames')
+                // ]);
 
-                if (storedBinsInfo && storedBinNames) {
-                    setBinsInfo(JSON.parse(storedBinsInfo));
-                    setBinNames(JSON.parse(storedBinNames));
-                } else {
+                // if (storedBinsInfo && storedBinNames) {
+                //     setBinsInfo(JSON.parse(storedBinsInfo));
+                //     setBinNames(JSON.parse(storedBinNames));
+                // } else {
                     const bins = await fetchAllBins();
                     const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
                         return await fetchBinItemsInfo(bin);
                     }));
                     setBinsInfo(binsInfoArray);
+                    console.log(binsInfoArray)
 
                     const binNamesArray: string[] = await Promise.all(bins.map(async (bin) => {
                         return await fetchBinName(bin);
@@ -59,9 +60,9 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                     setBinNames(binNamesArray);
 
                     // Store data in local storage
-                    AsyncStorage.setItem('binsInfo', JSON.stringify(binsInfoArray));
-                    AsyncStorage.setItem('binNames', JSON.stringify(binNamesArray));
-                }
+                    // AsyncStorage.setItem('binsInfo', JSON.stringify(binsInfoArray));
+                    // AsyncStorage.setItem('binNames', JSON.stringify(binNamesArray));
+                // }
             } catch (error) {
                 console.error("Error fetching bin items info:", error);
             }
@@ -206,15 +207,18 @@ const styles = StyleSheet.create({
     },
     segmentedControl: {
         width: 200,
-        fontSize: 14,
-        position: 'absolute',
-        marginBottom: 20,
-        zIndex: 1,
-        left: 70
+        alignSelf: 'center',
+        marginBottom: 5
+        // width: 200,
+        // fontSize: 14,
+        // position: 'absolute',
+        // marginBottom: 20,
+        // zIndex: 1,
+        // left: 70,
     },
     scrollView: {
-        flex: 1,
-        marginTop: 20,
+        flex: 2,
+        marginTop: 5,
     },
     segmentContainer: {
         alignItems: 'center',

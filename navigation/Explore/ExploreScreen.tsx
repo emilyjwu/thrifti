@@ -16,8 +16,8 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <MixedFeed navigation={navigation} />
-      {/* <FilteredFeed navigation={navigation} /> */}
+      {/* <MixedFeed navigation={navigation} /> */}
+      <FilteredFeed navigation={navigation} />
     </View>
     );
   };
@@ -36,8 +36,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    width: "100%", 
-    height: 200, 
+    width: "100%",
+    height: 200,
   },
 });
 
