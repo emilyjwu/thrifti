@@ -49,7 +49,7 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
 
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [updatedBins, setUpdatedBins] = useState(false);
-  const uid = useContext(AuthContext).userAuth.uid;
+  const { currentUserID } = useContext(AuthContext);
 
   async function getBinNames(firestoreObject, binUserID) {
     const binQuery = query(
@@ -71,7 +71,7 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   }
 
   React.useEffect(() => {
-    getBinNames(firestore, uid);
+    getBinNames(firestore, currentUserID);
   }, [updatedBins]);
 
   const addBin = async () => {
@@ -85,10 +85,10 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   const saveBin = async (name: string) => {
     const newBinData = {
       binName: name,
-      userID: uid,
+      userID: currentUserID,
     };
     const docRef = await addDoc(collection(firestore, "bins"), newBinData);
-    addBinToUser(uid, docRef.id);
+    addBinToUser(currentUserID, docRef.id);
     setUpdatedBins(!updatedBins);
     setIsModalVisible(false);
   };

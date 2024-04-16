@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Touchable } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -6,10 +6,12 @@ import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FollowButton from '../../components/FollowButton';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { AuthContext, fetchUserInfo, UserInfo } from "../../database/index";
 
 
 interface ProfileScreenProps {
   navigation: NavigationProp<any>;
+  userID: string;
 }
 
 const screenWidth = Dimensions.get('window').width;
@@ -35,8 +37,20 @@ const LikedTab = () => (
   </View>
 );
 
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, userID }) => {
   const [isFollowing, setIsFollowing] = useState(false);
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const { currentUserID } = useContext(AuthContext);
+  const isCurrentUser = currentUserID === userID;
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      console.log("User ID: ", userID);
+      const user = await fetchUserInfo(userID);
+      setUserInfo(user);
+    };
+    fetchUser();
+  }, [userID]);
 
   const followUser = () => {
     setIsFollowing(!isFollowing);
@@ -48,27 +62,34 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* This header should only appear if you navigate to Profile from ANOTHER page */}
-      <View style={styles.header}>
-        <MaterialIcons name="keyboard-arrow-left" size={30} />
-        <View style={styles.usernameContainer}>
-          <Text>janedoe123</Text>
+      { !isCurrentUser &&
+        <View style={styles.header}>
+          <MaterialIcons name="keyboard-arrow-left" size={30} />
+          <View style={styles.usernameContainer}>
+            <Text>janedoe123</Text>
+          </View>
         </View>
-      </View>
+      }
       <View style={{paddingBottom: 10, paddingHorizontal: 10 }}>
         <View style={styles.topContainer}>
           <FontAwesome name="user-circle" size={profilePhotoSize} color='gray' style={styles.profilePhoto}/>
           <View style={styles.verticalColumn}>
-            <Text style={styles.nameText}>Jane Doe</Text>
+            <Text style={styles.nameText}>{userInfo.fullName}</Text>
             <View style={styles.horizontalRow}>
-              <FollowButton
-                isFollowing={isFollowing}
-                followUser={followUser}
-                unfollowUser={unfollowUser}
-                buttonWidth={followButtonWidth}
-                buttonHeight={35}
-                fontSize={17}
-              />
+              {isCurrentUser ? (
+                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("hi")}>
+                  <Text style={{ fontSize: 17 }}>Edit profile</Text>
+                </TouchableOpacity>
+              ) : (
+                <FollowButton
+                  isFollowing={isFollowing}
+                  followUser={followUser}
+                  unfollowUser={unfollowUser}
+                  buttonWidth={followButtonWidth}
+                  buttonHeight={35}
+                  fontSize={17}
+                />
+              )}
               <Feather name="mail" size={40} style={{marginLeft: 5}}/>
             </View>
           </View>
@@ -150,6 +171,14 @@ const styles = StyleSheet.create({
   horizontalRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  editProfileButton: {
+    backgroundColor: 'lightblue',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: followButtonWidth,
+    height: 35,
   },
   statsContainer: {
     flexDirection: 'row',

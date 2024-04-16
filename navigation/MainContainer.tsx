@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { TouchableOpacity, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { createStackNavigator } from "@react-navigation/stack";
+import { AuthContext } from "../database/index";
 
 // Screens
 import ExploreScreen from "./Explore/ExploreScreen";
@@ -103,13 +104,14 @@ const SellStack = ({ navigation }) => (
   </Stack.Navigator>
 );
 
-const ProfileStack = ({ navigation }) => (
+const ProfileStack = ({ navigation, currentUserID }) => (
   <Stack.Navigator>
     <Stack.Screen
       name="ProfileScreen"
-      component={ProfileScreen}
       options={{ headerShown: false }}
-    />
+    >
+      {(props) => <ProfileScreen {...props} userID={currentUserID} />}
+    </Stack.Screen>
     <Stack.Screen
       name="UserList"
       component={UserList}
@@ -126,6 +128,7 @@ const TutorialStack = ({ setIsLoggedIn }) => {
 const MainContainer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
+  const { currentUserID } = useContext(AuthContext);
 
   const login = (emailIn) => {
     console.log(emailIn);
@@ -186,7 +189,9 @@ const MainContainer: React.FC = () => {
           <Tab.Screen name="Sell" component={SellStack} />
           <Tab.Screen name="Explore" component={ExploreStack} />
           <Tab.Screen name={messageName} component={MessageScreen} />
-          <Tab.Screen name={profileName} component={ProfileStack} />
+          <Tab.Screen name={profileName}>
+            {(props) => <ProfileStack {...props} currentUserID={currentUserID} />}
+          </Tab.Screen>
         </Tab.Navigator>
         </PostHogProvider>
       </NavigationContainer>

@@ -5,6 +5,7 @@ import {
   query,
   where,
   arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 
 // FIREBASE IN QUARANTINE UNTIL IT WORKS
@@ -93,13 +94,15 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [userAuth, setUserAuth] = useState<User | null>(null);
+  const [currentUserID, setCurrentUserID] = useState<String | null>(null);
 
   const setAuthAfterLogin = (userData: User) => {
     setUserAuth(userData);
+    setCurrentUserID(userAuth.uid);
   };
 
   return (
-    <AuthContext.Provider value={{ userAuth, setAuthAfterLogin }}>
+    <AuthContext.Provider value={{ userAuth, currentUserID, setAuthAfterLogin }}>
       {children}
     </AuthContext.Provider>
   );
@@ -221,7 +224,6 @@ export const fetchBinItemsInfo = async (
     // Map each document to an object containing only the desired attributes
     const binItemsInfoPromises: Promise<BinItemInfo>[] = querySnapshot.docs.map(
       async (doc) => {
-        // const imageUri = await getImage(doc.data().imgRef);
         return {
           id: doc.id,
           binID: doc.data().binID,
@@ -257,7 +259,6 @@ export const getImageURL = async (listingID: string) => {
   }
 };
 
-//Emily and I added getImage
 export const getImage = async (imageRef: string) => {
   try {
     const storageRef = ref(storage, imageRef);
@@ -284,10 +285,57 @@ export const makeItemSold = async (listingID: string) => {
 
 // ********** EDIT USER FIELDS **********
 
-// add follower to follower list
+export interface UserInfo {
+  userName: string;
+  fullName: string;
+  email: string;
+  bio: string;
+  profilePicURL: string;
+  joinedDate: string;
+}
+
+/**
+ * Gets information from a user
+ * @param userID the user fetch from database
+ * @returns UserInfo object with all user fields
+ */
+export const fetchUserInfo = async (userID: string): Promise<UserInfo | null> => {
+  const userDocRef = doc(firestore, "users", userID);
+
+  try {
+    const userDocSnapshot = await getDoc(userDocRef);
+
+    if (userDocSnapshot.exists()) {
+      const userData = userDocSnapshot.data();
+
+      const userInfo: UserInfo = {
+        userName: userData.userName,
+        fullName: userData.fullName,
+        email: userData.email,
+        bio: userData.bio || "", 
+        profilePicURL: userData.profilePicURL || "", 
+        joinedDate: userData.joinedDate,
+      };
+      return userInfo;
+    } else {
+      console.error("User document does not exist");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user information:", error);
+    return null;
+  }
+};
+
+/**
+ * Add follower to follower list
+ * 
+ * @param userID the user to follow
+ * @param followerID the user following that user
+ */
 export const addFollowerToUser = async (userID: string, followerID: string) => {
-  const docRef = doc(firestore, "users", userID);
-  updateDoc(docRef, {
+  const userDoc = doc(firestore, "users", userID);
+  updateDoc(userDoc, {
     followers: arrayUnion(followerID),
   })
     .then(() => {
@@ -296,22 +344,46 @@ export const addFollowerToUser = async (userID: string, followerID: string) => {
     .catch((error) => {
       console.error("Error adding user to followers: ", error);
     });
-};
-
-// add following to list of people user follows
-export const addFollowingToUser = async (
-  userID: string,
-  followingID: string
-) => {
-  const docRef = doc(firestore, "users", userID);
-  updateDoc(docRef, {
-    following: arrayUnion(followingID),
+  
+  const followerDoc = doc(firestore, "users", followerID);
+  updateDoc(followerDoc, {
+    following: arrayUnion(userID),
   })
     .then(() => {
       console.log("Following user added successfully!");
     })
     .catch((error) => {
       console.error("Error adding user to the following: ", error);
+    });
+};
+
+/**
+ * Remove follower from follower list
+ * 
+ * @param userID the user to unfollow
+ * @param followerID the user unfollowing that user
+ */
+export const removeFollowerFromUser = async (userID: string, followerID: string) => {
+  const userDoc = doc(firestore, "users", userID);
+  updateDoc(userDoc, {
+    followers: arrayRemove(followerID),
+  })
+    .then(() => {
+      console.log("User unfollowed successfully!");
+    })
+    .catch((error) => {
+      console.error("Error unfollowing user: ", error);
+    });
+  
+  const followerDoc = doc(firestore, "users", userID);
+  updateDoc(followerDoc, {
+    following: arrayRemove(userID),
+  })
+    .then(() => {
+      console.log("User removed successfully!");
+    })
+    .catch((error) => {
+      console.error("Error removing user: ", error);
     });
 };
 
