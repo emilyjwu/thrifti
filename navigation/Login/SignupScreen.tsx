@@ -44,7 +44,7 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
           likedListings: [],
           transactions: [],
           requestIDs: [],
-          binIDS: [],
+          binIDs: [],
           listingIDs: [],
           bio: "",
           profilePicURL: "",
