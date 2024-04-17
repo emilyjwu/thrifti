@@ -56,6 +56,7 @@ const currentDate = new Date();
 export const uploadListing = async (imageUri: string, listingData: any) => {
   try {
     const docRef = await addDoc(collection(firestore, "items"), listingData);
+    
     const response = await fetch(imageUri);
     const blob = await response.blob();
     const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);

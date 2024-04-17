@@ -122,7 +122,7 @@ const ProfileStack = ({ navigation }) => {
         name="ProfileScreen"
         options={{ headerShown: false }}
       >
-        {(props) => <ProfileScreen {...props} userID={currentUserID} />}
+      {(props) => <ProfileScreen {...props} route={{ ...props.route, params: { ...props.route.params, userID: currentUserID } }} />}
       </Stack.Screen>
       <Stack.Screen
         name="UserList"

@@ -43,7 +43,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
       <ScrollView style={styles.scrollContainer}>
       <TouchableOpacity onPress={() => {
         console.log("UserID in Listing.tsx:", binItemInfo.userID);
-        navigation.navigate("Profile", { userID: "PjqWveBbFOc3YSlGgj7yPC1464J2" });
+        navigation.navigate("Profile", { userID: binItemInfo.userID });
       }}>
         <View style={styles.horizontalBox}>
           { (userInfo && userInfo.profilePicURL != "") ?
