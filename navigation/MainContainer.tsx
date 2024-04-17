@@ -13,6 +13,8 @@ import MessageScreen from "./Messaging/MessageScreen";
 import RequestsScreen from "./Requests/RequestsScreen";
 import RequestListing from "./Requests/RequestListing";
 import ProfileScreen from "./Profile/ProfileScreen";
+import MyRequests from "./Requests/MyRequests";
+import CreateRequest from "./Requests/CreateRequest";
 import AdditionalInformationScreen from "./Sell/AdditionalInfoScreen";
 import LoginScreen from "./Login/LoginScreen";
 import SignupScreen from "./Login/SignupScreen";
@@ -77,6 +79,16 @@ const RequestStack = ({ navigation }) => (
     <Stack.Screen
       name="RequestListing"
       component={RequestListing}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="MyRequests"
+      component={MyRequests}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="CreateRequest"
+      component={CreateRequest}
       options={{ headerShown: false }}
     />
 
