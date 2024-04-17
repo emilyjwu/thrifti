@@ -22,9 +22,8 @@ import ExpandBin from "../components/ExpandBin";
 import ListingScroll from "../components/ListingScroll";
 import FilteredFeed from "./Explore/FilteredFeed";
 import UserList from "./Profile/UserList";
-import {PostHogProvider} from "posthog-react-native";
-import {posthog} from "../database/index";
-
+import { PostHogProvider } from "posthog-react-native";
+import { posthog } from "../database/index";
 
 // Screen names
 const exploreName = "Explore";
@@ -49,7 +48,7 @@ const ExploreStack = ({ navigation }) => (
       component={ExploreScreen}
       options={{ headerShown: false }}
     />
-     <Stack.Screen
+    <Stack.Screen
       name="FilteredFeed"
       component={FilteredFeed}
       options={{ headerShown: false }}
@@ -89,7 +88,6 @@ const RequestStack = ({ navigation }) => (
       component={RequestListing}
       options={{ headerShown: false }}
     />
-
   </Stack.Navigator>
 );
 
@@ -118,11 +116,16 @@ const ProfileStack = ({ navigation }) => {
 
   return (
     <Stack.Navigator>
-      <Stack.Screen
-        name="ProfileScreen"
-        options={{ headerShown: false }}
-      >
-      {(props) => <ProfileScreen {...props} route={{ ...props.route, params: { ...props.route.params, userID: currentUserID } }} />}
+      <Stack.Screen name="ProfileScreen" options={{ headerShown: false }}>
+        {(props) => (
+          <ProfileScreen
+            {...props}
+            route={{
+              ...props.route,
+              params: { ...props.route.params, userID: currentUserID },
+            }}
+          />
+        )}
       </Stack.Screen>
       <Stack.Screen
         name="UserList"
@@ -166,43 +169,45 @@ const MainContainer: React.FC = () => {
     return (
       <NavigationContainer>
         <PostHogProvider client={posthog}>
-        <Tab.Navigator
-          initialRouteName={exploreName}
-          screenOptions={({ route }) => ({
-            tabBarIcon: ({ focused, color, size }) => {
-              let iconName;
-              let routeName = route.name;
+          <Tab.Navigator
+            initialRouteName={exploreName}
+            screenOptions={({ route }) => ({
+              tabBarIcon: ({ focused, color, size }) => {
+                let iconName;
+                let routeName = route.name;
 
-              if (routeName === exploreName) {
-                iconName = focused ? "home" : "home-outline";
-              } else if (routeName === sellName) {
-                iconName = focused ? "cube" : "cube-outline";
-              } else if (routeName === messageName) {
-                iconName = focused ? "chatbubble" : "chatbubble-outline";
-              } else if (routeName === requestName) {
-                iconName = focused ? "help-circle" : "help-circle-outline";
-              } else if (routeName === profileName) {
-                iconName = focused ? "person-circle" : "person-circle-outline";
-              }
+                if (routeName === exploreName) {
+                  iconName = focused ? "home" : "home-outline";
+                } else if (routeName === sellName) {
+                  iconName = focused ? "cube" : "cube-outline";
+                } else if (routeName === messageName) {
+                  iconName = focused ? "chatbubble" : "chatbubble-outline";
+                } else if (routeName === requestName) {
+                  iconName = focused ? "help-circle" : "help-circle-outline";
+                } else if (routeName === profileName) {
+                  iconName = focused
+                    ? "person-circle"
+                    : "person-circle-outline";
+                }
 
-              return <Ionicons name={iconName} size={size} color={color} />;
-            },
-            tabBarStyle: {
-              height: 100,
-              paddingVertical: 5,
-              paddingHorizontal: 10,
-            },
-            tabBarActiveTintColor: "#9747FF",
-            tabBarInactiveTintColor: "#9DB2CE",
-            tabBarLabelStyle: { fontSize: 10, paddingBottom: 10 },
-          })}
-        >
-          <Tab.Screen name="Request" component={RequestStack} />
-          <Tab.Screen name="Sell" component={SellStack} />
-          <Tab.Screen name="Explore" component={ExploreStack} />
-          <Tab.Screen name={messageName} component={MessageScreen} />
-          <Tab.Screen name="Profile" component={ProfileStack} />
-        </Tab.Navigator>
+                return <Ionicons name={iconName} size={size} color={color} />;
+              },
+              tabBarStyle: {
+                height: 100,
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+              },
+              tabBarActiveTintColor: "#9747FF",
+              tabBarInactiveTintColor: "#9DB2CE",
+              tabBarLabelStyle: { fontSize: 10, paddingBottom: 10 },
+            })}
+          >
+            <Tab.Screen name="Request" component={RequestStack} />
+            <Tab.Screen name="Sell" component={SellStack} />
+            <Tab.Screen name="Explore" component={ExploreStack} />
+            <Tab.Screen name={messageName} component={MessageScreen} />
+            <Tab.Screen name="Profile" component={ProfileStack} />
+          </Tab.Navigator>
         </PostHogProvider>
       </NavigationContainer>
     );

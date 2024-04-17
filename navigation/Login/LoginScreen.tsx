@@ -15,18 +15,19 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
   const [password, setPassword] = useState("");
   const { setAuthAfterLogin } = useContext(AuthContext);
 
-  const handleLogin = () => {
-    signInWithEmailAndPassword(auth, email, password)
+  const handleLogin = async () => {
+    await signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        const user = userCredential.user;
         // Successful Signin
         console.log("Email: ", email);
         console.log("Password: ", password);
-        console.log("UID: ", userCredential.user.uid);
-        setAuthAfterLogin(userCredential.user);
+        console.log("UID: ", user.uid);
+        setAuthAfterLogin(user, user.uid);
         onLogin(email);
       })
       .catch((error) => {
-        console.log("Login Issue");
+        console.log("Login Issue: " + error);
         setEmail("");
         setPassword("");
         Toast.show({
