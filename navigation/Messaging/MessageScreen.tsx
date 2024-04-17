@@ -19,11 +19,11 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
 
   ];
   const [clicked, setClicked] = useState(false);
-  const { navigate } = useNavigation();
+
 
   const handlePress = () => {
     setClicked(true);
-    navigate('Chat');
+    navigation.navigate('Chat');
 };
 
 

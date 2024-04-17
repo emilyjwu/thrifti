@@ -105,6 +105,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
          <TouchableOpacity onPress={() => createChat(userInfo)}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity>
+
       </View>
     </View>
   )
