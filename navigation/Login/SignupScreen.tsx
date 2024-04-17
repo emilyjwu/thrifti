@@ -13,9 +13,10 @@ import {
 
 interface LoginScreenProps {
   onSignUp: () => void;
+  onReturn: () => void;
 }
 
-const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
+const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp, onReturn }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -91,6 +92,7 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
         onChangeText={setPassword}
       />
       <Button title="Sign Up" onPress={handleSignUp} />
+      <Button title="Return to Login" onPress={onReturn} />
       <Toast position="bottom" bottomOffset={20} />
     </View>
   );
