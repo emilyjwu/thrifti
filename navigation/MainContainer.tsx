@@ -24,6 +24,7 @@ import ExpandBin from "../components/ExpandBin";
 import ListingScroll from "../components/ListingScroll";
 import FilteredFeed from "./Explore/FilteredFeed";
 import UserList from "./Profile/UserList";
+import Chat from "./Messaging/Chat";
 import { PostHogProvider } from "posthog-react-native";
 import { posthog } from "../database/index";
 
@@ -42,6 +43,21 @@ const Stack = createStackNavigator();
 interface ProfileScreenParams {
   userID?: string;
 }
+
+const MessageStack = ({ navigation }) => (
+  <Stack.Navigator>
+    <Stack.Screen
+      name="MessagesScreen"
+      component={MessageScreen}
+      options={{ headerShown: false }}
+    />
+     <Stack.Screen
+      name="ConversationScreen"
+      component={Chat}
+      options={{ headerShown: false }}
+    />
+  </Stack.Navigator>
+);
 
 const ExploreStack = ({ navigation }) => (
   <Stack.Navigator>
@@ -222,7 +238,7 @@ const MainContainer: React.FC = () => {
             <Tab.Screen name="Request" component={RequestStack} />
             <Tab.Screen name="Sell" component={SellStack} />
             <Tab.Screen name="Explore" component={ExploreStack} />
-            <Tab.Screen name={messageName} component={MessageScreen} />
+            <Tab.Screen name="Message" component={MessageStack} />
             <Tab.Screen name="Profile" component={ProfileStack} />
           </Tab.Navigator>
         </PostHogProvider>
