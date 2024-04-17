@@ -5,6 +5,7 @@ import EntypoIcon from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { usePostHog } from "posthog-react-native";
+import { BasicUserInfo, fetchBasicUserInfo } from '../database';
 
 interface ListingProps {
   navigation: any;
@@ -13,9 +14,9 @@ interface ListingProps {
 
 const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   const [liked, setLiked] = useState(false);
-  const labels = ['Denim', 'Blue', 'Outerwear'];
   const { imageUri, binItemInfo} = route.params;
   const [imageLoading, setImageLoading] = useState(true);
+  const [userInfo, setUserInfo] = useState<BasicUserInfo | null>(null);
 
   const posthog = usePostHog();
 
@@ -23,75 +24,90 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
     posthog.capture("FOUND_LISTING");
   }, []);
 
-    return (
-      <View style={styles.container}>
-        <ScrollView style={styles.scrollContainer}>
-          <View style={styles.horizontalBox}>
-            <TouchableOpacity onPress={()=>navigation.navigate("Profile")}>
-              <FontAwesome
-                  name="user-circle"
-                  size={50}
-                  color='gray'
-                  style={styles.profilePhoto}
-              />
-            </TouchableOpacity>
-            <Text style={styles.profileName}>@janeDoe</Text>
-          </View>
-            <View style={styles.imageContainer}>
-            {imageLoading && (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#0000ff" />
-              </View>
-            )}
-            <Image
-              style={styles.square}
-              source={{ uri: imageUri }}
-              onLoad={() => setImageLoading(false)}
-            />
-            </View>
-          <View style={styles.horizontalBox}>
-            {binItemInfo.listingName ? (
-            <Text style={styles.title}>{binItemInfo.listingName}</Text>
-            ) : null}
-              <TouchableOpacity onPress={() => {setLiked(!liked)}}>
-                <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
-              </TouchableOpacity>
-          </View>
-          {binItemInfo.description !== "" ? (
-            <View style={styles.listingDescription}>
-            <Text>{binItemInfo.description}</Text>
-            </View>
-          ) : null}
-          {binItemInfo.conditon !== "" ? (
-            <View style={styles.horizontalBox}>
-              <Text style={styles.subtitle}>Condition:</Text>
-              <View style={styles.conditionContainer}>
-                <Text>{binItemInfo.condition}</Text>
-              </View>
-            </View>
-          ) : null}
-          {binItemInfo.tags ? (
-            <View>
-            <Text style={styles.subtitle}>Tags</Text>
-            <View style={styles.labelsContainer}>
-              {binItemInfo.tags.map((tag, index) => (
-                <View key={index} style={styles.labelPill}>
-                  <Text style={styles.labelText}>{tag.description}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-          ) : null}
-        </ScrollView>
-        <View style={styles.bottomBar}>
-          <Text style={styles.title}>${binItemInfo.price}</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Message")}>
-            <MaterialCommunityIcon name="message" size={40} color="white" />
-          </TouchableOpacity>
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        console.log(binItemInfo.userID);
+        const user = await fetchBasicUserInfo(binItemInfo.userID);
+        console.log(user);
+        setUserInfo(user);
+      } catch (error) {
+        console.error("Error fetching user information:", error);
+      }
+    };
+    fetchUser();
+  }, [binItemInfo.userID]);
+
+  return (
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollContainer}>
+      <TouchableOpacity onPress={() => {
+        console.log("UserID in Listing.tsx:", binItemInfo.userID);
+        navigation.navigate("Profile", { userID: "PjqWveBbFOc3YSlGgj7yPC1464J2" });
+      }}>
+        <View style={styles.horizontalBox}>
+          { (userInfo && userInfo.profilePicURL != "") ?
+            <FontAwesome name="user-circle" size={50} color='pink' style={styles.profilePhoto}/>
+            : <FontAwesome name="user-circle" size={50} color='gray' style={styles.profilePhoto}/>
+          }
+          <Text style={styles.profileName}>{userInfo && userInfo.userName}</Text>
         </View>
+        </TouchableOpacity>
+          <View style={styles.imageContainer}>
+          {imageLoading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          )}
+          <Image
+            style={styles.square}
+            source={{ uri: imageUri }}
+            onLoad={() => setImageLoading(false)}
+          />
+          </View>
+        <View style={styles.horizontalBox}>
+          {binItemInfo.listingName ? (
+          <Text style={styles.title}>{binItemInfo.listingName}</Text>
+          ) : null}
+            <TouchableOpacity onPress={() => {setLiked(!liked)}}>
+              <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
+            </TouchableOpacity>
+        </View>
+        {binItemInfo.description !== "" ? (
+          <View style={styles.listingDescription}>
+          <Text>{binItemInfo.description}</Text>
+          </View>
+        ) : null}
+        {binItemInfo.conditon !== "" ? (
+          <View style={styles.horizontalBox}>
+            <Text style={styles.subtitle}>Condition:</Text>
+            <View style={styles.conditionContainer}>
+              <Text>{binItemInfo.condition}</Text>
+            </View>
+          </View>
+        ) : null}
+        {binItemInfo.tags ? (
+          <View>
+          <Text style={styles.subtitle}>Tags</Text>
+          <View style={styles.labelsContainer}>
+            {binItemInfo.tags.map((tag, index) => (
+              <View key={index} style={styles.labelPill}>
+                <Text style={styles.labelText}>{tag.description}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        ) : null}
+      </ScrollView>
+      <View style={styles.bottomBar}>
+        <Text style={styles.title}>${binItemInfo.price}</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Message")}>
+          <MaterialCommunityIcon name="message" size={40} color="white" />
+        </TouchableOpacity>
       </View>
-    )
-  }
+    </View>
+  )
+}
 
 
 const styles = StyleSheet.create({

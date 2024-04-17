@@ -38,6 +38,10 @@ const signupName = "SignupScreen";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+interface ProfileScreenParams {
+  userID?: string;
+}
+
 const ExploreStack = ({ navigation }) => (
   <Stack.Navigator>
     <Stack.Screen
@@ -63,6 +67,11 @@ const ExploreStack = ({ navigation }) => (
     <Stack.Screen
       name="ListingScroll"
       component={ListingScroll}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="Profile"
+      component={ProfileScreen}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>
@@ -104,21 +113,25 @@ const SellStack = ({ navigation }) => (
   </Stack.Navigator>
 );
 
-const ProfileStack = ({ navigation, currentUserID }) => (
-  <Stack.Navigator>
-    <Stack.Screen
-      name="ProfileScreen"
-      options={{ headerShown: false }}
-    >
-      {(props) => <ProfileScreen {...props} userID={currentUserID} />}
-    </Stack.Screen>
-    <Stack.Screen
-      name="UserList"
-      component={UserList}
-      options={{ headerShown: false }}
-    />
-  </Stack.Navigator>
-);
+const ProfileStack = ({ navigation }) => {
+  const { currentUserID } = useContext(AuthContext);
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="ProfileScreen"
+        options={{ headerShown: false }}
+      >
+        {(props) => <ProfileScreen {...props} userID={currentUserID} />}
+      </Stack.Screen>
+      <Stack.Screen
+        name="UserList"
+        component={UserList}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
 
 // ***** TODO: Implement tutorial *****
 const TutorialStack = ({ setIsLoggedIn }) => {
@@ -128,7 +141,6 @@ const TutorialStack = ({ setIsLoggedIn }) => {
 const MainContainer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
-  const { currentUserID } = useContext(AuthContext);
 
   const login = (emailIn) => {
     console.log(emailIn);
@@ -189,9 +201,7 @@ const MainContainer: React.FC = () => {
           <Tab.Screen name="Sell" component={SellStack} />
           <Tab.Screen name="Explore" component={ExploreStack} />
           <Tab.Screen name={messageName} component={MessageScreen} />
-          <Tab.Screen name={profileName}>
-            {(props) => <ProfileStack {...props} currentUserID={currentUserID} />}
-          </Tab.Screen>
+          <Tab.Screen name="Profile" component={ProfileStack} />
         </Tab.Navigator>
         </PostHogProvider>
       </NavigationContainer>

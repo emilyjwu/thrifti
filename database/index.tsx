@@ -209,8 +209,17 @@ export const fetchURLs = async (binID: string) => {
 };
 
 export interface BinItemInfo {
-  imageUri: any;
   id: string;
+  binID: string;
+  condition: string;
+  date: string;
+  description: string;
+  imageUri: string;
+  listingName: string;
+  price: number;
+  sold: boolean;
+  tags: string[];
+  userID: string;
 }
 
 export const fetchBinItemsInfo = async (
@@ -224,15 +233,19 @@ export const fetchBinItemsInfo = async (
     // Map each document to an object containing only the desired attributes
     const binItemsInfoPromises: Promise<BinItemInfo>[] = querySnapshot.docs.map(
       async (doc) => {
+        const data = doc.data();
         return {
           id: doc.id,
-          binID: doc.data().binID,
-          condition: doc.data().condition,
-          description: doc.data().description,
-          listingName: doc.data().listingName,
-          price: doc.data().price,
-          tags: doc.data().tags,
-          imageUri: doc.data().imgURL,
+          binID: data.binID,
+          condition: data.condition,
+          date: data.date,
+          description: data.description,
+          imageUri: data.imgURL,
+          listingName: data.listingName,
+          price: data.price,
+          sold: data.sold,
+          tags: data.tags,
+          userID: data.userID,
         };
       }
     );
@@ -292,6 +305,13 @@ export interface UserInfo {
   bio: string;
   profilePicURL: string;
   joinedDate: string;
+  following: string[];
+  followers: string[];
+  likedListings: string[];
+  transactions: string[];
+  requestIDs: string[];
+  binIDs: string[];
+  listingIDs: string[];
 }
 
 /**
@@ -315,8 +335,51 @@ export const fetchUserInfo = async (userID: string): Promise<UserInfo | null> =>
         bio: userData.bio || "", 
         profilePicURL: userData.profilePicURL || "", 
         joinedDate: userData.joinedDate,
+        following: userData.following || [],
+        followers: userData.followers || [],
+        likedListings: userData.likedListings || [],
+        transactions: userData.transactions || [],
+        requestIDs: userData.requestIDs || [],
+        binIDs: userData.binIDs || [],
+        listingIDs: userData.listingIDs || [],
       };
       return userInfo;
+    } else {
+      console.error("User document does not exist");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user information:", error);
+    return null;
+  }
+};
+
+export interface BasicUserInfo {
+  userName: string;
+  fullName: string;
+  profilePicURL: string;
+}
+
+/**
+ * Gets information from a user
+ * @param userID the user fetch from database
+ * @returns BasicUserInfo object with only the necessary user fields
+ */
+export const fetchBasicUserInfo = async (userID: string): Promise<BasicUserInfo> => {
+  const userDocRef = doc(firestore, "users", userID);
+
+  try {
+    const userDocSnapshot = await getDoc(userDocRef);
+
+    if (userDocSnapshot.exists()) {
+      const userData = userDocSnapshot.data();
+
+      const basicUserInfo: BasicUserInfo = {
+        userName: userData.userName,
+        fullName: userData.fullName,
+        profilePicURL: userData.profilePicURL || "", 
+      };
+      return basicUserInfo;
     } else {
       console.error("User document does not exist");
       return null;

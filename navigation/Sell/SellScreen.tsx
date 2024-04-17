@@ -51,10 +51,10 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   const [updatedBins, setUpdatedBins] = useState(false);
   const { currentUserID } = useContext(AuthContext);
 
-  async function getBinNames(firestoreObject, binUserID) {
+  async function getBinNames(firestoreObject, currentUserID) {
     const binQuery = query(
       collection(firestoreObject, "bins"),
-      where("userID", "==", binUserID)
+      where("userID", "==", currentUserID)
     );
 
     try {
@@ -71,6 +71,7 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   }
 
   React.useEffect(() => {
+    console.log(currentUserID);
     getBinNames(firestore, currentUserID);
   }, [updatedBins]);
 

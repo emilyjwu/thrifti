@@ -11,7 +11,7 @@ import { AuthContext, fetchUserInfo, UserInfo } from "../../database/index";
 
 interface ProfileScreenProps {
   navigation: NavigationProp<any>;
-  userID: string;
+  route: any;
 }
 
 const screenWidth = Dimensions.get('window').width;
@@ -37,7 +37,8 @@ const LikedTab = () => (
   </View>
 );
 
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, userID }) => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
+  const { userID } = route.params;
   const [isFollowing, setIsFollowing] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const { currentUserID } = useContext(AuthContext);
@@ -45,9 +46,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, userID }) => 
 
   useEffect(() => {
     const fetchUser = async () => {
-      console.log("User ID: ", userID);
+      console.log("UserID in Profile.tsx: ", userID);
       const user = await fetchUserInfo(userID);
       setUserInfo(user);
+      console.log(user);
     };
     fetchUser();
   }, [userID]);
@@ -66,7 +68,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, userID }) => 
         <View style={styles.header}>
           <MaterialIcons name="keyboard-arrow-left" size={30} />
           <View style={styles.usernameContainer}>
-            <Text>janedoe123</Text>
+            <Text>{userInfo ? userInfo.userName : ""}</Text>
           </View>
         </View>
       }
@@ -74,7 +76,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, userID }) => 
         <View style={styles.topContainer}>
           <FontAwesome name="user-circle" size={profilePhotoSize} color='gray' style={styles.profilePhoto}/>
           <View style={styles.verticalColumn}>
-            <Text style={styles.nameText}>{userInfo.fullName}</Text>
+            <Text style={styles.nameText}>{userInfo ? userInfo.fullName : ""}</Text>
             <View style={styles.horizontalRow}>
               {isCurrentUser ? (
                 <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("hi")}>
@@ -94,7 +96,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, userID }) => 
             </View>
           </View>
         </View>
-        {/* Write this in a loop eventually */}
         <View style={styles.statsContainer}>
           <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
             <Text style={styles.statsNumber}>5</Text>
@@ -106,22 +107,18 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, userID }) => 
           </View>
           <TouchableOpacity onPress={() => navigation.navigate("UserList")}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
-              <Text style={styles.statsNumber}>25</Text>
+              <Text style={styles.statsNumber}>{userInfo ? userInfo.followers.length : 0}</Text>
               <Text>Followers</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate("UserList")}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
-              <Text style={styles.statsNumber}>24</Text>
+              <Text style={styles.statsNumber}>{userInfo ? userInfo.following.length : 0}</Text>
               <Text>Following</Text>
             </View>
           </TouchableOpacity>
         </View>
-        <View>
-          <Text style={styles.bioText}>
-            Hi I'm Jane! Feel free to message me about anything you're interested in.
-          </Text>
-        </View>
+        <Text style={styles.bioText}>{userInfo ? userInfo.bio : ""}</Text>
       </View>
       <Tab.Navigator
         screenOptions={{
