@@ -6,7 +6,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FollowButton from '../../components/FollowButton';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { AuthContext, fetchUserInfo, UserInfo } from "../../database/index";
+import { AuthContext, fetchUserInfo, isFollowingUser, UserInfo } from "../../database/index";
 
 
 interface ProfileScreenProps {
@@ -39,28 +39,33 @@ const LikedTab = () => (
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
   const { userID } = route.params;
-  const [isFollowing, setIsFollowing] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const { currentUserID } = useContext(AuthContext);
   const isCurrentUser = currentUserID === userID;
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
-      console.log("UserID in Profile.tsx: ", userID);
+      console.log("Current userID: ", currentUserID);
+      console.log("Other userID: ", userID);
       const user = await fetchUserInfo(userID);
       setUserInfo(user);
-      console.log(user);
     };
     fetchUser();
-  }, [userID]);
+  }, []);
 
-  const followUser = () => {
-    setIsFollowing(!isFollowing);
-  };
+  useEffect(() => {
+    console.log("UserInfo changed:", userInfo);
+  }, [userInfo]);
 
-  const unfollowUser = () => {
-    setIsFollowing(!isFollowing);
-  }
+  useEffect(() => {
+      const checkFollowing = async () => {
+      const following = await isFollowingUser(currentUserID, userID);
+      setIsFollowing(following);
+    };
+    checkFollowing();
+  }, []);
+
 
   return (
     <View style={styles.container}>
@@ -84,9 +89,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                 </TouchableOpacity>
               ) : (
                 <FollowButton
-                  isFollowing={isFollowing}
-                  followUser={followUser}
-                  unfollowUser={unfollowUser}
+                  userID={currentUserID}
+                  otherUserID={userID}
+                  initialIsFollowing={isFollowing}
                   buttonWidth={followButtonWidth}
                   buttonHeight={35}
                   fontSize={17}
@@ -105,13 +110,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
             <Text style={styles.statsNumber}>8</Text>
             <Text>Purchased</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate("UserList")}>
+          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.followers })}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
               <Text style={styles.statsNumber}>{userInfo ? userInfo.followers.length : 0}</Text>
               <Text>Followers</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("UserList")}>
+          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.following })}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
               <Text style={styles.statsNumber}>{userInfo ? userInfo.following.length : 0}</Text>
               <Text>Following</Text>

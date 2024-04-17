@@ -3,7 +3,7 @@ import { View, TextInput, Button, StyleSheet, Text } from "react-native";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
-import { AuthContext, auth, makeItemSold } from "../../database/index";
+import { AuthContext, auth } from "../../database/index";
 
 interface LoginScreenProps {
   onLogin: (email) => void;
@@ -11,8 +11,8 @@ interface LoginScreenProps {
 }
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
-  const [email, setEmail] = useState("aa@a.com");
-  const [password, setPassword] = useState("aaaaaa");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { setAuthAfterLogin } = useContext(AuthContext);
 
   const handleLogin = () => {

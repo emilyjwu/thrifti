@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, Modal, View, Dimensions } from 'react-native';
+import { addFollowerToUser, removeFollowerFromUser, isFollowingUser } from '../database';
 
 interface FollowButtonProps {
-  isFollowing: boolean;
-  followUser: () => void; 
-  unfollowUser: () => void;
+  userID: string;
+  otherUserID: string;
+  initialIsFollowing: boolean;
   buttonWidth: number;
   buttonHeight: number;
   fontSize: number;
+  updateUserInfo: () => Promise<void>;
 }
 
-const FollowButton: React.FC<FollowButtonProps> = ({ isFollowing, followUser, unfollowUser, buttonWidth, buttonHeight, fontSize }) => {
+const FollowButton: React.FC<FollowButtonProps> = ({ userID, otherUserID, initialIsFollowing, buttonWidth, buttonHeight, fontSize, updateUserInfo }) => {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [isFollowing, setIsFollowing] = useState<boolean>();
+
+  useEffect(() => {
+    setIsFollowing(initialIsFollowing);
+  }, [initialIsFollowing]);
 
   const confirmUnfollow = () => {
     setShowConfirmationModal(false);
-    unfollowUser();
+    setIsFollowing(!isFollowing);
+    removeFollowerFromUser(otherUserID, userID);
   };
 
   const cancelUnfollow = () => {
@@ -26,7 +34,8 @@ const FollowButton: React.FC<FollowButtonProps> = ({ isFollowing, followUser, un
     if (isFollowing) {
       setShowConfirmationModal(true);
     } else {
-      followUser();
+      setIsFollowing(!isFollowing);
+      addFollowerToUser(otherUserID, userID);
     }
   };
 

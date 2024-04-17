@@ -27,9 +27,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        console.log(binItemInfo.userID);
         const user = await fetchBasicUserInfo(binItemInfo.userID);
-        console.log(user);
         setUserInfo(user);
       } catch (error) {
         console.error("Error fetching user information:", error);
@@ -42,7 +40,6 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
       <TouchableOpacity onPress={() => {
-        console.log("UserID in Listing.tsx:", binItemInfo.userID);
         navigation.navigate("Profile", { userID: binItemInfo.userID });
       }}>
         <View style={styles.horizontalBox}>

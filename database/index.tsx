@@ -61,16 +61,13 @@ export const uploadListing = async (imageUri: string, listingData: any) => {
     const blob = await response.blob();
     const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);
     const imgRef = "/" + listingData.binID + "/" + docRef.id;
-    console.log(imgRef);
     const metadata = {
       contentType: blob.type,
       customMetadata: {
         binID: listingData.binID,
         itemID: listingData.itemID,
         userID: auth.currentUser.uid,
-        timestamp: new Date().toString(), // Custom metadata field (e.g., timestamp)
-        // imgRef: imgRef
-        // Add more custom metadata fields as needed
+        timestamp: new Date().toString(),
       },
     };
     await uploadBytesResumable(storageRef, blob, metadata);
@@ -356,6 +353,7 @@ export const fetchUserInfo = async (userID: string): Promise<UserInfo | null> =>
 };
 
 export interface BasicUserInfo {
+  userID: string;
   userName: string;
   fullName: string;
   profilePicURL: string;
@@ -376,6 +374,7 @@ export const fetchBasicUserInfo = async (userID: string): Promise<BasicUserInfo>
       const userData = userDocSnapshot.data();
 
       const basicUserInfo: BasicUserInfo = {
+        userID: userID,
         userName: userData.userName,
         fullName: userData.fullName,
         profilePicURL: userData.profilePicURL || "", 
@@ -388,6 +387,31 @@ export const fetchBasicUserInfo = async (userID: string): Promise<BasicUserInfo>
   } catch (error) {
     console.error("Error fetching user information:", error);
     return null;
+  }
+};
+
+/**
+ * Check if the current user is following another user
+ * @param currentUserID the current
+ * @param otherUserID the user to check
+ * @returns true or false
+ */
+
+export const isFollowingUser = async (currentUserID: string, otherUserID: string) => {
+  try {
+    const userDoc = doc(collection(firestore, 'users'), currentUserID);
+    const userDocSnapshot = await getDoc(userDoc);
+    
+    if (userDocSnapshot.exists()) {
+      const userData = userDocSnapshot.data();
+      if (userData.following && userData.following.includes(otherUserID)) {
+        return true;
+      }
+    }
+    return false;
+  } catch (error) {
+    console.error('Error checking if user is following another user:', error);
+    return false;
   }
 };
 
@@ -429,26 +453,24 @@ export const addFollowerToUser = async (userID: string, followerID: string) => {
  */
 export const removeFollowerFromUser = async (userID: string, followerID: string) => {
   const userDoc = doc(firestore, "users", userID);
-  updateDoc(userDoc, {
-    followers: arrayRemove(followerID),
-  })
-    .then(() => {
-      console.log("User unfollowed successfully!");
-    })
-    .catch((error) => {
-      console.error("Error unfollowing user: ", error);
+  try {
+    await updateDoc(userDoc, {
+      followers: arrayRemove(followerID),
     });
+    console.log("User unfollowed successfully!");
+  } catch (error) {
+    console.error("Error unfollowing user: ", error);
+  }
   
-  const followerDoc = doc(firestore, "users", userID);
-  updateDoc(followerDoc, {
-    following: arrayRemove(userID),
-  })
-    .then(() => {
-      console.log("User removed successfully!");
-    })
-    .catch((error) => {
-      console.error("Error removing user: ", error);
+  const followerDoc = doc(firestore, "users", followerID); // Corrected followerDoc
+  try {
+    await updateDoc(followerDoc, {
+      following: arrayRemove(userID),
     });
+    console.log("Follower removed successfully!");
+  } catch (error) {
+    console.error("Error removing follower: ", error);
+  }
 };
 
 // add liked listing to likedListings list
