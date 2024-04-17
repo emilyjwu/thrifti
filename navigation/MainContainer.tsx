@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { TouchableOpacity, Text } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { createStackNavigator } from "@react-navigation/stack";
+import { AuthContext } from "../database/index";
 
 // Screens
 import ExploreScreen from "./Explore/ExploreScreen";
@@ -39,6 +40,10 @@ const signupName = "SignupScreen";
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+interface ProfileScreenParams {
+  userID?: string;
+}
+
 const ExploreStack = ({ navigation }) => (
   <Stack.Navigator>
     <Stack.Screen
@@ -64,6 +69,11 @@ const ExploreStack = ({ navigation }) => (
     <Stack.Screen
       name="ListingScroll"
       component={ListingScroll}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="Profile"
+      component={ProfileScreen}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>
@@ -115,20 +125,25 @@ const SellStack = ({ navigation }) => (
   </Stack.Navigator>
 );
 
-const ProfileStack = ({ navigation }) => (
-  <Stack.Navigator>
-    <Stack.Screen
-      name="ProfileScreen"
-      component={ProfileScreen}
-      options={{ headerShown: false }}
-    />
-    <Stack.Screen
-      name="UserList"
-      component={UserList}
-      options={{ headerShown: false }}
-    />
-  </Stack.Navigator>
-);
+const ProfileStack = ({ navigation }) => {
+  const { currentUserID } = useContext(AuthContext);
+
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="ProfileScreen"
+        options={{ headerShown: false }}
+      >
+      {(props) => <ProfileScreen {...props} route={{ ...props.route, params: { ...props.route.params, userID: currentUserID } }} />}
+      </Stack.Screen>
+      <Stack.Screen
+        name="UserList"
+        component={UserList}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+};
 
 // ***** TODO: Implement tutorial *****
 const TutorialStack = ({ setIsLoggedIn }) => {
@@ -198,7 +213,7 @@ const MainContainer: React.FC = () => {
           <Tab.Screen name="Sell" component={SellStack} />
           <Tab.Screen name="Explore" component={ExploreStack} />
           <Tab.Screen name={messageName} component={MessageScreen} />
-          <Tab.Screen name={profileName} component={ProfileStack} />
+          <Tab.Screen name="Profile" component={ProfileStack} />
         </Tab.Navigator>
         </PostHogProvider>
       </NavigationContainer>

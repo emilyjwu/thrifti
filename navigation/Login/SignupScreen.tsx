@@ -52,8 +52,6 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp }) => {
         onSignUp();
       })
       .catch((error) => {
-        //const errorCode = error.code;
-        //const errorMessage = error.message;
         console.log("Sign Up Issue: " + error);
         setEmail("");
         setPassword("");

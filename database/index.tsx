@@ -5,6 +5,7 @@ import {
   query,
   where,
   arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 
 // FIREBASE IN QUARANTINE UNTIL IT WORKS
@@ -55,20 +56,18 @@ const currentDate = new Date();
 export const uploadListing = async (imageUri: string, listingData: any) => {
   try {
     const docRef = await addDoc(collection(firestore, "items"), listingData);
+    
     const response = await fetch(imageUri);
     const blob = await response.blob();
     const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);
     const imgRef = "/" + listingData.binID + "/" + docRef.id;
-    console.log(imgRef);
     const metadata = {
       contentType: blob.type,
       customMetadata: {
         binID: listingData.binID,
         itemID: listingData.itemID,
         userID: auth.currentUser.uid,
-        timestamp: new Date().toString(), // Custom metadata field (e.g., timestamp)
-        // imgRef: imgRef
-        // Add more custom metadata fields as needed
+        timestamp: new Date().toString(),
       },
     };
     await uploadBytesResumable(storageRef, blob, metadata);
@@ -93,13 +92,15 @@ export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [userAuth, setUserAuth] = useState<User | null>(null);
+  const [currentUserID, setCurrentUserID] = useState<String | null>(null);
 
   const setAuthAfterLogin = (userData: User) => {
     setUserAuth(userData);
+    setCurrentUserID(userAuth.uid);
   };
 
   return (
-    <AuthContext.Provider value={{ userAuth, setAuthAfterLogin }}>
+    <AuthContext.Provider value={{ userAuth, currentUserID, setAuthAfterLogin }}>
       {children}
     </AuthContext.Provider>
   );
@@ -206,8 +207,17 @@ export const fetchURLs = async (binID: string) => {
 };
 
 export interface BinItemInfo {
-  imageUri: any;
   id: string;
+  binID: string;
+  condition: string;
+  date: string;
+  description: string;
+  imageUri: string;
+  listingName: string;
+  price: number;
+  sold: boolean;
+  tags: string[];
+  userID: string;
 }
 
 export const fetchBinItemsInfo = async (
@@ -221,16 +231,19 @@ export const fetchBinItemsInfo = async (
     // Map each document to an object containing only the desired attributes
     const binItemsInfoPromises: Promise<BinItemInfo>[] = querySnapshot.docs.map(
       async (doc) => {
-        // const imageUri = await getImage(doc.data().imgRef);
+        const data = doc.data();
         return {
           id: doc.id,
-          binID: doc.data().binID,
-          condition: doc.data().condition,
-          description: doc.data().description,
-          listingName: doc.data().listingName,
-          price: doc.data().price,
-          tags: doc.data().tags,
-          imageUri: doc.data().imgURL,
+          binID: data.binID,
+          condition: data.condition,
+          date: data.date,
+          description: data.description,
+          imageUri: data.imgURL,
+          listingName: data.listingName,
+          price: data.price,
+          sold: data.sold,
+          tags: data.tags,
+          userID: data.userID,
         };
       }
     );
@@ -257,7 +270,6 @@ export const getImageURL = async (listingID: string) => {
   }
 };
 
-//Emily and I added getImage
 export const getImage = async (imageRef: string) => {
   try {
     const storageRef = ref(storage, imageRef);
@@ -284,10 +296,134 @@ export const makeItemSold = async (listingID: string) => {
 
 // ********** EDIT USER FIELDS **********
 
-// add follower to follower list
+export interface UserInfo {
+  userName: string;
+  fullName: string;
+  email: string;
+  bio: string;
+  profilePicURL: string;
+  joinedDate: string;
+  following: string[];
+  followers: string[];
+  likedListings: string[];
+  transactions: string[];
+  requestIDs: string[];
+  binIDs: string[];
+  listingIDs: string[];
+}
+
+/**
+ * Gets information from a user
+ * @param userID the user fetch from database
+ * @returns UserInfo object with all user fields
+ */
+export const fetchUserInfo = async (userID: string): Promise<UserInfo | null> => {
+  const userDocRef = doc(firestore, "users", userID);
+
+  try {
+    const userDocSnapshot = await getDoc(userDocRef);
+
+    if (userDocSnapshot.exists()) {
+      const userData = userDocSnapshot.data();
+
+      const userInfo: UserInfo = {
+        userName: userData.userName,
+        fullName: userData.fullName,
+        email: userData.email,
+        bio: userData.bio || "", 
+        profilePicURL: userData.profilePicURL || "", 
+        joinedDate: userData.joinedDate,
+        following: userData.following || [],
+        followers: userData.followers || [],
+        likedListings: userData.likedListings || [],
+        transactions: userData.transactions || [],
+        requestIDs: userData.requestIDs || [],
+        binIDs: userData.binIDs || [],
+        listingIDs: userData.listingIDs || [],
+      };
+      return userInfo;
+    } else {
+      console.error("User document does not exist");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user information:", error);
+    return null;
+  }
+};
+
+export interface BasicUserInfo {
+  userID: string;
+  userName: string;
+  fullName: string;
+  profilePicURL: string;
+}
+
+/**
+ * Gets information from a user
+ * @param userID the user fetch from database
+ * @returns BasicUserInfo object with only the necessary user fields
+ */
+export const fetchBasicUserInfo = async (userID: string): Promise<BasicUserInfo> => {
+  const userDocRef = doc(firestore, "users", userID);
+
+  try {
+    const userDocSnapshot = await getDoc(userDocRef);
+
+    if (userDocSnapshot.exists()) {
+      const userData = userDocSnapshot.data();
+
+      const basicUserInfo: BasicUserInfo = {
+        userID: userID,
+        userName: userData.userName,
+        fullName: userData.fullName,
+        profilePicURL: userData.profilePicURL || "", 
+      };
+      return basicUserInfo;
+    } else {
+      console.error("User document does not exist");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user information:", error);
+    return null;
+  }
+};
+
+/**
+ * Check if the current user is following another user
+ * @param currentUserID the current
+ * @param otherUserID the user to check
+ * @returns true or false
+ */
+
+export const isFollowingUser = async (currentUserID: string, otherUserID: string) => {
+  try {
+    const userDoc = doc(collection(firestore, 'users'), currentUserID);
+    const userDocSnapshot = await getDoc(userDoc);
+    
+    if (userDocSnapshot.exists()) {
+      const userData = userDocSnapshot.data();
+      if (userData.following && userData.following.includes(otherUserID)) {
+        return true;
+      }
+    }
+    return false;
+  } catch (error) {
+    console.error('Error checking if user is following another user:', error);
+    return false;
+  }
+};
+
+/**
+ * Add follower to follower list
+ * 
+ * @param userID the user to follow
+ * @param followerID the user following that user
+ */
 export const addFollowerToUser = async (userID: string, followerID: string) => {
-  const docRef = doc(firestore, "users", userID);
-  updateDoc(docRef, {
+  const userDoc = doc(firestore, "users", userID);
+  updateDoc(userDoc, {
     followers: arrayUnion(followerID),
   })
     .then(() => {
@@ -296,16 +432,10 @@ export const addFollowerToUser = async (userID: string, followerID: string) => {
     .catch((error) => {
       console.error("Error adding user to followers: ", error);
     });
-};
-
-// add following to list of people user follows
-export const addFollowingToUser = async (
-  userID: string,
-  followingID: string
-) => {
-  const docRef = doc(firestore, "users", userID);
-  updateDoc(docRef, {
-    following: arrayUnion(followingID),
+  
+  const followerDoc = doc(firestore, "users", followerID);
+  updateDoc(followerDoc, {
+    following: arrayUnion(userID),
   })
     .then(() => {
       console.log("Following user added successfully!");
@@ -313,6 +443,34 @@ export const addFollowingToUser = async (
     .catch((error) => {
       console.error("Error adding user to the following: ", error);
     });
+};
+
+/**
+ * Remove follower from follower list
+ * 
+ * @param userID the user to unfollow
+ * @param followerID the user unfollowing that user
+ */
+export const removeFollowerFromUser = async (userID: string, followerID: string) => {
+  const userDoc = doc(firestore, "users", userID);
+  try {
+    await updateDoc(userDoc, {
+      followers: arrayRemove(followerID),
+    });
+    console.log("User unfollowed successfully!");
+  } catch (error) {
+    console.error("Error unfollowing user: ", error);
+  }
+  
+  const followerDoc = doc(firestore, "users", followerID); // Corrected followerDoc
+  try {
+    await updateDoc(followerDoc, {
+      following: arrayRemove(userID),
+    });
+    console.log("Follower removed successfully!");
+  } catch (error) {
+    console.error("Error removing follower: ", error);
+  }
 };
 
 // add liked listing to likedListings list

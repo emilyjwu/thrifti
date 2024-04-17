@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Touchable } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -6,10 +6,12 @@ import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FollowButton from '../../components/FollowButton';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { AuthContext, fetchUserInfo, isFollowingUser, UserInfo } from "../../database/index";
 
 
 interface ProfileScreenProps {
   navigation: NavigationProp<any>;
+  route: any;
 }
 
 const screenWidth = Dimensions.get('window').width;
@@ -35,45 +37,70 @@ const LikedTab = () => (
   </View>
 );
 
-const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
+const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
+  const { userID } = route.params;
+  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const { currentUserID } = useContext(AuthContext);
+  const isCurrentUser = currentUserID === userID;
   const [isFollowing, setIsFollowing] = useState(false);
 
-  const followUser = () => {
-    setIsFollowing(!isFollowing);
-  };
+  useEffect(() => {
+    const fetchUser = async () => {
+      console.log("Current userID: ", currentUserID);
+      console.log("Other userID: ", userID);
+      const user = await fetchUserInfo(userID);
+      setUserInfo(user);
+    };
+    fetchUser();
+  }, []);
 
-  const unfollowUser = () => {
-    setIsFollowing(!isFollowing);
-  }
+  useEffect(() => {
+    console.log("UserInfo changed:", userInfo);
+  }, [userInfo]);
+
+  useEffect(() => {
+      const checkFollowing = async () => {
+      const following = await isFollowingUser(currentUserID, userID);
+      setIsFollowing(following);
+    };
+    checkFollowing();
+  }, []);
+
 
   return (
     <View style={styles.container}>
-      {/* This header should only appear if you navigate to Profile from ANOTHER page */}
-      <View style={styles.header}>
-        <MaterialIcons name="keyboard-arrow-left" size={30} />
-        <View style={styles.usernameContainer}>
-          <Text>janedoe123</Text>
+      { !isCurrentUser &&
+        <View style={styles.header}>
+          <MaterialIcons name="keyboard-arrow-left" size={30} />
+          <View style={styles.usernameContainer}>
+            <Text>{userInfo ? userInfo.userName : ""}</Text>
+          </View>
         </View>
-      </View>
+      }
       <View style={{paddingBottom: 10, paddingHorizontal: 10 }}>
         <View style={styles.topContainer}>
           <FontAwesome name="user-circle" size={profilePhotoSize} color='gray' style={styles.profilePhoto}/>
           <View style={styles.verticalColumn}>
-            <Text style={styles.nameText}>Jane Doe</Text>
+            <Text style={styles.nameText}>{userInfo ? userInfo.fullName : ""}</Text>
             <View style={styles.horizontalRow}>
-              <FollowButton
-                isFollowing={isFollowing}
-                followUser={followUser}
-                unfollowUser={unfollowUser}
-                buttonWidth={followButtonWidth}
-                buttonHeight={35}
-                fontSize={17}
-              />
+              {isCurrentUser ? (
+                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("hi")}>
+                  <Text style={{ fontSize: 17 }}>Edit profile</Text>
+                </TouchableOpacity>
+              ) : (
+                <FollowButton
+                  userID={currentUserID}
+                  otherUserID={userID}
+                  initialIsFollowing={isFollowing}
+                  buttonWidth={followButtonWidth}
+                  buttonHeight={35}
+                  fontSize={17}
+                />
+              )}
               <Feather name="mail" size={40} style={{marginLeft: 5}}/>
             </View>
           </View>
         </View>
-        {/* Write this in a loop eventually */}
         <View style={styles.statsContainer}>
           <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
             <Text style={styles.statsNumber}>5</Text>
@@ -83,24 +110,20 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             <Text style={styles.statsNumber}>8</Text>
             <Text>Purchased</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate("UserList")}>
+          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.followers })}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
-              <Text style={styles.statsNumber}>25</Text>
+              <Text style={styles.statsNumber}>{userInfo ? userInfo.followers.length : 0}</Text>
               <Text>Followers</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("UserList")}>
+          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.following })}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
-              <Text style={styles.statsNumber}>24</Text>
+              <Text style={styles.statsNumber}>{userInfo ? userInfo.following.length : 0}</Text>
               <Text>Following</Text>
             </View>
           </TouchableOpacity>
         </View>
-        <View>
-          <Text style={styles.bioText}>
-            Hi I'm Jane! Feel free to message me about anything you're interested in.
-          </Text>
-        </View>
+        <Text style={styles.bioText}>{userInfo ? userInfo.bio : ""}</Text>
       </View>
       <Tab.Navigator
         screenOptions={{
@@ -150,6 +173,14 @@ const styles = StyleSheet.create({
   horizontalRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  editProfileButton: {
+    backgroundColor: 'lightblue',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: followButtonWidth,
+    height: 35,
   },
   statsContainer: {
     flexDirection: 'row',

@@ -52,7 +52,6 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                         return await fetchBinItemsInfo(bin);
                     }));
                     setBinsInfo(binsInfoArray);
-                    console.log(binsInfoArray)
 
                     const binNamesArray: string[] = await Promise.all(bins.map(async (bin) => {
                         return await fetchBinName(bin);
