@@ -128,12 +128,7 @@ export const fetchBinName = async (binID: string) => {
     const binDocSnap = await getDoc(binDocRef);
     if (binDocSnap.exists()) {
       const binData = binDocSnap.data();
-      if (binData && binData.binName) {
-        return binData.binName;
-      } else {
-        console.error("Bin document does not contain a name field.");
-        return null;
-      }
+      return binData.binName;
     } else {
       console.error("Bin document does not exist.");
       return null;
