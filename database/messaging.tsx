@@ -18,7 +18,7 @@ import {
 
 
 
-  export const createChat = async (recieverInfo, imageUri, listingName) => {
+  export const createChat = async (recieverInfo, imageUri, listingName, listingID) => {
     const currentUserID = auth?.currentUser?.uid;
     console.log(currentUserID);
 
@@ -32,8 +32,8 @@ import {
 
     const combinedId =
     currentUserID > recieverInfo.userID
-        ? currentUserID + recieverInfo.userID
-        : recieverInfo.userID + currentUserID;
+        ? currentUserID + recieverInfo.userID + listingID
+        : recieverInfo.userID + currentUserID + listingID;
     console.log("here")
     try {
       const res = await getDoc(doc(firestore, "chats", combinedId));

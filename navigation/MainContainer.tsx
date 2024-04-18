@@ -52,7 +52,7 @@ const MessageStack = ({ navigation }) => (
       options={{ headerShown: false }}
     />
      <Stack.Screen
-      name="ConversationScreen"
+      name="Chat"
       component={Chat}
       options={{ headerShown: false }}
     />

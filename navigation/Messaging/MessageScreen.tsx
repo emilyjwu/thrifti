@@ -26,9 +26,13 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   const [chatData, setChats] = useState([]);
   const [info, setInfo] = useState<[]>([]);
 
-  const handlePress = (id: string) => {
-    setClicked(id);
-    navigation.navigate('Chat');
+  const handlePress = (chat) => {
+    setClicked(chat);
+
+    console.log("chat", chat)
+    console.log("chat2",  { chatData: chat })
+
+    navigation.navigate('Chat', { chatData: chat });
   };
 
   const currentUser = auth?.currentUser;
@@ -37,11 +41,13 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
 
 
 
+
+
 useEffect(() => {
   const fetchData = async () => {
     try {
       const chatData = await getChats(currentUser);
-      console.log(chatData);
+
       if (chatData) {
         const chatArray = Object.keys(chatData).map((key) => ({
           id: key,
@@ -55,6 +61,8 @@ useEffect(() => {
         // Sort the array by date in descending order
         const sortedChats = chatArray.sort((a, b) => b.date - a.date);
         setChats(sortedChats);
+        console.log("here")
+        console.log(chatData);
       }
     } catch (error) {
       console.error('Error fetching chat data:', error);
@@ -71,7 +79,7 @@ useEffect(() => {
         <TouchableOpacity
           style={styles.messageContainer}
           key={chat.id}
-          // onPress={() => handleSelect(chat.userInfo)}
+          onPress={() => handlePress(chat)}
           activeOpacity={0.7}
         >
           <View style={styles.circle}></View>
