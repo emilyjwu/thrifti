@@ -18,7 +18,7 @@ import {
 
 
 
-  export const createChat = async (recieverInfo) => {
+  export const createChat = async (recieverInfo, imageUri, listingName) => {
     const currentUserID = auth?.currentUser?.uid;
     console.log(currentUserID);
 
@@ -43,13 +43,15 @@ import {
         //create a chat in chats collection
         await setDoc(doc(firestore, "chats", combinedId), { messages: [] });
 
-        //create user chats
+        //create user chats --> ex: Jane texts John. We store Jane's info in John's user chat!
         console.log(recieverInfo.userName)
         await updateDoc(doc(firestore, "userChats", recieverInfo.userID), {
           [combinedId + ".userInfo"]: {
-            uid: recieverInfo?.userID,
-            displayName: recieverInfo?.userName,
-            photoURL: recieverInfo?.profilePicURL,
+            uid: currentUserID,
+            displayName: currentUserInfo?.userName,
+            photoURL: currentUserInfo?.profilePicURL,
+            imageUri: imageUri,
+            listingName: listingName,
           },
           [combinedId + ".date"]: serverTimestamp(),
         });
@@ -59,9 +61,11 @@ import {
         await updateDoc(doc(firestore, "userChats", currentUserID), {
 
           [combinedId + ".userInfo"]: {
-            uid: currentUserID,
-            displayName: currentUserInfo?.userName,
-            photoURL: currentUserInfo?.profilePicURL,
+            uid: recieverInfo?.userID,
+            displayName: recieverInfo?.userName,
+            photoURL: recieverInfo?.profilePicURL,
+            imageUri: imageUri,
+            listingName: listingName,
           },
           [combinedId + ".date"]: serverTimestamp(),
         });

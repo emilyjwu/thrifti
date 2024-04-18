@@ -50,14 +50,12 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp, onReturn }) => {
           bio: "",
           profilePicURL: "",
         });
-        //I also need to add part of this data to userChats data
+        //I also need to add part of this data to userChats data --> create and empty user chat!
         const myDocRef2 = doc(
           collection(firestore, "userChats"),
           userCredential.user.uid
         );
         setDoc(myDocRef2, {
-          displayName: username,
-          profilePicURL: "",
         });
         onSignUp();
       })
