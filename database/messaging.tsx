@@ -11,14 +11,10 @@ import {
     getDoc,
     updateDoc,
     setDoc,
-    serverTimestamp
+    serverTimestamp,
+    onSnapshot,
   } from "firebase/firestore";
   import React, { useState, useEffect } from 'react';
-
-
-  const currentUserID = auth?.currentUser?.uid;
-//   console.log(currentUserID)
-
 
 
 
@@ -76,4 +72,27 @@ import {
     }
 
 
+  };
+
+
+  export const getChats = (currentUser) => {
+    return new Promise((resolve, reject) => {
+      if (!currentUser || !currentUser.uid) {
+        reject(new Error('User or UID not available'));
+        return;
+      }
+
+      const unsubscribe = onSnapshot(doc(firestore, "userChats", currentUser.uid), (snapshot) => {
+        const data = snapshot.data();
+        if (data) {
+          resolve(data); // Resolve the promise with the retrieved data
+        } else {
+          reject(new Error('Chat data not found'));
+        }
+      });
+
+      return () => {
+        unsubscribe(); // Return the unsubscribe function
+      };
+    });
   };
