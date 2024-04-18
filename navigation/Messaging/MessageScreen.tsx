@@ -35,121 +35,78 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   // console.log(currentUser)
   // const listingName = data?.vkozCM2e4XQA7QVXdrNOoi1HXr02?.userInfo?.listingName;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const chatData = await getChats(currentUser);
 
-        setChats(chatData);
-        const keys = Object.keys(chatData);
-        console.log(chatData)
-        // console.log(keys)
-        // console.log(chatData)
-        // console.log(chatData[keys[0]].userInfo)
 
-      } catch (error) {
-        console.error('Error fetching chat data:', error);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const chatData = await getChats(currentUser);
+      console.log(chatData);
+      if (chatData) {
+        const chatArray = Object.keys(chatData).map((key) => ({
+          id: key,
+          date: chatData[key]?.date,
+          userInfo: chatData[key]?.userInfo,
+          displayName: chatData[key]?.userInfo?.displayName,
+          imageUri: chatData[key]?.userInfo?.imageUri,
+          listingName: chatData[key]?.userInfo?.listingName,
+          photoURL: chatData[key]?.userInfo?.photoURL,
+        }));
+        // Sort the array by date in descending order
+        const sortedChats = chatArray.sort((a, b) => b.date - a.date);
+        setChats(sortedChats);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching chat data:', error);
+    }
+  };
 
-    currentUser && fetchData(); // Fetch data if currentUser is available
-  }, [currentUser]);
+  currentUser && fetchData(); // Fetch data if currentUser is available
+}, [currentUser]);
 
 
   return (
     <View style={styles.container}>
-    {Object.entries(chatData)?.sort((a,b)=>b[1].date - a[1].date).map((chat) => (
-      <TouchableOpacity
-        style={styles.messageContainer}
-        key={chat[0]}
-        // onPress={() => handleSelect(chat[1].userInfo)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.circle}></View>
-        <View style={styles.userInfoText}>
-          <Text style={styles.username}>{chat[1].userInfo.displayName}</Text>
-          <Text numberOfLines={1} style={styles.message}>Testing</Text>
-          <Text style={styles.time}>Today</Text>
-        </View>
-        {chat[1].imageUri ? (
-          <Image
-            source={{ uri: chat[1].imageUri }}
-            style={{
-              width: 115,
-              height: 115,
-              borderRadius: 7
-          }}
-          />
-        ) : (
-          <View >
-            <IconWithBackground
-              width={80}
-              height={80}
-              iconSize={40}
-              iconColor="#000"
-              iconComponent={EntypoIcon}
-              iconName="image"
-              backgroundColor="#eBeBeB"
-            />
+      {chatData.map((chat) => (
+        <TouchableOpacity
+          style={styles.messageContainer}
+          key={chat.id}
+          // onPress={() => handleSelect(chat.userInfo)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.circle}></View>
+          <View style={styles.userInfoText}>
+            <Text style={styles.username}>{chat.userInfo.displayName}</Text>
+            <Text numberOfLines={1} style={styles.message}>Testing</Text>
+            <Text style={styles.time}>{new Date(chat.date).toLocaleDateString()}</Text>
           </View>
-        )}
-      </TouchableOpacity>
-    ))}
-  </View>
-    // <View style={styles.container}>
-    //   {Object.entries(chatData)?.sort((a,b)=>b[1].date - a[1].date).map((chat) => (
-    //     <TouchableOpacity
-    //       style={styles.userChat}
-    //       key={chat[0]}
-    //       // onPress={() => handleSelect(chat[1].userInfo)}
-    //     >
-    //       <Image source={{ uri: chat[1].userInfo.photoURL }} style={styles.userChatImage} />
-    //       <View style={styles.userChatInfo}>
-    //         <Text style={styles.username}>{chat[1].userInfo.displayName}</Text>
-    //         <Text>{chat[1].lastMessage?.text}</Text>
-    //       </View>
-    //     </TouchableOpacity>
-    //   ))}
-    // </View>
-
-  //   <View style={styles.container}>
-  //   <FlatList
-  //     data={chatData}
-  //     keyExtractor={(item) => item.id}
-  //     renderItem={({ item }) => (
-  //       <TouchableOpacity onPress={() => handlePress(item.id)} activeOpacity={0.7}>
-  //         <View style={[styles.messageContainer, clicked === item.id && styles.clickedContainer]}>
-  //           <View style={styles.circle}></View>
-  //           <View style={styles.userInfoText}>
-  //             <Text style={styles.username}>{item.displayName}</Text>
-  //             <Text numberOfLines={1} style={styles.message}>Testing</Text>
-  //             <Text style={styles.time}>Today</Text>
-  //           </View>
-  //           {item.imageUri ? (
-  //             <Image
-  //               source={{ uri: item.imageUri }}
-  //               style={{ width: 80, height: 80, borderRadius: 40 }}
-  //             />
-  //           ) : (
-  //             <IconWithBackground
-  //               width={80}
-  //               height={80}
-  //               iconSize={40}
-  //               iconColor="#000"
-  //               iconComponent={EntypoIcon}
-  //               iconName="image"
-  //               backgroundColor="#eBeBeB"
-  //             />
-  //           )}
-  //         </View>
-  //       </TouchableOpacity>
-  //     )}
-  //     style={{ marginTop: 10, marginBottom: 10 }}
-  //   />
-  // </View>
-);
+          {chat.imageUri ? (
+            <Image
+              source={{ uri: chat.imageUri }}
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 7
+            }}
+            />
+          ) : (
+            <View>
+              <IconWithBackground
+                width={80}
+                height={80}
+                iconSize={40}
+                iconColor="#000"
+                iconComponent={EntypoIcon}
+                iconName="image"
+                backgroundColor="#eBeBeB"
+              />
+            </View>
+          )}
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -200,33 +157,5 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 });
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//   },
-//   userChat: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     padding: 10,
-//     borderBottomWidth: 1,
-//     borderBottomColor: '#ccc',
-//   },
-//   userChatImage: {
-//     width: 50,
-//     height: 50,
-//     borderRadius: 25,
-//     marginRight: 10,
-//   },
-//   userChatInfo: {
-//     flex: 1,
-//   },
-//   username: {
-//     fontWeight: 'bold',
-//     marginBottom: 5,
-//   },
-// });
-
 
 export default MessageScreen;
