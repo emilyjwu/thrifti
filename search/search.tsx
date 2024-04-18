@@ -23,11 +23,20 @@ export const searchKListings = async (search_string: string, k: number) => {
   return search_results;
 };
 
-export const upsertListingPC = async (search_array) => {
-  const search_results = await fetch(
-    search_base_url + "search-k?search_string=" + "&k=",
+export const upsertListingPC = async (tagArray, listing_id, date) => {
+  // turning tag list to string
+  const listing_labels = tagArray.map((entry) => entry.description).join(" ");
+
+  const upsert = await fetch(
+    search_base_url +
+      "upsert-pinecone?listing_labels=" +
+      listing_labels +
+      "&listing_id=" +
+      listing_id +
+      "&date=" +
+      date,
     {
-      method: "GET",
+      method: "POST",
       headers: {},
     }
   )
@@ -43,7 +52,5 @@ export const upsertListingPC = async (search_array) => {
       console.log("Issue searching for posts: " + error);
       return {};
     });
-  return search_results;
+  return upsert;
 };
-
-const tags2String = (tagArray) => {};

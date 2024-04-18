@@ -28,11 +28,9 @@ import {
 } from "firebase/storage";
 import { User } from "firebase/auth";
 import { createContext } from "react";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { upsertListingPC } from "../search/search";
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   // Store this data secretly in the future
   apiKey: "AIzaSyDOR2CXlRn8HrJWgNupyohQsZ7kcFGiW0c",
@@ -81,6 +79,7 @@ export const uploadListing = async (imageUri: string, listingData: any) => {
     console.log(await (await getDoc(docRef)).data().imgURL);
     console.log(docRef);
     addListingToUser(listingData.uid, docRef.id);
+    await upsertListingPC(listingData.tags, docRef.id, "4-18-24");
     return 200;
   } catch (error) {
     console.log("Issue storing image in FBS: ", error);

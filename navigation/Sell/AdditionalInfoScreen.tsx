@@ -18,7 +18,7 @@ import {
   AuthContext,
   addListingToUser,
 } from "../../database/index";
-import { addDoc, collection } from "firebase/firestore";
+import { upsertListingPC } from "../../search/search";
 interface ExploreScreenProps {
   navigation: any;
 }
