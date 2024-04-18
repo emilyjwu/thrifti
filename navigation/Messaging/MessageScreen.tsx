@@ -57,6 +57,7 @@ useEffect(() => {
           imageUri: chatData[key]?.userInfo?.imageUri,
           listingName: chatData[key]?.userInfo?.listingName,
           photoURL: chatData[key]?.userInfo?.photoURL,
+          binID: chatData[key]?.userInfo?.binID,
         }));
         // Sort the array by date in descending order
         const sortedChats = chatArray.sort((a, b) => b.date - a.date);
@@ -86,7 +87,7 @@ useEffect(() => {
           <View style={styles.userInfoText}>
             <Text style={styles.username}>{chat.userInfo.displayName}</Text>
             <Text numberOfLines={1} style={styles.message}>Testing</Text>
-            <Text style={styles.time}>{new Date(chat.date).toLocaleDateString()}</Text>
+            <Text style={styles.time}>One Message</Text>
           </View>
           {chat.imageUri ? (
             <Image

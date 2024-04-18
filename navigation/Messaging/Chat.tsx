@@ -1,6 +1,9 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { fetchBinItemsInfo } from '../../database';
+import { ScrollView } from 'react-native-gesture-handler';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -10,23 +13,40 @@ interface ChatProps {
 const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
     const {chatData} = route.params;
     const { userInfo, date } = chatData;
-    const { displayName, imageUri, listingName, photoURL } = userInfo;
+    const { displayName, imageUri, listingName, photoURL, binID } = userInfo;
+
+    const handleArrow = () => {
+        const listingInfo = fetchBinItemsInfo(binID)
+        navigation.navigate("Listing", { imageUri: imageUri, binItemInfo: listingInfo})
+    };
 
   return (
-    <View style={styles.container}>
-        <View style={styles.banner}>
-        <Image
-              source={{ uri: imageUri }}
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: 7,
-                marginRight: 10,
-            }}
-        />
-          <Text style={styles.title}>{listingName}</Text>
+    <ScrollView>
+        <View style={styles.container}>
+            <View style={styles.banner}>
+                <View style={styles.banner}>
+                    <Image
+                        source={{ uri: imageUri }}
+                        style={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: 7,
+                            marginRight: 10,
+                        }}
+                    />
+                <View style={styles.textContainer}>
+                            <Text style={styles.title}>{listingName}</Text>
+                            <TouchableOpacity style={styles.makeOfferButton} onPress={handleArrow}>
+                                <Text style={styles.makeOfferButtonText}> Make Offer</Text>
+                            </TouchableOpacity>
+                        </View>
+                </View>
+                <TouchableOpacity style={styles.arrow} onPress={handleArrow}>
+                        <Icon name="angle-right" size={24} color="#000" />
+                </TouchableOpacity>
+            </View>
         </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -34,18 +54,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    paddingTop: 0,
+    paddingLeft: 0,
   },
   banner: {
-    // flex: 1,
-    // backgroundColor: '#fff',
-    flexDirection: 'row', // Arrange items in a row
-    alignItems: 'center', // Align items in the center vertically
-    paddingHorizontal: 20, // Add horizontal padding for spacing
-    paddingVertical: 10, // Add vertical padding for spacing
-    backgroundColor: '#f0f0f0', // Example background color
-    borderRadius: 7, // Example border radius
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    height: 90,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    width: '100%',
+
   },
   title: {
     fontSize: 18,
@@ -53,6 +75,28 @@ const styles = StyleSheet.create({
     marginRight: 0,
     marginBottom: 4,
   },
+  makeOfferButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: 5,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    marginTop: 5,
+  },
+  makeOfferButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  textContainer: {
+    flex: 1,
+  },
+  arrow:{
+    paddingBottom: 30,
+    marginLeft: 'auto',
+    marginTop: -10,
+    marginRight: 10,
+  }
 });
 
 export default Chats;

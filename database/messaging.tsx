@@ -18,7 +18,7 @@ import {
 
 
 
-  export const createChat = async (recieverInfo, imageUri, listingName, listingID) => {
+  export const createChat = async (recieverInfo, imageUri, listingName, listingID, binID) => {
     const currentUserID = auth?.currentUser?.uid;
     console.log(currentUserID);
 
@@ -52,6 +52,7 @@ import {
             photoURL: currentUserInfo?.profilePicURL,
             imageUri: imageUri,
             listingName: listingName,
+            binId: binID,
           },
           [combinedId + ".date"]: serverTimestamp(),
         });

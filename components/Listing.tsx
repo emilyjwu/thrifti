@@ -102,7 +102,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
         {/* <TouchableOpacity onPress={() => navigation.navigate("Message")}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity> */}
-         <TouchableOpacity onPress={() => createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id)}>
+         <TouchableOpacity onPress={() => createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id, binItemInfo.binID)}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity>
 
