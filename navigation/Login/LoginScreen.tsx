@@ -5,8 +5,10 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
 import { AuthContext, auth } from "../../database/index";
 
+import { search_k_listings } from "../../search/search";
+
 interface LoginScreenProps {
-  onLogin: (email) => void;
+  onLogin: (email: string) => void;
   onSignUp: () => void;
 }
 
@@ -37,7 +39,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
       });
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
+    console.log("ok");
+    console.log(await search_k_listings("tennis", 10));
+    console.log("yay");
     onSignUp();
   };
 
