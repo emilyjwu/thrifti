@@ -6,6 +6,7 @@ import IconWithBackground from '../../components/IconWithBackground';
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import { getChats } from '../../database/messaging';
 import {auth} from '../../database/index';
+
 // import { format } from "date-fns";
 
 
@@ -30,7 +31,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   const handlePress = (chat) => {
     setClicked(chat);
 
-    console.log("chat", chat.id)
+    console.log("date", chat.date)
     // console.log("chat2",  { chatData: chat })
 
     navigation.navigate('Chat', { chatId: chat.id, chatData: chat });
@@ -84,7 +85,6 @@ useEffect(() => {
         // Sort the array by date in descending order
         const sortedChats = chatArray.sort((a, b) => b.date - a.date);
         setChats(sortedChats);
-        // console.log(chatData);
       }
     } catch (error) {
       console.error('Error fetching chat data:', error);

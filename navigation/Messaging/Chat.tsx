@@ -38,6 +38,7 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const currentUser = auth?.currentUser;
 
+
   const handleArrow = () => {
     const listingInfo = fetchBinItemsInfo(binID);
     navigation.navigate('Listing', { imageUri: imageUri, binItemInfo: listingInfo });

@@ -20,6 +20,14 @@ import {
 //   import { v4 as uuid } from "uuid";
   import uuid from 'react-native-uuid';
 
+  const getCurrentDate=()=>{
+
+    var date = new Date().getDate();
+    var month = new Date().getMonth() + 1;
+    var year = new Date().getFullYear();
+    return date + '-' + month + '-' + year;
+}
+
 
 
   export const createChat = async (recieverInfo, imageUri, listingName, listingID, binID) => {
@@ -58,7 +66,8 @@ import {
             listingName: listingName,
             binId: binID,
           },
-          [combinedId + ".date"]: serverTimestamp(),
+        //   [combinedId + ".date"]: serverTimestamp(),
+        [combinedId + ".date"]: getCurrentDate(),
         });
         console.log("updated user chats for reciever")
 
@@ -72,7 +81,8 @@ import {
             imageUri: imageUri,
             listingName: listingName,
           },
-          [combinedId + ".date"]: serverTimestamp(),
+        //   [combinedId + ".date"]: serverTimestamp(),
+        [combinedId + ".date"]: getCurrentDate(),
         });
         console.log("updated user chats for sender")
       }
@@ -142,14 +152,17 @@ import {
       [chatId + ".lastMessage"]: {
         text,
       },
-      [chatId + ".date"]: serverTimestamp(),
+    //   [chatId + ".date"]: serverTimestamp(),
+       [chatId + ".date"]: getCurrentDate(),
+
     });
 
     await updateDoc(otherUserChatsRef, {
       [chatId + ".lastMessage"]: {
         text,
       },
-      [chatId + ".date"]: serverTimestamp(),
+    //   [chatId + ".date"]: serverTimestamp(),
+    [chatId + ".date"]: getCurrentDate(),
     });
     console.log("updated user chats in DB")
 
@@ -157,42 +170,6 @@ import {
     // setText("");
   };
 
-
-//   export const getConvo = (chatId) => {
-//     const currentUser = auth?.currentUser;
-//     return new Promise((resolve, reject) => {
-//       const unsubscribe = onSnapshot(doc(firestore, "chats", chatId), (snapshot) => {
-//         const data = snapshot.data();
-//         if (data) {
-//           resolve(data); // Resolve the promise with the retrieved data
-//         } else {
-//           reject(new Error('Chat data not found'));
-//         }
-//       });
-
-//       return () => {
-//         unsubscribe(); // Return the unsubscribe function
-//       };
-//     });
-//   };
-
-// export const getConvo = (chatId) => {
-//     const currentUser = auth?.currentUser;
-//     return new Promise((resolve, reject) => {
-//       const unsubscribe = onSnapshot(doc(firestore, "chats", chatId), (snapshot) => {
-//         const data = snapshot.data();
-//         if (data) {
-//           resolve(data); // Resolve the promise with the retrieved data
-//         } else {
-//           reject(new Error('Chat data not found'));
-//         }
-//       });
-
-//       return () => {
-//         unsubscribe(); // Return the unsubscribe function
-//       };
-//     });
-//   };
 export const getConvo = (chatId) => {
     const currentUser = auth?.currentUser;
     console.log('Fetching conversation for chatId:', chatId);
@@ -206,7 +183,7 @@ export const getConvo = (chatId) => {
           reject(new Error('Chat data not found'));
         }
       });
-  
+
       return () => {
         unsubscribe(); // Return the unsubscribe function
       };
