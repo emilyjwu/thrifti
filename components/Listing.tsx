@@ -12,7 +12,8 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { usePostHog } from "posthog-react-native";
-import { BasicUserInfo, fetchBasicUserInfo } from "../database";
+import { BasicUserInfo, fetchBasicUserInfo } from '../database';
+import {createChat} from '../database/messaging';
 
 interface ListingProps {
   navigation: any;
@@ -128,9 +129,13 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
       </ScrollView>
       <View style={styles.bottomBar}>
         <Text style={styles.title}>${binItemInfo.price}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Message")}>
+        {/* <TouchableOpacity onPress={() => navigation.navigate("Message")}>
+          <MaterialCommunityIcon name="message" size={40} color="white" />
+        </TouchableOpacity> */}
+         <TouchableOpacity onPress={() => createChat(userInfo, imageUri, binItemInfo.listingName)}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity>
+
       </View>
     </View>
   );
@@ -224,3 +229,4 @@ const styles = StyleSheet.create({
 });
 
 export default Listing;
+
