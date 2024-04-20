@@ -1,20 +1,27 @@
-import React, { useState, useEffect } from 'react'
-import { Text, View, ScrollView, StyleSheet, Image, ActivityIndicator } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import EntypoIcon from 'react-native-vector-icons/Entypo';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, { useState, useEffect } from "react";
+import {
+  Text,
+  View,
+  ScrollView,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import EntypoIcon from "react-native-vector-icons/Entypo";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { usePostHog } from "posthog-react-native";
-import { BasicUserInfo, fetchBasicUserInfo } from '../database';
+import { BasicUserInfo, fetchBasicUserInfo } from "../database";
 
 interface ListingProps {
   navigation: any;
   route: any;
 }
 
-const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
+const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
   const [liked, setLiked] = useState(false);
-  const { imageUri, binItemInfo} = route.params;
+  const { imageUri, binItemInfo } = route.params;
   const [imageLoading, setImageLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<BasicUserInfo | null>(null);
 
@@ -39,18 +46,33 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
-      <TouchableOpacity onPress={() => {
-        navigation.navigate("Profile", { userID: binItemInfo.userID });
-      }}>
-        <View style={styles.horizontalBox}>
-          { (userInfo && userInfo.profilePicURL != "") ?
-            <FontAwesome name="user-circle" size={50} color='pink' style={styles.profilePhoto}/>
-            : <FontAwesome name="user-circle" size={50} color='gray' style={styles.profilePhoto}/>
-          }
-          <Text style={styles.profileName}>{userInfo && userInfo.userName}</Text>
-        </View>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("Profile", { userID: binItemInfo.userID });
+          }}
+        >
+          <View style={styles.horizontalBox}>
+            {userInfo && userInfo.profilePicURL != "" ? (
+              <FontAwesome
+                name="user-circle"
+                size={50}
+                color="pink"
+                style={styles.profilePhoto}
+              />
+            ) : (
+              <FontAwesome
+                name="user-circle"
+                size={50}
+                color="gray"
+                style={styles.profilePhoto}
+              />
+            )}
+            <Text style={styles.profileName}>
+              {userInfo && userInfo.userName}
+            </Text>
+          </View>
         </TouchableOpacity>
-          <View style={styles.imageContainer}>
+        <View style={styles.imageContainer}>
           {imageLoading && (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#0000ff" />
@@ -61,18 +83,26 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
             source={{ uri: imageUri }}
             onLoad={() => setImageLoading(false)}
           />
-          </View>
+        </View>
         <View style={styles.horizontalBox}>
           {binItemInfo.listingName ? (
-          <Text style={styles.title}>{binItemInfo.listingName}</Text>
+            <Text style={styles.title}>{binItemInfo.listingName}</Text>
           ) : null}
-            <TouchableOpacity onPress={() => {setLiked(!liked)}}>
-              <EntypoIcon name={liked ? "heart" : "heart-outlined"} size={25} color={liked ? "red" : "black"} />
-            </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setLiked(!liked);
+            }}
+          >
+            <EntypoIcon
+              name={liked ? "heart" : "heart-outlined"}
+              size={25}
+              color={liked ? "red" : "black"}
+            />
+          </TouchableOpacity>
         </View>
         {binItemInfo.description !== "" ? (
           <View style={styles.listingDescription}>
-          <Text>{binItemInfo.description}</Text>
+            <Text>{binItemInfo.description}</Text>
           </View>
         ) : null}
         {binItemInfo.conditon !== "" ? (
@@ -85,15 +115,15 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
         ) : null}
         {binItemInfo.tags ? (
           <View>
-          <Text style={styles.subtitle}>Tags</Text>
-          <View style={styles.labelsContainer}>
-            {binItemInfo.tags.map((tag, index) => (
-              <View key={index} style={styles.labelPill}>
-                <Text style={styles.labelText}>{tag.description}</Text>
-              </View>
-            ))}
+            <Text style={styles.subtitle}>Tags</Text>
+            <View style={styles.labelsContainer}>
+              {binItemInfo.tags.map((tag, index) => (
+                <View key={index} style={styles.labelPill}>
+                  <Text style={styles.labelText}>{tag.description}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
         ) : null}
       </ScrollView>
       <View style={styles.bottomBar}>
@@ -103,9 +133,8 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
         </TouchableOpacity>
       </View>
     </View>
-  )
-}
-
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -116,8 +145,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   horizontalBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     // backgroundColor: 'pink',
     marginBottom: 5,
   },
@@ -128,7 +157,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   imageContainer: {
-    position: 'relative',
+    position: "relative",
     aspectRatio: 1,
   },
   square: {
@@ -138,29 +167,29 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   titleContainer: {
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   title: {
     marginRight: 5,
     fontSize: 25,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   listingDescription: {
-    backgroundColor: '#eBeBeB',
+    backgroundColor: "#eBeBeB",
     padding: 10,
     borderRadius: 10,
     marginTop: 5,
     marginBottom: 10,
   },
   conditionContainer: {
-    backgroundColor: '#eBeBeB',
+    backgroundColor: "#eBeBeB",
     padding: 5,
     borderRadius: 10,
     marginLeft: 5,
   },
   subtitle: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   labelsContainer: {
     flexDirection: "row",
@@ -182,17 +211,16 @@ const styles = StyleSheet.create({
   bottomBar: {
     padding: 10,
     height: 60,
-    backgroundColor: 'gray',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "gray",
+    justifyContent: "space-between",
+    flexDirection: "row",
+    alignItems: "center",
   },
   loadingContainer: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
 export default Listing;
-

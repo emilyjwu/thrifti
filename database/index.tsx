@@ -54,7 +54,6 @@ const currentDate = new Date();
 export const uploadListing = async (imageUri: string, listingData: any) => {
   try {
     const docRef = await addDoc(collection(firestore, "items"), listingData);
-
     const response = await fetch(imageUri);
     const blob = await response.blob();
     const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);
@@ -79,7 +78,12 @@ export const uploadListing = async (imageUri: string, listingData: any) => {
     console.log(await (await getDoc(docRef)).data().imgURL);
     console.log(docRef);
     addListingToUser(listingData.uid, docRef.id);
-    await upsertListingPC(listingData.tags, docRef.id, "4-18-24");
+
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    const formattedDate = `${year}${month}${day}`;
+    await upsertListingPC(listingData.tags, docRef.id, formattedDate);
     return 200;
   } catch (error) {
     console.log("Issue storing image in FBS: ", error);
@@ -127,12 +131,7 @@ export const fetchBinName = async (binID: string) => {
     const binDocSnap = await getDoc(binDocRef);
     if (binDocSnap.exists()) {
       const binData = binDocSnap.data();
-      if (binData && binData.binName) {
-        return binData.binName;
-      } else {
-        console.error("Bin document does not contain a name field.");
-        return null;
-      }
+      return binData.binName;
     } else {
       console.error("Bin document does not exist.");
       return null;

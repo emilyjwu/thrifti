@@ -18,7 +18,6 @@ import {
   AuthContext,
   addListingToUser,
 } from "../../database/index";
-import { upsertListingPC } from "../../search/search";
 interface ExploreScreenProps {
   navigation: any;
 }

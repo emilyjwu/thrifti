@@ -1,26 +1,25 @@
 const search_base_url = "http://192.168.64.9:8000/";
 
 export const searchKListings = async (search_string: string, k: number) => {
-  const search_results = await fetch(
-    search_base_url + "search-k?search_string=" + search_string + "&k=" + k,
-    {
-      method: "GET",
-      headers: {},
+  try {
+    const response = await fetch(
+      search_base_url + "search-k?search_string=" + search_string + "&k=" + k,
+      {
+        method: "GET",
+        headers: {},
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to Search DB");
+    } else {
+      const data = await response.json();
+      console.log("Search Successful!");
+      return data.matches;
     }
-  )
-    .then((response) => {
-      console.log("Successful Search");
-      return response.json();
-    })
-    .then((data) => {
-      console.log(data);
-      return data;
-    })
-    .catch((error) => {
-      console.log("Issue searching for posts: " + error);
-      return {};
-    });
-  return search_results;
+  } catch (error) {
+    console.error("Issue searching for posts: " + error);
+    return {};
+  }
 };
 
 export const upsertListingPC = async (tagArray, listing_id, date) => {
@@ -42,10 +41,10 @@ export const upsertListingPC = async (tagArray, listing_id, date) => {
   )
     .then((response) => {
       console.log("Successful Search");
-      return response.json();
+      return response;
     })
     .then((data) => {
-      console.log(data);
+      //console.log(data);
       return data;
     })
     .catch((error) => {

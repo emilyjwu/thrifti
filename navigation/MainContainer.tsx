@@ -23,6 +23,7 @@ import Listing from "../components/Listing";
 import ExpandBin from "../components/ExpandBin";
 import ListingScroll from "../components/ListingScroll";
 import FilteredFeed from "./Explore/FilteredFeed";
+import SearchScreen from "./Explore/SearchScreen";
 import UserList from "./Profile/UserList";
 import { PostHogProvider } from "posthog-react-native";
 import { posthog } from "../database/index";
@@ -73,6 +74,11 @@ const ExploreStack = ({ navigation }) => (
     <Stack.Screen
       name="Profile"
       component={ProfileScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="Search"
+      component={SearchScreen}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>

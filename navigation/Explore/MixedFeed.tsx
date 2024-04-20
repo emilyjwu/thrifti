@@ -1,7 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { View, FlatList, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { BinItemInfo, fetchAllBins, fetchBinItemsInfo, fetchBinName } from '../../database';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  FlatList,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import {
+  BinItemInfo,
+  fetchAllBins,
+  fetchBinItemsInfo,
+  fetchBinName,
+} from "../../database";
 import { usePostHog } from "posthog-react-native";
 
 interface MixedFeedProps {
@@ -26,23 +38,32 @@ interface BinSquareProps {
   isLeftBin: boolean;
 }
 
-const ListingSquare: React.FC<ListingSquareProps> = ({ imageUri, binItemInfo, marginBottom = false }) => {
-    const navigation = useNavigation();
+const ListingSquare: React.FC<ListingSquareProps> = ({
+  imageUri,
+  binItemInfo,
+  marginBottom = false,
+}) => {
+  const navigation = useNavigation();
 
-    const handlePress = () => {
-      navigation.navigate('Listing', { imageUri, binItemInfo });
-    };
+  const handlePress = () => {
+    navigation.navigate("Listing", { imageUri, binItemInfo });
+  };
 
-    return (
-      <TouchableOpacity onPress={handlePress}>
-        <Image style={[styles.listingSquare, marginBottom && { marginBottom: 5 }]}
-               source= {{ uri: imageUri }}
-        />
-      </TouchableOpacity>
-    );
+  return (
+    <TouchableOpacity onPress={handlePress}>
+      <Image
+        style={[styles.listingSquare, marginBottom && { marginBottom: 5 }]}
+        source={{ uri: imageUri }}
+      />
+    </TouchableOpacity>
+  );
 };
 
-const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, isLeftBin }) => {
+const BinSquare: React.FC<BinSquareProps> = ({
+  imageUri,
+  binItemInfo,
+  isLeftBin,
+}) => {
   const navigation = useNavigation();
   const [binName, setBinName] = useState();
 
@@ -55,77 +76,118 @@ const BinSquare: React.FC<BinSquareProps> = ({ imageUri, binItemInfo, isLeftBin 
         console.error("Error fetching bin name: ", error);
       }
     };
-  
+
     fetchData();
   }, [binItemInfo.binID]);
 
   const handlePress = async () => {
     try {
-        const binItems = await fetchBinItemsInfo(binItemInfo.binID);
-        navigation.navigate('ExpandBin', { binItems, binName });
+      const binItems = await fetchBinItemsInfo(binItemInfo.binID);
+      navigation.navigate("ExpandBin", { binItems, binName });
     } catch (error) {
-        console.error("Error fetching bin items: ", error);
+      console.error("Error fetching bin items: ", error);
     }
   };
 
   return (
     <TouchableOpacity onPress={handlePress}>
       <View style={styles.binContainer}>
-        <Image style={[styles.binImage]}
-                source= {{ uri: imageUri }}
-        />
+        <Image style={[styles.binImage]} source={{ uri: imageUri }} />
         <View style={[styles.binOverlay]} />
-        <Text style={[styles.binTitle, isLeftBin && { left: 10 }, !isLeftBin && { right: 10 }]}>{binName}</Text>
+        <Text
+          style={[
+            styles.binTitle,
+            isLeftBin && { left: 10 },
+            !isLeftBin && { right: 10 },
+          ]}
+        >
+          {binName}
+        </Text>
       </View>
     </TouchableOpacity>
   );
 };
 
-  const ListingRow = ({ item }: { item: DataEntry }) => {
-    if (item.binItems.length < 3) {
-      return null;
-    }
+const ListingRow = ({ item }: { item: DataEntry }) => {
+  if (item.binItems.length < 3) {
+    return null;
+  }
 
-    return (
-      <View style={styles.type1}>
-        <ListingSquare imageUri={item.binItems[0].imageUri} binItemInfo={item.binItems[0]} />
-        <ListingSquare imageUri={item.binItems[1].imageUri} binItemInfo={item.binItems[1]} />
-        <ListingSquare imageUri={item.binItems[2].imageUri} binItemInfo={item.binItems[2]} />
-      </View>
-    );
-  };
-
-  const BinListingRow = ({ item }: { item: DataEntry }) => {
-    if (item.binItems.length < 3) {
-      return null;
-    }
-
-    return (
-      <View style={styles.type2}>
-      <BinSquare imageUri={item.binItems[0].imageUri} binItemInfo={item.binItems[0]} isLeftBin={true} />
-      <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
-          <ListingSquare imageUri={item.binItems[1].imageUri} binItemInfo={item.binItems[1]} marginBottom/>
-          <ListingSquare imageUri={item.binItems[2].imageUri} binItemInfo={item.binItems[2]} />
-      </View>
-      </View>
-    );
-  };
-
-  const ListingBinRow = ({ item }: { item: DataEntry }) => {
-    if (item.binItems.length < 3) {
-      return null;
-    }
-
-    return (
-      <View style={styles.type2}>
-      <View style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
-          <ListingSquare imageUri={item.binItems[0].imageUri} binItemInfo={item.binItems[0]} marginBottom/>
-          <ListingSquare imageUri={item.binItems[1].imageUri} binItemInfo={item.binItems[1]} />
-      </View>
-      <BinSquare imageUri={item.binItems[2].imageUri} binItemInfo={item.binItems[2]} isLeftBin={false} />
+  return (
+    <View style={styles.type1}>
+      <ListingSquare
+        imageUri={item.binItems[0].imageUri}
+        binItemInfo={item.binItems[0]}
+      />
+      <ListingSquare
+        imageUri={item.binItems[1].imageUri}
+        binItemInfo={item.binItems[1]}
+      />
+      <ListingSquare
+        imageUri={item.binItems[2].imageUri}
+        binItemInfo={item.binItems[2]}
+      />
     </View>
-    );
-  };
+  );
+};
+
+const BinListingRow = ({ item }: { item: DataEntry }) => {
+  if (item.binItems.length < 3) {
+    return null;
+  }
+
+  return (
+    <View style={styles.type2}>
+      <BinSquare
+        imageUri={item.binItems[0].imageUri}
+        binItemInfo={item.binItems[0]}
+        isLeftBin={true}
+      />
+      <View
+        style={{ flexDirection: "column", justifyContent: "space-between" }}
+      >
+        <ListingSquare
+          imageUri={item.binItems[1].imageUri}
+          binItemInfo={item.binItems[1]}
+          marginBottom
+        />
+        <ListingSquare
+          imageUri={item.binItems[2].imageUri}
+          binItemInfo={item.binItems[2]}
+        />
+      </View>
+    </View>
+  );
+};
+
+const ListingBinRow = ({ item }: { item: DataEntry }) => {
+  if (item.binItems.length < 3) {
+    return null;
+  }
+
+  return (
+    <View style={styles.type2}>
+      <View
+        style={{ flexDirection: "column", justifyContent: "space-between" }}
+      >
+        <ListingSquare
+          imageUri={item.binItems[0].imageUri}
+          binItemInfo={item.binItems[0]}
+          marginBottom
+        />
+        <ListingSquare
+          imageUri={item.binItems[1].imageUri}
+          binItemInfo={item.binItems[1]}
+        />
+      </View>
+      <BinSquare
+        imageUri={item.binItems[2].imageUri}
+        binItemInfo={item.binItems[2]}
+        isLeftBin={false}
+      />
+    </View>
+  );
+};
 
 const renderItem = ({ item }: { item: DataEntry }) => {
   switch (item.type) {
@@ -154,15 +216,17 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-        try {
-            const bins = await fetchAllBins();
-            const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
-                return await fetchBinItemsInfo(bin);
-            }));
-            setBinsInfo(binsInfoArray);
-        } catch (error) {
-            console.error("Error fetching bin items info:", error);
-        }
+      try {
+        const bins = await fetchAllBins();
+        const binsInfoArray: BinItemInfo[][] = await Promise.all(
+          bins.map(async (bin) => {
+            return await fetchBinItemsInfo(bin);
+          })
+        );
+        setBinsInfo(binsInfoArray);
+      } catch (error) {
+        console.error("Error fetching bin items info:", error);
+      }
     };
 
     fetchData();
@@ -196,7 +260,7 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
       <FlatList
         data={data}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
       />
     </View>
   );
@@ -205,7 +269,7 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: '100%',
+    width: "100%",
     padding: 9,
   },
   listingSquare: {
@@ -214,34 +278,34 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   binContainer: {
-    position: 'relative',
+    position: "relative",
   },
   binImage: {
     width: 246,
     height: 246,
     borderRadius: 10,
-    resizeMode: 'cover',
+    resizeMode: "cover",
   },
   binOverlay: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
   },
   binTitle: {
     fontSize: 23,
     fontWeight: "bold",
     color: "white",
-    position: 'absolute', 
+    position: "absolute",
     bottom: 10,
   },
   type1: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 5,
   },
   type2: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 5,
   },
 });
