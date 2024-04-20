@@ -1,10 +1,21 @@
-import React, {useState, useEffect} from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Keyboard, FlatList} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  TextInput,
+  KeyboardAvoidingView,
+  Keyboard,
+  FlatList,
+  SafeAreaView,
+} from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { fetchBinItemsInfo } from '../../database';
+import { fetchBinItemsInfo, auth } from '../../database';
+import { getConvo, handleSend } from '../../database/messaging';
 import { ScrollView } from 'react-native-gesture-handler';
-import { handleSend, getConvo } from '../../database/messaging';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -12,91 +23,84 @@ interface ChatProps {
 }
 
 interface Message {
-    date: Date;
-    id: string;
-    senderId: string;
-    text: string; // Adjust this type as per your Firestore data structure
-    // Add other message fields as needed
-  }
+  date: Date;
+  id: string;
+  senderId: string;
+  text: string;
+}
 
 const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
-    const {chatId, chatData} = route.params;
-    // console.log(chatId)
-    const { userInfo, date } = chatData;
-    const { displayName, imageUri, listingName, photoURL, binID, uid } = userInfo;
-    const [text, setText] = useState("");
-    const [keyboardVisible, setKeyboardVisible] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([]);
+  const { chatId, chatData } = route.params;
+  const { userInfo, date } = chatData;
+  const { imageUri, listingName, binID, uid } = userInfo;
+  const [text, setText] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const currentUser = auth?.currentUser;
 
+  const handleArrow = () => {
+    const listingInfo = fetchBinItemsInfo(binID);
+    navigation.navigate('Listing', { imageUri: imageUri, binItemInfo: listingInfo });
+  };
 
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const messageData = await getConvo(chatId);
-            if (messageData) {
-              const messageList: Message[] = Object.values(messageData); // Assuming messages are stored as an object with IDs as keys
-              setMessages(messageList);
-              console.log(messageData)
-            }
-          } catch (error) {
-            console.error('Error fetching chat data:', error);
-            // Handle error state or display an error message
-          }
-        };
+  const handleSendButton = () => {
+    handleSend(text, chatId, uid);
+    setText(''); // Clear the input field after sending
+  };
 
-        fetchData(); // Fetch data if currentUser is available
+  const renderMessage = ({ item }) => {
+    const isCurrentUser = item.senderId === currentUser.uid;
 
-        return () => {
-          // Clean up snapshot listener on unmount
-          fetchData?.();
-        };
-      }, []);
+    return (
+      <View
+        style={[
+          styles.messageContainer,
+          isCurrentUser ? styles.sentMessage : styles.receivedMessage,
+        ]}
+      >
+        <Text style={styles.messageText}>{item.text}</Text>
+      </View>
+    );
+  };
 
-
-    const handleArrow = () => {
-        const listingInfo = fetchBinItemsInfo(binID)
-        navigation.navigate("Listing", { imageUri: imageUri, binItemInfo: listingInfo})
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const messageData = await getConvo(chatId);
+        if (messageData) {
+          const messageList: Message[] = Object.values(messageData.messages);
+          setMessages(messageList);
+        }
+      } catch (error) {
+        console.error('Error fetching chat data:', error);
+      }
     };
 
-    // const renderMessage = ({ item }: { item: Message }) => {
-    //     const isCurrentUser = item.senderId === currentUserUid;
+    fetchData();
 
-    //     return (
-    //       <View style={[styles.messageContainer, isCurrentUser ? styles.currentUserMessageContainer : styles.otherUserMessageContainer]}>
-    //         <Text style={isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage}>
-    //           {item.text}
-    //         </Text>
-    //         {/* Render other message details as needed */}
-    //       </View>
-    //     );
-    //   };
+    return () => {
+      fetchData?.();
+    };
+  }, [chatId]);
 
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener(
-          'keyboardDidShow',
-          () => {
-            setKeyboardVisible(true);
-          }
-        );
-        const keyboardDidHideListener = Keyboard.addListener(
-          'keyboardDidHide',
-          () => {
-            setKeyboardVisible(false);
-          }
-        );
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setKeyboardVisible(true);
+    });
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardVisible(false);
+    });
 
-        return () => {
-          keyboardDidShowListener.remove();
-          keyboardDidHideListener.remove();
-        };
-      }, []);
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   return (
-    <View style={styles.container}>
-    <ScrollView style={styles.scrollView}>
-      <View style={styles.banner}>
-        <View style={styles.banner}>
-          <Image
+    <SafeAreaView style={styles.container}>
+       <View style={styles.banner}>
+           <Image
             source={{ uri: imageUri }}
             style={{
               width: 80,
@@ -111,146 +115,125 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
               <Text style={styles.makeOfferButtonText}> Make Offer</Text>
             </TouchableOpacity>
           </View>
-        </View>
         <TouchableOpacity style={styles.arrow} onPress={handleArrow}>
           <Icon name="angle-right" size={24} color="#000" />
         </TouchableOpacity>
       </View>
-    </ScrollView>
 
-    <KeyboardAvoidingView
-      behavior='padding'
-      style={styles.inputContainer}
-      keyboardVerticalOffset={keyboardVisible ? 0 : 100}
-    >
-      <TextInput
-        style={styles.input}
-        placeholder="Type something..."
-        onChangeText={(text) => setText(text)}
-        value={text}
+      <FlatList
+        data={messages}
+        renderItem={renderMessage}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.messageList}
+        showsVerticalScrollIndicator={false}
       />
-      <TouchableOpacity style={styles.sendButton} onPress={() => handleSend(text, chatId, uid )}>
-        <Text style={styles.sendButtonText}>Send</Text>
-      </TouchableOpacity>
-    </KeyboardAvoidingView>
-  </View>
+
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={styles.inputContainer}
+        keyboardVerticalOffset={keyboardVisible ? 0 : 100}
+      >
+        <TextInput
+          style={styles.input}
+          placeholder="Type something..."
+          onChangeText={(text) => setText(text)}
+          value={text}
+        />
+        <TouchableOpacity style={styles.sendButton} onPress={() => handleSendButton()}>
+          <Text style={styles.sendButtonText}>Send</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    paddingTop: 0,
-    paddingLeft: 0,
-  },
-  banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    height: 90,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    width: '100%',
-
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginRight: 0,
-    marginBottom: 4,
-  },
-  makeOfferButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 5,
-    paddingHorizontal: 25,
-    borderRadius: 5,
-    marginTop: 5,
-  },
-  makeOfferButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  textContainer: {
-    flex: 1,
-  },
-  arrow:{
-    paddingBottom: 30,
-    marginLeft: 'auto',
-    marginTop: -10,
-    marginRight: 10,
-  },
-inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderTopWidth: 1,
-    borderTopColor: '#ccc',
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-  },
-  input: {
-    height: 40,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginRight: 10,
-    width: '80%',
-  },
-  sendContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  attachButton: {
-    marginRight: 10,
-  },
-  imageButton: {
-    marginRight: 10,
-  },
-  sendButton: {
-    backgroundColor: '#007bff',
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    borderRadius: 5,
-  },
-  sendButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  icon: {
-    width: 24,
-    height: 24,
-  },
-  scrollView: {
-    flex: 1,
-    width: '100%',
-  },
-  currentUserMessage: {
-    backgroundColor: '#007bff',
-    color: '#fff',
-    borderRadius: 10,
-    padding: 8,
-    marginBottom: 5,
-    alignSelf: 'flex-end',
-  },
-  otherUserMessage: {
-    backgroundColor: '#e0e0e0',
-    color: '#333',
-    borderRadius: 10,
-    padding: 8,
-    marginBottom: 5,
-    alignSelf: 'flex-start',
-  },
-  messageContainer: {
-    padding: 10,
-  },
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+      },
+      banner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        height: 90,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+      },
+      title: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 4,
+        marginLeft: 10
+      },
+      makeOfferButton: {
+        backgroundColor: '#007bff',
+        paddingVertical: 6,
+        paddingHorizontal: 30,
+        borderRadius: 5,
+        marginLeft: 10,
+      },
+      makeOfferButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
+      },
+      textContainer: {
+        flex: 1,
+      },
+      arrow: {
+        paddingBottom: 30,
+        marginLeft: 'auto',
+        marginRight: 10,
+      },
+      inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderTopWidth: 1,
+        borderTopColor: '#ccc',
+      },
+      input: {
+        flex: 1,
+        height: 40,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginRight: 10,
+      },
+      sendButton: {
+        backgroundColor: '#007bff',
+        paddingVertical: 8,
+        paddingHorizontal: 15,
+        borderRadius: 5,
+      },
+      sendButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+      },
+      messageContainer: {
+        padding: 10,
+      },
+      messageText: {
+        fontSize: 16,
+      },
+      sentMessage: {
+        alignSelf: 'flex-end',
+        backgroundColor: '#007bff',
+        color: '#fff',
+      },
+      receivedMessage: {
+        alignSelf: 'flex-start',
+        backgroundColor: '#e0e0e0',
+        color: '#333',
+      },
+      messageList: {
+        flexGrow: 1,
+        justifyContent: 'flex-end',
+      },
 });
 
 export default Chats;

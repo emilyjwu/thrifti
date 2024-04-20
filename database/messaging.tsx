@@ -158,18 +158,55 @@ import {
   };
 
 
-  export const getConvo = (chatId) => {
+//   export const getConvo = (chatId) => {
+//     const currentUser = auth?.currentUser;
+//     return new Promise((resolve, reject) => {
+//       const unsubscribe = onSnapshot(doc(firestore, "chats", chatId), (snapshot) => {
+//         const data = snapshot.data();
+//         if (data) {
+//           resolve(data); // Resolve the promise with the retrieved data
+//         } else {
+//           reject(new Error('Chat data not found'));
+//         }
+//       });
+
+//       return () => {
+//         unsubscribe(); // Return the unsubscribe function
+//       };
+//     });
+//   };
+
+// export const getConvo = (chatId) => {
+//     const currentUser = auth?.currentUser;
+//     return new Promise((resolve, reject) => {
+//       const unsubscribe = onSnapshot(doc(firestore, "chats", chatId), (snapshot) => {
+//         const data = snapshot.data();
+//         if (data) {
+//           resolve(data); // Resolve the promise with the retrieved data
+//         } else {
+//           reject(new Error('Chat data not found'));
+//         }
+//       });
+
+//       return () => {
+//         unsubscribe(); // Return the unsubscribe function
+//       };
+//     });
+//   };
+export const getConvo = (chatId) => {
     const currentUser = auth?.currentUser;
+    console.log('Fetching conversation for chatId:', chatId);
     return new Promise((resolve, reject) => {
       const unsubscribe = onSnapshot(doc(firestore, "chats", chatId), (snapshot) => {
         const data = snapshot.data();
+        console.log('Snapshot data:', data);
         if (data) {
           resolve(data); // Resolve the promise with the retrieved data
         } else {
           reject(new Error('Chat data not found'));
         }
       });
-
+  
       return () => {
         unsubscribe(); // Return the unsubscribe function
       };
