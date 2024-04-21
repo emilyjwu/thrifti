@@ -21,6 +21,27 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
 
   const posthog = usePostHog();
 
+  const handleMessageButton = () => {
+    async function getAndCreateChat() {
+      try {
+          const { combinedId, chatArray } = await createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id, binItemInfo.binID);
+          //i need the specific index where the id == combined ID but i can't index directly because i need all fields in the object
+          const index = chatArray.findIndex(item => item.id === combinedId);
+          if (index !== -1) {
+            const chatData = chatArray[index];
+            navigation.navigate('Chat', { chatId: combinedId, chatData: chatData });
+          } else {
+            console.log("Chat not found in the array.");
+          }
+      } catch (error) {
+          console.error("Error:", error);
+      }
+   }
+    getAndCreateChat();
+
+  };
+
+
   useEffect(() => {
     posthog.capture("FOUND_LISTING");
   }, []);
@@ -99,10 +120,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
       </ScrollView>
       <View style={styles.bottomBar}>
         <Text style={styles.title}>${binItemInfo.price}</Text>
-        {/* <TouchableOpacity onPress={() => navigation.navigate("Message")}>
-          <MaterialCommunityIcon name="message" size={40} color="white" />
-        </TouchableOpacity> */}
-         <TouchableOpacity onPress={() => createChat(userInfo, imageUri, binItemInfo.listingName)}>
+         <TouchableOpacity onPress={() => handleMessageButton()}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity>
 

@@ -37,6 +37,7 @@ const profileName = "Profile";
 const loginName = "LoginScreen";
 const signupName = "SignupScreen";
 
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -47,13 +48,18 @@ interface ProfileScreenParams {
 const MessageStack = ({ navigation }) => (
   <Stack.Navigator>
     <Stack.Screen
-      name="MessagesScreen"
+      name="Messages"
       component={MessageScreen}
-      options={{ headerShown: false }}
+      options={{ headerShown: true }}
     />
      <Stack.Screen
-      name="ConversationScreen"
+      name="Chat"
       component={Chat}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="Listing"
+      component={Listing}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>
@@ -89,6 +95,11 @@ const ExploreStack = ({ navigation }) => (
     <Stack.Screen
       name="Profile"
       component={ProfileScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="Chat"
+      component={Chat}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>
@@ -238,7 +249,7 @@ const MainContainer: React.FC = () => {
             <Tab.Screen name="Request" component={RequestStack} />
             <Tab.Screen name="Sell" component={SellStack} />
             <Tab.Screen name="Explore" component={ExploreStack} />
-            <Tab.Screen name="Message" component={MessageStack} />
+            <Tab.Screen name="Message" component={MessageStack} options={{ headerShown: false }}/>
             <Tab.Screen name="Profile" component={ProfileStack} />
           </Tab.Navigator>
         </PostHogProvider>
