@@ -57,6 +57,11 @@ const MessageStack = ({ navigation }) => (
       component={Chat}
       options={{ headerShown: false }}
     />
+    <Stack.Screen
+      name="Listing"
+      component={Listing}
+      options={{ headerShown: false }}
+    />
   </Stack.Navigator>
 );
 
@@ -90,6 +95,11 @@ const ExploreStack = ({ navigation }) => (
     <Stack.Screen
       name="Profile"
       component={ProfileScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="Chat"
+      component={Chat}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>

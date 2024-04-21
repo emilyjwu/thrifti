@@ -20,19 +20,18 @@ import {
 //   import { v4 as uuid } from "uuid";
   import uuid from 'react-native-uuid';
 
-  const getCurrentDate=()=>{
-
-    var date = new Date().getDate();
-    var month = new Date().getMonth() + 1;
-    var year = new Date().getFullYear();
-    return date + '-' + month + '-' + year;
-}
 
 
+  export const createChat = async (recieverInfo, imageUri, listingName, listingID, binId) => {
+    const currentUser = auth?.currentUser;
+    const currentUserID = currentUser?.uid;
+    console.log(binId)
+    // console.log(currentUserID);
 
-  export const createChat = async (recieverInfo, imageUri, listingName, listingID, binID) => {
-    const currentUserID = auth?.currentUser?.uid;
-    console.log(currentUserID);
+    if(currentUserID == recieverInfo.userID) {
+      console.log("u cant message urself duhh");
+      return;
+    }
 
     if (!currentUserID) {
         console.log("Authentication state not ready");
@@ -42,6 +41,7 @@ import {
     const currentUserInfo = await fetchBasicUserInfo(currentUserID);
 
 
+
     const combinedId =
     currentUserID > recieverInfo.userID
         ? currentUserID + recieverInfo.userID + listingID
@@ -49,7 +49,7 @@ import {
 
     try {
       const res = await getDoc(doc(firestore, "chats", combinedId));
-      console.log("awaiting chats")
+      // console.log("awaiting chats")
 
       if (!res.exists()) {
         //create a chat in chats collection
@@ -64,10 +64,10 @@ import {
             photoURL: currentUserInfo?.profilePicURL,
             imageUri: imageUri,
             listingName: listingName,
-            binId: binID,
+            binId: binId,
           },
         //   [combinedId + ".date"]: serverTimestamp(),
-        [combinedId + ".date"]: getCurrentDate(),
+        [combinedId + ".date"]: Timestamp.now(),
         });
         console.log("updated user chats for reciever")
 
@@ -82,7 +82,7 @@ import {
             listingName: listingName,
           },
         //   [combinedId + ".date"]: serverTimestamp(),
-        [combinedId + ".date"]: getCurrentDate(),
+        [combinedId + ".date"]: Timestamp.now(),
         });
         console.log("updated user chats for sender")
       }
@@ -90,8 +90,32 @@ import {
         console.log(err)
     }
 
+    //this is added because I need to pass this info to create a chat (chat screen)
+    try {
+      const chatData = await getChats(currentUser);
+      console.log("Chat Data in lisitng ", chatData);
 
-  };
+      if (chatData) {
+          const chatArray = Object.keys(chatData).map((key) => ({
+              id: key,
+              date: chatData[key]?.date,
+              lastMessage: chatData[key]?.lastMessage?.text || '',
+              userInfo: chatData[key]?.userInfo,
+              displayName: chatData[key]?.userInfo?.displayName,
+              imageUri: chatData[key]?.userInfo?.imageUri,
+              listingName: chatData[key]?.userInfo?.listingName,
+              photoURL: chatData[key]?.userInfo?.photoURL,
+              binId: chatData[key]?.userInfo?.binId,
+              userId: chatData[key]?.userInfo?.uid,
+          }));
+
+          return { combinedId, chatArray }; // Return combinedId along with chat data
+      }
+  } catch (err) {
+      console.log(err);
+  }
+
+};
 
 
   export const getChats = (currentUser) => {
@@ -152,8 +176,7 @@ import {
       [chatId + ".lastMessage"]: {
         text,
       },
-    //   [chatId + ".date"]: serverTimestamp(),
-       [chatId + ".date"]: getCurrentDate(),
+      [chatId + ".date"]: serverTimestamp(),
 
     });
 
@@ -161,8 +184,7 @@ import {
       [chatId + ".lastMessage"]: {
         text,
       },
-    //   [chatId + ".date"]: serverTimestamp(),
-    [chatId + ".date"]: getCurrentDate(),
+      [chatId + ".date"]: serverTimestamp(),
     });
     console.log("updated user chats in DB")
 
@@ -176,8 +198,9 @@ export const getConvo = (chatId) => {
     return new Promise((resolve, reject) => {
       const unsubscribe = onSnapshot(doc(firestore, "chats", chatId), (snapshot) => {
         const data = snapshot.data();
-        console.log('Snapshot data:', data);
+        // console.log('Snapshot data:', data);
         if (data) {
+          const lastMessage = data.messages[data.messages.length - 1]; // Get the last message
           resolve(data); // Resolve the promise with the retrieved data
         } else {
           reject(new Error('Chat data not found'));

@@ -21,6 +21,20 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
 
   const posthog = usePostHog();
 
+  const handleMessageButton = () => {
+    async function getAndCreateChat() {
+      try {
+          const { combinedId, chatArray } = await createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id, binItemInfo.binID);
+          navigation.navigate('Chat', { chatId: combinedId, chatData: chatArray[0]});
+      } catch (error) {
+          console.error("Error:", error);
+      }
+   }
+    getAndCreateChat();
+
+  };
+
+
   useEffect(() => {
     posthog.capture("FOUND_LISTING");
   }, []);
@@ -99,10 +113,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
       </ScrollView>
       <View style={styles.bottomBar}>
         <Text style={styles.title}>${binItemInfo.price}</Text>
-        {/* <TouchableOpacity onPress={() => navigation.navigate("Message")}>
-          <MaterialCommunityIcon name="message" size={40} color="white" />
-        </TouchableOpacity> */}
-         <TouchableOpacity onPress={() => createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id, binItemInfo.binID)}>
+         <TouchableOpacity onPress={() => handleMessageButton()}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity>
 

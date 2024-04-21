@@ -18,6 +18,7 @@ import { fetchBinItemsInfo, auth, firestore} from '../../database';
 import { getConvo, handleSend } from '../../database/messaging';
 import { ScrollView } from 'react-native-gesture-handler';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { GiftedChat } from 'react-native-gifted-chat';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -33,8 +34,9 @@ interface Message {
 
 const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const { chatId, chatData} = route.params;
+  console.log("Chat data in chat screen", chatData)
   const { userInfo, date } = chatData;
-  const { imageUri, listingName, binID, uid, photoURL, displayName } = userInfo;
+  const { imageUri, listingName, binId, uid, photoURL, displayName } = userInfo;
   const [text, setText] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -44,8 +46,18 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
 
 
   const handleArrow = () => {
-    const listingInfo = fetchBinItemsInfo(binID);
-    navigation.navigate('Listing', { imageUri: imageUri, binItemInfo: listingInfo });
+    async function getBinItemData() {
+      try {
+        const binItemInfo = await fetchBinItemsInfo(binId);
+        console.log("BinItemIno", binItemInfo);
+        navigation.navigate('Listing', { imageUri: imageUri, binItemInfo: binItemInfo});
+      } catch (error) {
+          console.error("Error:", error);
+      }
+   }
+   getBinItemData();
+
+
   };
 
   const handleSendButton = () => {
@@ -54,18 +66,24 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   };
 
 
-  const renderMessage = ({ item }) => {
+  const renderMessage = ({ item, index }) => {
     const isCurrentUser = item.senderId === currentUser?.uid;
+    const messageDate = item.date.toDate();
+    const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
     return (
-
-      <View
-        style={[
-          styles.messageContainer,
-          isCurrentUser ? styles.sentMessage : styles.receivedMessage,
-        ]}
-      >
-        <Text style={styles.messageText}>{item.text}</Text>
+      <View style={styles.messageWrapper}>
+        <View
+          style={[
+            styles.messageContainer,
+            isCurrentUser ? styles.sentMessage : styles.receivedMessage,
+          ]}
+        >
+          <Text style={styles.messageText}>{item.text}</Text>
+        </View>
+        <Text style={[styles.messageDate, isCurrentUser && styles.sentMessageDate]}>
+          {formattedDate}
+        </Text>
       </View>
     );
   };
@@ -86,7 +104,6 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
         const messageList: Message[] = Object.values(messageData.messages);
         setMessages(messageList);
         scrollToBottom();
-
       }
     } catch (error) {
       console.error('Error fetching chat data:', error);
@@ -268,9 +285,9 @@ const styles = StyleSheet.create({
       messageContainer: {
         padding: 10,
         marginBottom: 5,
-        borderRadius: 20,
         maxWidth: '80%',
         alignSelf: 'flex-start',
+        borderRadius: 10, // Add border radius
       },
       messageText: {
         fontSize: 16,
@@ -278,13 +295,34 @@ const styles = StyleSheet.create({
       sentMessage: {
         alignSelf: 'flex-end',
         backgroundColor: '#007bff',
-        color: '#fff',
-
+        borderRadius: 15,
+        borderTopRightRadius: 15,
+        borderBottomLeftRadius: 15,
+        borderTopLeftRadius: 15,
+        borderBottomRightRadius: 0,
+        display: 'flex',
+        paddingRight: 15,
+        marginRight: 5,
+        minWidth: 20,
+        marginTop: 2
       },
       receivedMessage: {
+        // alignSelf: 'flex-start',
+        // backgroundColor: '#e0e0e0',
+        // color: '#333',
         alignSelf: 'flex-start',
         backgroundColor: '#e0e0e0',
         color: '#333',
+        borderRadius: 15,
+        borderTopRightRadius: 15,
+        borderBottomLeftRadius: 0,
+        borderTopLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        display: 'flex',
+        paddingLeft: 15,
+        marginLeft: 5,
+        minWidth: 20,
+        marginTop: 2
       },
       messageList: {
         flexGrow: 1,
@@ -294,6 +332,20 @@ const styles = StyleSheet.create({
         backgroundColor: '#ccc',
         borderRadius: 10,
       },
+      messageDate: {
+        fontSize: 12,
+        color: '#888',
+        marginTop: 5,
+      },
+      messageWrapper: {
+        marginBottom: 10,
+      },
+      sentMessageDate: {
+        alignSelf: 'flex-end',
+      },
+
+
+
 });
 
 export default Chats;
