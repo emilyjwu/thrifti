@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,14 @@ import {
   Keyboard,
   FlatList,
   SafeAreaView,
+  Dimensions
 } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { fetchBinItemsInfo, auth } from '../../database';
+import { fetchBinItemsInfo, auth, firestore} from '../../database';
 import { getConvo, handleSend } from '../../database/messaging';
 import { ScrollView } from 'react-native-gesture-handler';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -30,13 +32,15 @@ interface Message {
 }
 
 const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
-  const { chatId, chatData } = route.params;
+  const { chatId, chatData} = route.params;
   const { userInfo, date } = chatData;
-  const { imageUri, listingName, binID, uid } = userInfo;
+  const { imageUri, listingName, binID, uid, photoURL, displayName } = userInfo;
   const [text, setText] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const currentUser = auth?.currentUser;
+  const flatListRef = useRef<FlatList>(null);
+  const screenWidth = Dimensions.get('window').width;
 
 
   const handleArrow = () => {
@@ -46,13 +50,15 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
 
   const handleSendButton = () => {
     handleSend(text, chatId, uid);
-    setText(''); // Clear the input field after sending
+    setText('');
   };
 
+
   const renderMessage = ({ item }) => {
-    const isCurrentUser = item.senderId === currentUser.uid;
+    const isCurrentUser = item.senderId === currentUser?.uid;
 
     return (
+
       <View
         style={[
           styles.messageContainer,
@@ -64,25 +70,35 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
     );
   };
 
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const messageData = await getConvo(chatId);
-        if (messageData) {
-          const messageList: Message[] = Object.values(messageData.messages);
-          setMessages(messageList);
-        }
-      } catch (error) {
-        console.error('Error fetching chat data:', error);
+    const intervalId = setInterval(() => {
+      fetchMessages();
+    }, 2000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const fetchMessages = async () => {
+    try {
+      const messageData = await getConvo(chatId);
+      if (messageData) {
+        const messageList: Message[] = Object.values(messageData.messages);
+        setMessages(messageList);
+        scrollToBottom();
+
       }
-    };
+    } catch (error) {
+      console.error('Error fetching chat data:', error);
+    }
+  };
 
-    fetchData();
+  const scrollToBottom = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated: true });
+    }
+  };
 
-    return () => {
-      fetchData?.();
-    };
-  }, [chatId]);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
@@ -100,6 +116,26 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.profileBanner}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {photoURL ? (
+                <Image
+                  source={{ uri: photoURL }}
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    marginRight: 5,
+                    marginLeft: screenWidth/3
+                  }}
+                />
+              ) : (
+                <View style={[styles.grayCircle, { width: 40, height: 40, borderRadius: 20, marginRight: 5,  marginLeft: screenWidth/3 }]} />
+              )}
+              <Text style={styles.profileText}>{displayName}</Text>
+            </View>
+    </View>
+
        <View style={styles.banner}>
            <Image
             source={{ uri: imageUri }}
@@ -122,6 +158,7 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
       </View>
 
       <FlatList
+        ref={flatListRef}
         data={messages}
         renderItem={renderMessage}
         keyExtractor={(item) => item.id}
@@ -152,6 +189,19 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+        justifyContent: 'center'
+      },
+      profileBanner: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 10,
+          height: 50,
+          borderBottomWidth: 1,
+          borderBottomColor: '#ddd',
+      },
+      profileText: {
+        fontSize: 16,
+        fontWeight: 'bold',
       },
       banner: {
         flexDirection: 'row',
@@ -217,6 +267,10 @@ const styles = StyleSheet.create({
       },
       messageContainer: {
         padding: 10,
+        marginBottom: 5,
+        borderRadius: 20,
+        maxWidth: '80%',
+        alignSelf: 'flex-start',
       },
       messageText: {
         fontSize: 16,
@@ -225,6 +279,7 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         backgroundColor: '#007bff',
         color: '#fff',
+
       },
       receivedMessage: {
         alignSelf: 'flex-start',
@@ -234,6 +289,10 @@ const styles = StyleSheet.create({
       messageList: {
         flexGrow: 1,
         justifyContent: 'flex-end',
+      },
+      grayCircle: {
+        backgroundColor: '#ccc',
+        borderRadius: 10,
       },
 });
 

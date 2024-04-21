@@ -30,11 +30,12 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
 
   const handlePress = (chat) => {
     setClicked(chat);
+    console.log(chat)
 
     console.log("date", chat.date)
     // console.log("chat2",  { chatData: chat })
 
-    navigation.navigate('Chat', { chatId: chat.id, chatData: chat });
+    navigation.navigate('Chat', { chatId: chat.id, chatData: chat, chatTitle: 'Chat Title'});
   };
 
   const currentUser = auth?.currentUser;
