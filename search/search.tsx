@@ -1,9 +1,9 @@
-const search_base_url = "http://192.168.64.9:8000/";
+const search_base_url = "https://thrifti-search-kreubhtdsa-ue.a.run.app/";
 
 export const searchKListings = async (search_string: string, k: number) => {
   try {
     const response = await fetch(
-      search_base_url + "search-k?search_string=" + search_string + "&k=" + k,
+      search_base_url + "search?search_string=" + search_string + "&k=" + k,
       {
         method: "GET",
         headers: {},
@@ -28,7 +28,7 @@ export const upsertListingPC = async (tagArray, listing_id, date) => {
 
   const upsert = await fetch(
     search_base_url +
-      "upsert-pinecone?listing_labels=" +
+      "upsert?listing_labels=" +
       listing_labels +
       "&listing_id=" +
       listing_id +
