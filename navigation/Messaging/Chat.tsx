@@ -16,9 +16,6 @@ import { NavigationProp } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { fetchBinItemsInfo, auth, firestore} from '../../database';
 import { getConvo, handleSend } from '../../database/messaging';
-import { ScrollView } from 'react-native-gesture-handler';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { GiftedChat } from 'react-native-gifted-chat';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -34,7 +31,7 @@ interface Message {
 
 const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const { chatId, chatData} = route.params;
-  console.log("Chat data in chat screen", chatData)
+  // console.log("Chat data in chat screen", chatData)
   const { userInfo, date } = chatData;
   const { imageUri, listingName, binId, uid, photoURL, displayName } = userInfo;
   const [text, setText] = useState('');
@@ -49,7 +46,7 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
     async function getBinItemData() {
       try {
         const binItemInfo = await fetchBinItemsInfo(binId);
-        console.log("BinItemIno", binItemInfo);
+        // console.log("BinItemIno", binItemInfo);
         navigation.navigate('Listing', { imageUri: imageUri, binItemInfo: binItemInfo});
       } catch (error) {
           console.error("Error:", error);
@@ -307,9 +304,6 @@ const styles = StyleSheet.create({
         marginTop: 2
       },
       receivedMessage: {
-        // alignSelf: 'flex-start',
-        // backgroundColor: '#e0e0e0',
-        // color: '#333',
         alignSelf: 'flex-start',
         backgroundColor: '#e0e0e0',
         color: '#333',
@@ -343,8 +337,6 @@ const styles = StyleSheet.create({
       sentMessageDate: {
         alignSelf: 'flex-end',
       },
-
-
 
 });
 

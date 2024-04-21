@@ -1,12 +1,6 @@
 import {firestore, auth, fetchBasicUserInfo} from '../database/index';
 import {
-    getDocs,
-    collection,
-    query,
-    where,
     arrayUnion,
-    arrayRemove,
-    addDoc,
     doc,
     getDoc,
     updateDoc,
@@ -16,17 +10,23 @@ import {
     Timestamp
 
   } from "firebase/firestore";
-  import React, { useState, useEffect } from 'react';
-//   import { v4 as uuid } from "uuid";
   import uuid from 'react-native-uuid';
 
 
 
+/**
+ * Create a chat when a user clicks the chat icon on a listing
+ *
+ * @param recieverInfo the person selling the item/receiving the image
+ * @param imageURi image of the listing
+ * @param listingName name of the listing
+ * @param listingID listingID
+ * @param binID binID to navigate back to listing form a specific chat
+ * @retruns the chat ID and chat data that shows on the chat page
+ */
   export const createChat = async (recieverInfo, imageUri, listingName, listingID, binId) => {
     const currentUser = auth?.currentUser;
     const currentUserID = currentUser?.uid;
-    console.log(binId)
-    // console.log(currentUserID);
 
     if(currentUserID == recieverInfo.userID) {
       console.log("u cant message urself duhh");
@@ -80,6 +80,7 @@ import {
             photoURL: recieverInfo?.profilePicURL,
             imageUri: imageUri,
             listingName: listingName,
+            binId: binId,
           },
         //   [combinedId + ".date"]: serverTimestamp(),
         [combinedId + ".date"]: Timestamp.now(),
@@ -93,7 +94,6 @@ import {
     //this is added because I need to pass this info to create a chat (chat screen)
     try {
       const chatData = await getChats(currentUser);
-      console.log("Chat Data in lisitng ", chatData);
 
       if (chatData) {
           const chatArray = Object.keys(chatData).map((key) => ({
@@ -109,7 +109,7 @@ import {
               userId: chatData[key]?.userInfo?.uid,
           }));
 
-          return { combinedId, chatArray }; // Return combinedId along with chat data
+          return { combinedId, chatArray}; // Return combinedId along with chat data
       }
   } catch (err) {
       console.log(err);
@@ -118,6 +118,12 @@ import {
 };
 
 
+
+/**
+ * Get all of the chats a user has
+ *
+ * @param currentUSer the current user
+ */
   export const getChats = (currentUser) => {
     return new Promise((resolve, reject) => {
       if (!currentUser || !currentUser.uid) {
@@ -143,10 +149,17 @@ import {
 
 
 
-//pass in the text, and the other user uid, and the chatID(userId + otherUserId + listingID)
+/**
+ * Send a message between two people (updates the chats document in the DB)
+ * by adding the message to the messages array
+ *
+ * @param text message sent
+ * @param chatID id in the chats DB that is the conversation (current uid + reciever id + listing name)
+ * @param otherUserID recipient id
+ */
   export const handleSend = async (text, chatId, otherUserId) => {
     console.log("in handle send")
-    console.log(text)
+    // console.log(text)
 
     const currentUser = auth?.currentUser;
 
@@ -192,23 +205,28 @@ import {
     // setText("");
   };
 
+
+/**
+ * Get a specific conversation between two users to display on the chats page
+ *
+ * @param chatID id in the chats DB that is the conversation (current uid + reciever id + listing name)
+ */
 export const getConvo = (chatId) => {
     const currentUser = auth?.currentUser;
     console.log('Fetching conversation for chatId:', chatId);
     return new Promise((resolve, reject) => {
       const unsubscribe = onSnapshot(doc(firestore, "chats", chatId), (snapshot) => {
         const data = snapshot.data();
-        // console.log('Snapshot data:', data);
         if (data) {
-          const lastMessage = data.messages[data.messages.length - 1]; // Get the last message
-          resolve(data); // Resolve the promise with the retrieved data
+          const lastMessage = data.messages[data.messages.length - 1];
+          resolve(data);
         } else {
           reject(new Error('Chat data not found'));
         }
       });
 
       return () => {
-        unsubscribe(); // Return the unsubscribe function
+        unsubscribe();
       };
     });
   };

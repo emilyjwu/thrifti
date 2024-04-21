@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Timestamp, doc, onSnapshot } from "firebase/firestore";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView} from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import IconWithBackground from '../../components/IconWithBackground';
@@ -7,7 +6,6 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import { getChats } from '../../database/messaging';
 import {auth} from '../../database/index';
 
-// import { format } from "date-fns";
 
 
 interface MessageScreenProps {

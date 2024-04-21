@@ -25,7 +25,14 @@ const Listing: React.FC<ListingProps> = ({ navigation, route}) => {
     async function getAndCreateChat() {
       try {
           const { combinedId, chatArray } = await createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id, binItemInfo.binID);
-          navigation.navigate('Chat', { chatId: combinedId, chatData: chatArray[0]});
+          //i need the specific index where the id == combined ID but i can't index directly because i need all fields in the object
+          const index = chatArray.findIndex(item => item.id === combinedId);
+          if (index !== -1) {
+            const chatData = chatArray[index];
+            navigation.navigate('Chat', { chatId: combinedId, chatData: chatData });
+          } else {
+            console.log("Chat not found in the array.");
+          }
       } catch (error) {
           console.error("Error:", error);
       }
