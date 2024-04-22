@@ -23,6 +23,8 @@ interface ListingProps {
 const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
   const [liked, setLiked] = useState(false);
   const { imageUri, binItemInfo } = route.params;
+
+
   const [imageLoading, setImageLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<BasicUserInfo | null>(null);
 

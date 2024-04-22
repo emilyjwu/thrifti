@@ -45,9 +45,9 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const handleArrow = () => {
     async function getBinItemData() {
       try {
-        const binItemInfo = await fetchBinItemsInfo(binId);
-        // console.log("BinItemIno", binItemInfo);
-        navigation.navigate('Listing', { imageUri: imageUri, binItemInfo: binItemInfo});
+        const binInfo = await fetchBinItemsInfo(binId);
+        const binItemInfo = binInfo[0];
+        navigation.navigate('Listing', { imageUri, binItemInfo});
       } catch (error) {
           console.error("Error:", error);
       }
