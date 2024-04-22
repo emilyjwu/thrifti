@@ -14,6 +14,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { Double } from "react-native/Libraries/Types/CodegenTypes";
 import IconWithBackground from "../components/IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
+import {createOffer} from "../components/database/offers";
 
 interface MakeOfferModalProps {
   isVisible: boolean;
@@ -22,7 +23,7 @@ interface MakeOfferModalProps {
   imageUri: string;
   listingName: string;
   sendTo: string;
-  chatId: string; //im gonna make the offer ID this as well 
+  chatId: string; //im gonna make the offer ID this as well
 }
 
 const MakeOfferModal: React.FC< MakeOfferModalProps> = ({
@@ -44,8 +45,7 @@ const MakeOfferModal: React.FC< MakeOfferModalProps> = ({
   };
 
   const sendOffer = () => {
-    //update offer database here!
-   console.log("offer sent")
+    createOffer(price, listingId, sendTo )
   };
 
   return (
