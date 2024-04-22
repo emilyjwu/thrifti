@@ -318,7 +318,6 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     paddingBottom: 0,
   },
-
   title: {
     fontSize: 30,
     fontWeight: "bold",

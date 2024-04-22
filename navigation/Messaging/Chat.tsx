@@ -16,6 +16,7 @@ import { NavigationProp } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { fetchBinItemsInfo, auth, firestore} from '../../database';
 import { getConvo, handleSend } from '../../database/messaging';
+import MakeOfferModal from '../../components/MakeOfferModal';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -40,6 +41,15 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const currentUser = auth?.currentUser;
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+
+  const onMakeOfferPress = () => {
+    setIsModalVisible(true);
+  };
 
 
   const handleArrow = () => {
@@ -162,14 +172,24 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
           />
           <View style={styles.textContainer}>
             <Text style={styles.title}>{listingName}</Text>
-            <TouchableOpacity style={styles.makeOfferButton} onPress={handleArrow}>
+            <TouchableOpacity style={styles.makeOfferButton} onPress={onMakeOfferPress}>
               <Text style={styles.makeOfferButtonText}> Make Offer</Text>
             </TouchableOpacity>
+            <MakeOfferModal
+              isVisible={isModalVisible}
+              onClose={closeModal}
+              price={0}
+              imageUri={imageUri}
+              listingName={listingName}
+              sendTo={uid}
+              chatId={chatId}
+            />
           </View>
         <TouchableOpacity style={styles.arrow} onPress={handleArrow}>
           <Icon name="angle-right" size={24} color="#000" />
         </TouchableOpacity>
       </View>
+
 
       <FlatList
         ref={flatListRef}
