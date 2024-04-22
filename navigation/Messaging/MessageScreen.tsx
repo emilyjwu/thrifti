@@ -31,20 +31,12 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
 
 
 
-  const formatDate = (date) => {
-    if (!date) return '';
+  const formatDate = (chat) => {
 
+    const messageDate = chat.date.toDate();
+    const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-      const messageDate = new Date(date);
-
-      const currentDate = new Date();
-      const isToday = currentDate.toDateString() === messageDate.toDateString();
-
-      if (isToday) {
-        return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      } else {
-        return `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-      }
+    return formattedDate;
 
   }
 
@@ -52,7 +44,6 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
     const fetchData = async () => {
       try {
         const chatData = await getChats(currentUser);
-        // console.log(chatData);
 
         if (chatData) {
           const chatArray = Object.keys(chatData).map((key) => ({
@@ -97,8 +88,8 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
           <View style={styles.userInfoText}>
             <Text style={styles.username}>{chat.userInfo.displayName}</Text>
             <Text numberOfLines={1} style={styles.message}>{chat.lastMessage}</Text>
-            {/* <Text style={styles.time}>{formatDate(chat.date)}</Text> */}
-            <Text style={styles.time}>Today</Text>
+            <Text style={styles.time}>{formatDate(chat)}</Text>
+            {/* <Text style={styles.time}>Today</Text> */}
           </View>
           {chat.imageUri ? (
             <Image

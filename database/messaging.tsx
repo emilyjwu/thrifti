@@ -13,6 +13,26 @@ import {
   import uuid from 'react-native-uuid';
 
 
+  export const getDate = () => {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const currentDay = currentDate.getDate();
+    const currentHours = currentDate.getHours();
+    const currentMinutes = currentDate.getMinutes();
+    const currentSeconds = currentDate.getSeconds();
+
+    return {
+      year: currentYear,
+      month: currentMonth,
+      day: currentDay,
+      hours: currentHours,
+      minutes: currentMinutes,
+      seconds: currentSeconds
+    };
+  };
+
+
 
 /**
  * Create a chat when a user clicks the chat icon on a listing
@@ -68,6 +88,7 @@ import {
           },
         //   [combinedId + ".date"]: serverTimestamp(),
         [combinedId + ".date"]: Timestamp.now(),
+        // [combinedId + ".date"]: getDate(),
         });
         console.log("updated user chats for reciever")
 
@@ -84,6 +105,7 @@ import {
           },
         //   [combinedId + ".date"]: serverTimestamp(),
         [combinedId + ".date"]: Timestamp.now(),
+        // [combinedId + ".date"]: new Date(),
         });
         console.log("updated user chats for sender")
       }
