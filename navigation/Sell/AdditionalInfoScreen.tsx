@@ -18,7 +18,6 @@ import {
   AuthContext,
   addListingToUser,
 } from "../../database/index";
-import { addDoc, collection } from "firebase/firestore";
 interface ExploreScreenProps {
   navigation: any;
 }

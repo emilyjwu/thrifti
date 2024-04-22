@@ -1,23 +1,37 @@
-from pinecone import Pinecone
+from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 import os
 
-pc = Pinecone(api_key=
-    ""
-)
+pc = Pinecone(api_key=os.environ.get('PINECONE_API_KEY'))
 index = pc.Index("thrifti-bins")
 
-client = OpenAI()
+client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 
-app = Flask("Pinecone")
+app = Flask(__name__)
 
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 8000)))
+    app.run(debug=True, host="127.0.0.1", port=8000)
 
-@app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
+@app.route('/')
+def connect():
+    return """<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Welcome to Search</title>
+    </head>
+    <body>
+        <h1>Functions</h1>
+        <h2>/upsert-pinecone</h2>
+        <p>takes: listing_labels: list of strings; 
+                listing_id: listing ID in firebase; 
+                date: current date
+        <h2>/search-k</h2>
+        <p>takes: search_string: string to search on; 
+                    k: number of results to return
+        <h1>Have fun!</h1>
+    </body>
+    </html>"""
 
 def vectorize(listing_labels):
     stringified_labels = " ".join(listing_labels)
@@ -28,25 +42,31 @@ def vectorize(listing_labels):
 
 @app.post("/upsert-pinecone")
 def upsert_pinecone():
+    # PARAMS
     listing_labels = request.args["listing_labels"]
     listing_id = request.args["listing_id"]
-    metadata = request.args["metadata"]
+    date = request.args["date"]
+
     try:
         listing_embedding = vectorize(listing_labels)
+        print("aight")
         index.upsert(
             vectors=[
-                {"id": listing_id, "values": listing_embedding, "metadata": metadata},
+                {"id": listing_id, "values": listing_embedding, "metadata": {date: date}},
             ],
             namespace="thrifti_listings"
         )
         return "Successful Upsert"
-    except:
+    except Exception as e:
+        print(e)
         return "Issue Upserting"
 
 @app.get("/search-k")
-def search_k_nearest():
+def search_k():
+    # PARAMS
     search_string = request.args['search_string']
     k = request.args['k']
+    print(str(k) + str(search_string))
     search_vec = vectorize(search_string)
     try:
         query_response = index.query(

@@ -28,11 +28,9 @@ import {
 } from "firebase/storage";
 import { User } from "firebase/auth";
 import { createContext } from "react";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { upsertListingPC } from "../search/search";
 
 // Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   // Store this data secretly in the future
   apiKey: "AIzaSyDOR2CXlRn8HrJWgNupyohQsZ7kcFGiW0c",
@@ -56,7 +54,6 @@ const currentDate = new Date();
 export const uploadListing = async (imageUri: string, listingData: any) => {
   try {
     const docRef = await addDoc(collection(firestore, "items"), listingData);
-
     const response = await fetch(imageUri);
     const blob = await response.blob();
     const storageRef = ref(storage, `${listingData.binID}/${docRef.id}`);
@@ -81,6 +78,12 @@ export const uploadListing = async (imageUri: string, listingData: any) => {
     console.log(await (await getDoc(docRef)).data().imgURL);
     console.log(docRef);
     addListingToUser(listingData.uid, docRef.id);
+
+    const year = currentDate.getFullYear();
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    const formattedDate = `${year}${month}${day}`;
+    await upsertListingPC(listingData.tags, docRef.id, formattedDate);
     return 200;
   } catch (error) {
     console.log("Issue storing image in FBS: ", error);
