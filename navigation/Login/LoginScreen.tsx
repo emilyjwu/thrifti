@@ -1,6 +1,5 @@
 import React, { useState, useContext } from "react";
 import { View, TextInput, Button, StyleSheet, Text } from "react-native";
-
 import { signInWithEmailAndPassword } from "firebase/auth";
 import Toast from "react-native-toast-message";
 import { AuthContext, auth } from "../../database/index";

@@ -21,6 +21,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
       // Perform search logic here
       console.log("Searching now");
       const searchResults = await searchKListings(searchQuery, 10);
+      console.log(searchQuery);
       setIsSearching(false);
       setSearchQuery("");
       navigation.navigate("Search", { searchResults });

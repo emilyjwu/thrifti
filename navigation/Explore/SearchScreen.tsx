@@ -8,15 +8,7 @@ import {
   Text,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
-import { firestore, fetchFieldsAnyCollection } from "../../database/index";
-import {
-  getDocs,
-  collection,
-  query,
-  where,
-  arrayUnion,
-  arrayRemove,
-} from "firebase/firestore";
+import { fetchFieldsAnyCollection } from "../../database/index";
 
 interface ExploreScreenProps {
   navigation: any;
@@ -35,6 +27,7 @@ const SearchScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         return docSnapshot;
       })
     );
+    console.log(searchResults);
     setListingInfos(listings);
   };
 

@@ -1,4 +1,5 @@
 const search_base_url = "https://thrifti-search-kreubhtdsa-ue.a.run.app/";
+//const search_base_url = "http://143.215.118.252:8000/";
 
 export const searchKListings = async (search_string: string, k: number) => {
   try {
@@ -14,6 +15,8 @@ export const searchKListings = async (search_string: string, k: number) => {
     } else {
       const data = await response.json();
       console.log("Search Successful!");
+      console.log("source");
+      console.log(data.matches);
       return data.matches;
     }
   } catch (error) {
@@ -24,8 +27,7 @@ export const searchKListings = async (search_string: string, k: number) => {
 
 export const upsertListingPC = async (tagArray, listing_id, date) => {
   // turning tag list to string
-  const listing_labels = tagArray.map((entry) => entry.description).join(" ");
-
+  const listing_labels = tagArray.join(" ");
   const upsert = await fetch(
     search_base_url +
       "upsert?listing_labels=" +
@@ -40,7 +42,7 @@ export const upsertListingPC = async (tagArray, listing_id, date) => {
     }
   )
     .then((response) => {
-      console.log("Successful Search");
+      //console.log(response);
       return response;
     })
     .then((data) => {
@@ -48,8 +50,33 @@ export const upsertListingPC = async (tagArray, listing_id, date) => {
       return data;
     })
     .catch((error) => {
-      console.log("Issue searching for posts: " + error);
+      console.log("Issue Upserting: " + error);
       return {};
     });
   return upsert;
 };
+
+// Re-vectorize whole database
+/*
+import { firestore } from "../database";
+import {
+  getDocs,
+  collection,
+  query,
+  where,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
+export const addExistingToPC = async () => {
+  const snapshot = await getDocs(collection(firestore, "items"));
+  const idsAndTags = snapshot.docs.map((doc) => {
+    const tagsData = doc.data().tags || []; // Ensure tagsData is an array, even if 'tags' is undefined
+    const tagsDescriptions = tagsData.map((tag) => tag.description);
+    const id = doc.id;
+    return { id, tagsDescriptions };
+  });
+  for (let i = 0; i < idsAndTags.length; i++) {
+    const l = idsAndTags[i];
+    console.log(await upsertListingPC(l.tagsDescriptions, l.id, "20240422"));
+  }
+};*/
