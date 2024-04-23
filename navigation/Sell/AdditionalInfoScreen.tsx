@@ -52,9 +52,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
       listingData.userID = uid;
       listingData.date =
         currentDate.getFullYear() +
-        "-" +
         (currentDate.getMonth() + 1) +
-        "-" +
         currentDate.getDate();
       listingData.imgURL = "";
       listingData.sold = false;

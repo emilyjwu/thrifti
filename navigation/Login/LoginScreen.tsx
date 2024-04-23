@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { View, TextInput, Button, StyleSheet, Text } from "react-native";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut, getAuth } from "firebase/auth";
 import Toast from "react-native-toast-message";
 import { AuthContext, auth } from "../../database/index";
 
@@ -18,6 +18,18 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Successful Signin
+        // ******************** ******************** EMAIL VERIFIED CHECK ******************** ********************
+        /*
+        if (!userCredential.user.emailVerified) {
+          console.log("NO!");
+          Toast.show({
+            type: "info",
+            text1: "You must verify you email.",
+          });
+          signOut(getAuth());
+          return;
+        }
+        */
         console.log("Email: ", email);
         console.log("Password: ", password);
         console.log("UID: ", userCredential.user.uid);
