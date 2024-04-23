@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { fetchBinItemsInfo, auth, firestore} from '../../database';
 import { getConvo, handleSend } from '../../database/messaging';
 import MakeOfferModal from '../../components/MakeOfferModal';
+import { getExisitingOffer } from '../../database/offers';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -28,6 +29,15 @@ interface Message {
   id: string;
   senderId: string;
   text: string;
+}
+
+interface Offer {
+  buyerId: string;
+  date: Date;
+  listingId: string;
+  pending: boolean;
+  price: number;
+  sellerId: string;
 }
 
 const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
@@ -42,6 +52,7 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
   const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [offerData, setOfferData] = useState<Offer[]>([]);
 
   const closeModal = () => {
     setIsModalVisible(false);
@@ -70,6 +81,19 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const handleSendButton = () => {
     handleSend(text, chatId, uid);
     setText('');
+  };
+
+
+  const getOffer = async () => {
+    try {
+      const offerData = await getExisitingOffer(listingId, sellerUid);
+      if (offerData) {
+        console.log(offerData)
+        setOfferData(offerData);
+      }
+    } catch (error) {
+      console.error('Error fetching offer data:', error);
+    }
   };
 
 
