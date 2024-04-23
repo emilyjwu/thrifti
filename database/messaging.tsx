@@ -44,7 +44,7 @@ import {
  * @param binID binID to navigate back to listing form a specific chat
  * @retruns the chat ID and chat data that shows on the chat page
  */
-  export const createChat = async (recieverInfo, imageUri, listingName, listingID, binId) => {
+  export const createChat = async (recieverInfo, imageUri, listingName, listingId, binId) => {
     const currentUser = auth?.currentUser;
     const currentUserID = currentUser?.uid;
 
@@ -64,8 +64,8 @@ import {
 
     const combinedId =
     currentUserID > recieverInfo.userID
-        ? currentUserID + recieverInfo.userID + listingID
-        : recieverInfo.userID + currentUserID + listingID;
+        ? currentUserID + recieverInfo.userID + listingId
+        : recieverInfo.userID + currentUserID + listingId;
 
     try {
       const res = await getDoc(doc(firestore, "chats", combinedId));
@@ -84,6 +84,7 @@ import {
             photoURL: currentUserInfo?.profilePicURL,
             imageUri: imageUri,
             listingName: listingName,
+            listingId: listingId,
             binId: binId,
           },
         //   [combinedId + ".date"]: serverTimestamp(),
@@ -101,6 +102,7 @@ import {
             photoURL: recieverInfo?.profilePicURL,
             imageUri: imageUri,
             listingName: listingName,
+            listingId: listingId,
             binId: binId,
           },
         //   [combinedId + ".date"]: serverTimestamp(),
@@ -126,6 +128,7 @@ import {
               displayName: chatData[key]?.userInfo?.displayName,
               imageUri: chatData[key]?.userInfo?.imageUri,
               listingName: chatData[key]?.userInfo?.listingName,
+              listingId: chatData[key]?.userInfo?.listingId,
               photoURL: chatData[key]?.userInfo?.photoURL,
               binId: chatData[key]?.userInfo?.binId,
               userId: chatData[key]?.userInfo?.uid,

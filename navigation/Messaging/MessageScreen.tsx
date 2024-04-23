@@ -54,6 +54,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
             displayName: chatData[key]?.userInfo?.displayName,
             imageUri: chatData[key]?.userInfo?.imageUri,
             listingName: chatData[key]?.userInfo?.listingName,
+            listingId: chatData[key]?.userInfo?.listingId,
             photoURL: chatData[key]?.userInfo?.photoURL,
             binId: chatData[key]?.userInfo?.binId,
             userId: chatData[key]?.userInfo?.uid,

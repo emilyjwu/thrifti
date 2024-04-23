@@ -23,6 +23,7 @@ import {
  * @param price the person selling the item/receiving the image
  * @param listingID listingID
  * @param sellerID seller ID
+ * @return string stating the offer status for the alert
  */
   export const createOffer = async (price, listingID, sellerID) => {
     const currentUser = auth?.currentUser;
@@ -44,6 +45,7 @@ import {
 
     try {
         const offerDocRef = doc(firestore, "offers", combinedId);
+        console.log(offerDocRef);
         const offerDocSnapshot = await getDoc(offerDocRef);
 
       if (!offerDocSnapshot.exists()) {
@@ -57,45 +59,57 @@ import {
             listingID: listingID
         };
         await setDoc(offerDocRef, offerData);
+        console.log("added offer in DB successfully ")
+        return "sucess";
 
       } else {
         const offerData = offerDocSnapshot.data();
         if (!offerData.pending) {
-            // Update the existing offer document with the new price and other fields if needed
             await updateDoc(offerDocRef, {
                 price: price,
                 pending: true,
-                date: Timestamp.now() // Update the date if needed
-                // You can add more fields to update as necessary
+                date: Timestamp.now()
             });
             console.log("Offer document updated successfully");
+            return "success";
         } else {
+            const pendingPrice = offerData.price;
             console.log("Offer exists but is not pending");
+            return "pending";
         }
 
       }
     } catch (err) {
-        console.log(err)
+        console.log("Could not add offer to DB", err)
     }
-    console.log("added offer in DB successfully ")
-};
 
+};
 
 
 
 /**
  * Get all of the chats a user has
  *
- * @param currentUSer the current user
+ * @param listingId the listingId
+ * @param otherUser the other user uid
+ * @returns exisiting offer
  */
-  export const getChats = (currentUser) => {
-    return new Promise((resolve, reject) => {
-      if (!currentUser || !currentUser.uid) {
-        reject(new Error('User or UID not available'));
-        return;
-      }
+  export const getExisitingOffer = (listingId, otherUser) => {
+    const currentUser = auth?.currentUser;
+    const currentUserID = currentUser?.uid;
 
-      const unsubscribe = onSnapshot(doc(firestore, "userChats", currentUser.uid), (snapshot) => {
+    if (!currentUserID) {
+        console.log("Authentication state not ready");
+        return;
+    }
+
+    const combinedId =
+    currentUserID > otherUser
+        ? currentUserID + otherUser + listingId
+        : otherUser + currentUserID + listingId;
+
+    return new Promise((resolve, reject) => {
+      const unsubscribe = onSnapshot(doc(firestore, "offers", combinedId), (snapshot) => {
         const data = snapshot.data();
         if (data) {
           resolve(data); // Resolve the promise with the retrieved data
@@ -177,7 +191,7 @@ import {
  */
 export const getConvo = (chatId) => {
     const currentUser = auth?.currentUser;
-    console.log('Fetching conversation for chatId:', chatId);
+    // console.log('Fetching conversation for chatId:', chatId);
     return new Promise((resolve, reject) => {
       const unsubscribe = onSnapshot(doc(firestore, "chats", chatId), (snapshot) => {
         const data = snapshot.data();

@@ -34,7 +34,7 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const { chatId, chatData} = route.params;
   // console.log("Chat data in chat screen", chatData)
   const { userInfo, date } = chatData;
-  const { imageUri, listingName, binId, uid, photoURL, displayName } = userInfo;
+  const { imageUri, listingName, binId, uid, photoURL, displayName, listingId } = userInfo;
   const [text, setText] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -183,6 +183,8 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
               listingName={listingName}
               sendTo={uid}
               chatId={chatId}
+              listingId={listingId}
+              displayName={displayName}
             />
           </View>
         <TouchableOpacity style={styles.arrow} onPress={handleArrow}>

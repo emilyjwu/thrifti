@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  Button,
   Modal,
   TouchableOpacity,
   Image
@@ -14,7 +13,8 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { Double } from "react-native/Libraries/Types/CodegenTypes";
 import IconWithBackground from "../components/IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import {createOffer} from "../components/database/offers";
+import {createOffer} from "../database/offers";
+import OfferAlertModal from "../components/OfferAlertModal";
 
 interface MakeOfferModalProps {
   isVisible: boolean;
@@ -24,6 +24,8 @@ interface MakeOfferModalProps {
   listingName: string;
   sendTo: string;
   chatId: string; //im gonna make the offer ID this as well
+  listingId: string;
+  displayName: string;
 }
 
 const MakeOfferModal: React.FC< MakeOfferModalProps> = ({
@@ -34,18 +36,38 @@ const MakeOfferModal: React.FC< MakeOfferModalProps> = ({
   listingName,
   sendTo,
   chatId,
+  listingId,
+  displayName
 
 }) => {
 
   const navigation = useNavigation();
   const [itemPrice, setItemPrice] = useState<number>(0);
+  const [isNestedModalVisible, setIsNestedModalVisible] = React.useState(false);
+  const [alertType, setAlertType] = useState<string>("");
 
   const handleClose = () => {
     onClose();
   };
 
+  const closeModal = () => {
+    setIsNestedModalVisible(false);
+  };
+
+
   const sendOffer = () => {
-    createOffer(price, listingId, sendTo )
+    async function func() {
+        try {
+            const ret = await createOffer(itemPrice, listingId, sendTo);
+            setAlertType(ret)
+            console.log("Alert Types", alertType)
+            setIsNestedModalVisible(true);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+    func();
+
   };
 
   return (
@@ -100,8 +122,15 @@ const MakeOfferModal: React.FC< MakeOfferModalProps> = ({
         <TouchableOpacity style={styles.makeOfferButton} onPress={sendOffer}>
               <Text style={styles.makeOfferButtonText}> Send Offer</Text>
         </TouchableOpacity>
-
-
+        <OfferAlertModal
+          isVisible={isNestedModalVisible}
+          onClose={closeModal}
+          sellerName={displayName}
+          alert={alertType}
+          price={itemPrice}
+          listingId={listingId}
+          sellerUid={sendTo}
+        />
 
         </View>
       </View>
