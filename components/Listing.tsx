@@ -33,7 +33,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
   const handleMessageButton = () => {
     async function getAndCreateChat() {
       try {
-          const { combinedId, chatArray } = await createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id, binItemInfo.binID);
+          const { combinedId, chatArray } = await createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id, binItemInfo.binID, binItemInfo.userID);
           //i need the specific index where the id == combined ID but i can't index directly because i need all fields in the object
           const index = chatArray.findIndex(item => item.id === combinedId);
           if (index !== -1) {

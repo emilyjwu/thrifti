@@ -31,6 +31,11 @@ import {
     const currentUser = auth?.currentUser;
     const currentUserID = currentUser?.uid;
 
+    if(currentUserID == sellerID) {
+      console.log("u cant buy an item from urself");
+      return;
+    }
+
     if (!currentUserID) {
         console.log("Authentication state not ready");
         return;
@@ -58,7 +63,8 @@ import {
             buyerID: currentUserID,
             sellerID: sellerID,
             date: Timestamp.now(),
-            listingID: listingID
+            listingID: listingID,
+            sold: false,
         };
         await setDoc(offerDocRef, offerData);
         console.log("added offer in DB successfully ")
@@ -152,7 +158,8 @@ import {
             if (offerData.pending) {
                 await updateDoc(offerDocRef, {
                     pending: false,
-                    date: Timestamp.now()
+                    date: Timestamp.now(),
+                    sold: true
                 });
                 console.log("Offer Accepted in DB");
                 const text = "Offer of $" + offerData.price + " accepted."
@@ -181,15 +188,17 @@ import {
        : otherUser + currentUserID + listingId;
 
    try {
-     const offerDocRef = doc(firestore, "offers", combinedId);
-     const offerDocSnapshot = await getDoc(offerDocRef);
-     const offerData = offerDocSnapshot.data();
-     if (offerData.pending) {
-       // Delete the offer document
-       await deleteDoc(offerDocRef);
-       console.log("Offer Declined and deleted from DB");
+    const offerDocRef = doc(firestore, "offers", combinedId);
+    const offerDocSnapshot = await getDoc(offerDocRef);
+    const offerData = offerDocSnapshot.data();
+    if (offerData.pending) {
+        await updateDoc(offerDocRef, {
+            pending: false,
+            date: Timestamp.now(),
+            sold: false,
+        });
 
-       // Notify the other user about the decline
+      console.log("Offer Declined in DB");
        const text = "Offer of $" + offerData.price + " declined.";
        handleSend(text, combinedId, otherUser);
      }

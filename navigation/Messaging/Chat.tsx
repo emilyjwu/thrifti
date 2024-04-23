@@ -46,7 +46,7 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const { chatId, chatData} = route.params;
   // console.log("Chat data in chat screen", chatData)
   const { userInfo, date } = chatData;
-  const { imageUri, listingName, binId, uid, photoURL, displayName, listingId } = userInfo;
+  const { imageUri, listingName, binId, uid, photoURL, displayName, listingId, seller } = userInfo;
   const [text, setText] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -100,20 +100,31 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
       const offerData = await getExisitingOffer(listingId, uid);
       setOfferData(offerData)
       if (offerData) {
-        console.log(offerData)
-        if(offerData.pending) {
-          setOfferButtonText("Pending Offer")
+        if(seller !== currentUser.uid) {
+          if(offerData.pending) {
+            setOfferButtonText("Pending Offer")
+          } else if (offerData.sold) {
+            setOfferButtonText("SOLD")
+          } else {
+            setOfferButtonText("Make Offer")
+          }
         } else {
-          setOfferButtonText("SOLD")
+          if(offerData.pending) {
+            setOfferButtonText("Pending Offer")
+          } else if (offerData.sold) {
+            setOfferButtonText("SOLD")
+          } else {
+            setOfferButtonText("No Offers")
+          }
         }
-      } else {
-        setOfferButtonText("Make Offer")
+        if(offerData.pending && seller === currentUser.uid) {
+          setIsPendingOfferModalVisible(true);
       }
-      if(offerData.pending && offerData.sellerID === currentUser.uid) {
-        setIsPendingOfferModalVisible(true);
+
       }
 
     } catch (error) {
+      setOfferButtonText("Make Offer")
       console.error('Error fetching offer data:', error);
     }
 
@@ -144,11 +155,16 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
 
 
   useEffect(() => {
+    if(currentUser.uid == seller) {
+      setOfferButtonText("No Offers")
+    } else {
+      setOfferButtonText("Make Offer")
+    }
     const intervalId = setInterval(() => {
       fetchMessages();
+      getOffer();
     }, 2000);
 
-    getOffer();
     return () => clearInterval(intervalId);
   }, []);
 
@@ -158,22 +174,6 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
       if (messageData) {
         const messageList: Message[] = Object.values(messageData.messages);
         setMessages(messageList);
-        if(messageList[0]?.senderId != currentUser.uid) {
-          setIsSeller(true);
-          if(offerData?.pending) {
-            setOfferButtonText("pending");
-          } else {
-            setOfferButtonText("No Offers")
-          }
-        } else if (messageList[0]?.senderId == currentUser.uid) {
-          if(offerData?.pending) {
-            setOfferButtonText("Pending Offer");
-          } else if (offerData?.pending === false) {
-            setOfferButtonText("SOLD")
-          } else {
-            setOfferButtonText("Make Offers")
-          }
-        }
         scrollToBottom();
       }
     } catch (error) {

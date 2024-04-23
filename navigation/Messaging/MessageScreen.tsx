@@ -58,6 +58,8 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
             photoURL: chatData[key]?.userInfo?.photoURL,
             binId: chatData[key]?.userInfo?.binId,
             userId: chatData[key]?.userInfo?.uid,
+            seller: chatData[key]?.userInfo?.seller,
+
           }));
           // Sort the array by date in descending order
           const sortedChats = chatArray.sort((a, b) => (b.date || 0) - (a.date || 0));

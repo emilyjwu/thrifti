@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -55,20 +55,42 @@ const MakeOfferModal: React.FC< MakeOfferModalProps> = ({
   };
 
 
+  // const sendOffer = () => {
+  //   async function func() {
+  //       try {
+  //           const ret = await createOffer(itemPrice, listingId, sendTo);
+  //           setAlertType(ret)
+  //           console.log("Alert Types", alertType)
+  //           setIsNestedModalVisible(true);
+  //       } catch (error) {
+  //           console.error("Error:", error);
+  //       }
+  //   }
+  //   func();
+
+  // };
+
+  useEffect(() => {
+    if (alertType !== "") {
+      console.log(alertType)
+      setIsNestedModalVisible(true);
+    }
+  }, [alertType]);
+
+
   const sendOffer = () => {
     async function func() {
         try {
             const ret = await createOffer(itemPrice, listingId, sendTo);
-            setAlertType(ret)
-            console.log("Alert Types", alertType)
+            setAlertType(ret);
+            console.log("Alert Types", ret); // Log the updated value of ret
             setIsNestedModalVisible(true);
         } catch (error) {
             console.error("Error:", error);
         }
     }
     func();
-
-  };
+};
 
   return (
     <Modal visible={isVisible} transparent={true}>

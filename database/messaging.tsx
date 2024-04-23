@@ -44,7 +44,7 @@ import {
  * @param binID binID to navigate back to listing form a specific chat
  * @retruns the chat ID and chat data that shows on the chat page
  */
-  export const createChat = async (recieverInfo, imageUri, listingName, listingId, binId) => {
+  export const createChat = async (recieverInfo, imageUri, listingName, listingId, binId, seller) => {
     const currentUser = auth?.currentUser;
     const currentUserID = currentUser?.uid;
 
@@ -86,6 +86,7 @@ import {
             listingName: listingName,
             listingId: listingId,
             binId: binId,
+            seller: seller,
           },
         //   [combinedId + ".date"]: serverTimestamp(),
         [combinedId + ".date"]: Timestamp.now(),
@@ -132,6 +133,7 @@ import {
               photoURL: chatData[key]?.userInfo?.photoURL,
               binId: chatData[key]?.userInfo?.binId,
               userId: chatData[key]?.userInfo?.uid,
+              seller:chatData[key]?.userInfo?.seller,
           }));
 
           return { combinedId, chatArray}; // Return combinedId along with chat data
