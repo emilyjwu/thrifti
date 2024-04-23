@@ -1,4 +1,4 @@
-import {firestore, auth, fetchBasicUserInfo} from '../database/index';
+import {firestore, auth, fetchBasicUserInfo, makeItemSold} from '../database/index';
 import {
     arrayUnion,
     doc,
@@ -9,9 +9,11 @@ import {
     onSnapshot,
     Timestamp,
     addDoc,
-    collection
+    collection,
+    deleteDoc
   } from "firebase/firestore";
   import uuid from 'react-native-uuid';
+  import { handleSend } from './messaging';
 
 
 
@@ -126,11 +128,7 @@ import {
 
 
   //function to set the status of a pending offer --> decline & accept can be 2 different functions
-
-
-
-
-/**
+  /**
  * Send a message between two people (updates the chats document in the DB)
  * by adding the message to the messages array
  *
@@ -138,76 +136,65 @@ import {
  * @param chatID id in the chats DB that is the conversation (current uid + reciever id + listing name)
  * @param otherUserID recipient id
  */
-  export const handleSend = async (text, chatId, otherUserId) => {
-    console.log("in handle send")
-    // console.log(text)
+  export const acceptOffer = async (listingId, otherUser) => {
 
     const currentUser = auth?.currentUser;
+    const currentUserID = currentUser?.uid;
+    const combinedId =
+    currentUserID > otherUser
+        ? currentUserID + otherUser + listingId
+        : otherUser + currentUserID + listingId;
 
-    try {
-        const chatDocRef = doc(firestore, "chats", chatId);
-
-        await updateDoc(chatDocRef, {
-          messages: arrayUnion({
-            id: uuid.v4(),
-            text,
-            senderId: currentUser.uid,
-            date: Timestamp.now(),
-          }),
-        });
-
-        console.log("Updated chats in DB");
-      } catch (error) {
-        console.error("Error updating chats in DB:", error);
-      }
-
-
-
-    const userChatsRef = doc(firestore, "userChats", currentUser.uid);
-    const otherUserChatsRef = doc(firestore, "userChats", otherUserId);
-
-    await updateDoc(userChatsRef, {
-      [chatId + ".lastMessage"]: {
-        text,
-      },
-      [chatId + ".date"]: serverTimestamp(),
-
-    });
-
-    await updateDoc(otherUserChatsRef, {
-      [chatId + ".lastMessage"]: {
-        text,
-      },
-      [chatId + ".date"]: serverTimestamp(),
-    });
-    console.log("updated user chats in DB")
-
-    // Clear the text input after sending the message
-    // setText("");
-  };
+        try {
+            const offerDocRef = doc(firestore, "offers", combinedId);
+            const offerDocSnapshot = await getDoc(offerDocRef);
+            const offerData = offerDocSnapshot.data();
+            if (offerData.pending) {
+                await updateDoc(offerDocRef, {
+                    pending: false,
+                    date: Timestamp.now()
+                });
+                console.log("Offer Accepted in DB");
+                const text = "Offer of $" + offerData.price + " accepted."
+                handleSend(text, combinedId, otherUser);
+                makeItemSold(listingId);
+            }
 
 
-/**
- * Get a specific conversation between two users to display on the chats page
- *
- * @param chatID id in the chats DB that is the conversation (current uid + reciever id + listing name)
- */
-export const getConvo = (chatId) => {
-    const currentUser = auth?.currentUser;
-    // console.log('Fetching conversation for chatId:', chatId);
-    return new Promise((resolve, reject) => {
-      const unsubscribe = onSnapshot(doc(firestore, "chats", chatId), (snapshot) => {
-        const data = snapshot.data();
-        if (data) {
-          const lastMessage = data.messages[data.messages.length - 1];
-          resolve(data);
-        } else {
-          reject(new Error('Chat data not found'));
+        } catch (err) {
+            console.log("Could not accept offer in the DB", err)
         }
-      });
 
-      return () => {
-        unsubscribe();
-      };
-    });
+
   };
+
+  /* Decline an offer and delete it from the database
+  * @param listingId ID of the listing associated with the offer
+  * @param otherUser ID of the user who made the offer
+  */
+ export const declineOffer = async (listingId, otherUser) => {
+   const currentUser = auth?.currentUser;
+   const currentUserID = currentUser?.uid;
+   const combinedId =
+     currentUserID > otherUser
+       ? currentUserID + otherUser + listingId
+       : otherUser + currentUserID + listingId;
+
+   try {
+     const offerDocRef = doc(firestore, "offers", combinedId);
+     const offerDocSnapshot = await getDoc(offerDocRef);
+     const offerData = offerDocSnapshot.data();
+     if (offerData.pending) {
+       // Delete the offer document
+       await deleteDoc(offerDocRef);
+       console.log("Offer Declined and deleted from DB");
+
+       // Notify the other user about the decline
+       const text = "Offer of $" + offerData.price + " declined.";
+       handleSend(text, combinedId, otherUser);
+     }
+   } catch (err) {
+     console.log("Could not decline offer in the DB", err);
+   }
+ };
+

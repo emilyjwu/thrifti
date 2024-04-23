@@ -18,6 +18,7 @@ import { fetchBinItemsInfo, auth, firestore} from '../../database';
 import { getConvo, handleSend } from '../../database/messaging';
 import MakeOfferModal from '../../components/MakeOfferModal';
 import { getExisitingOffer } from '../../database/offers';
+import PendingOfferModal from '../../components/PendingOfferModal';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -40,6 +41,7 @@ interface Offer {
   sellerId: string;
 }
 
+//KEY Only a buyer can initiate a conversation!
 const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const { chatId, chatData} = route.params;
   // console.log("Chat data in chat screen", chatData)
@@ -53,9 +55,17 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const screenWidth = Dimensions.get('window').width;
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [offerData, setOfferData] = useState<Offer[]>([]);
+  const [offerButtonText, setOfferButtonText] = useState<String>("");
+  const [isPendingOfferModalVisible, setIsPendingOfferModalVisible] = React.useState(false);
+  const [isSeller, setIsSeller] = useState<Boolean>();
+
+
+  //if the current viewer of chat is NOT the buyer and there is a pending offer, show the pending offer modal
+
 
   const closeModal = () => {
     setIsModalVisible(false);
+    setIsPendingOfferModalVisible(false);
   };
 
   const onMakeOfferPress = () => {
@@ -83,17 +93,30 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
     setText('');
   };
 
-
+  //Logic: If an offer exists, and it is PENDING --> the SELLER has the option to accept or deny
+  //If an offer exists, and it is NOT pending --> that means it was accepted (i think i need a denied flag to show the offer alert modal)
   const getOffer = async () => {
     try {
-      const offerData = await getExisitingOffer(listingId, sellerUid);
+      const offerData = await getExisitingOffer(listingId, uid);
+      setOfferData(offerData)
       if (offerData) {
         console.log(offerData)
-        setOfferData(offerData);
+        if(offerData.pending) {
+          setOfferButtonText("Pending Offer")
+        } else {
+          setOfferButtonText("SOLD")
+        }
+      } else {
+        setOfferButtonText("Make Offer")
       }
+      if(offerData.pending && offerData.sellerID === currentUser.uid) {
+        setIsPendingOfferModalVisible(true);
+      }
+
     } catch (error) {
       console.error('Error fetching offer data:', error);
     }
+
   };
 
 
@@ -125,6 +148,7 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
       fetchMessages();
     }, 2000);
 
+    getOffer();
     return () => clearInterval(intervalId);
   }, []);
 
@@ -134,12 +158,30 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
       if (messageData) {
         const messageList: Message[] = Object.values(messageData.messages);
         setMessages(messageList);
+        if(messageList[0]?.senderId != currentUser.uid) {
+          setIsSeller(true);
+          if(offerData?.pending) {
+            setOfferButtonText("pending");
+          } else {
+            setOfferButtonText("No Offers")
+          }
+        } else if (messageList[0]?.senderId == currentUser.uid) {
+          if(offerData?.pending) {
+            setOfferButtonText("Pending Offer");
+          } else if (offerData?.pending === false) {
+            setOfferButtonText("SOLD")
+          } else {
+            setOfferButtonText("Make Offers")
+          }
+        }
         scrollToBottom();
       }
     } catch (error) {
       console.error('Error fetching chat data:', error);
     }
   };
+
+
 
   const scrollToBottom = () => {
     if (flatListRef.current) {
@@ -197,7 +239,7 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
           <View style={styles.textContainer}>
             <Text style={styles.title}>{listingName}</Text>
             <TouchableOpacity style={styles.makeOfferButton} onPress={onMakeOfferPress}>
-              <Text style={styles.makeOfferButtonText}> Make Offer</Text>
+              <Text style={styles.makeOfferButtonText}> {offerButtonText}</Text>
             </TouchableOpacity>
             <MakeOfferModal
               isVisible={isModalVisible}
@@ -214,6 +256,17 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
         <TouchableOpacity style={styles.arrow} onPress={handleArrow}>
           <Icon name="angle-right" size={24} color="#000" />
         </TouchableOpacity>
+        <PendingOfferModal
+            isVisible={isPendingOfferModalVisible}
+            onClose={closeModal}
+            price={offerData.price}
+            imageUri={imageUri}
+            listingName={listingName}
+            sendTo={uid}
+            chatId={chatId}
+            listingId={listingId}
+            displayName={displayName}
+         />
       </View>
 
 

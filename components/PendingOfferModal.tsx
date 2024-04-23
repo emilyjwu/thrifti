@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,8 +13,10 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { Double } from "react-native/Libraries/Types/CodegenTypes";
 import IconWithBackground from "../components/IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import {createOffer} from "../database/offers";
+import {createOffer, getExisitingOffer, acceptOffer, declineOffer} from "../database/offers";
 import OfferAlertModal from "../components/OfferAlertModal";
+
+
 
 interface PendingOfferModalProps {
   isVisible: boolean;
@@ -45,6 +47,10 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
   const [itemPrice, setItemPrice] = useState<number>(0);
   const [isNestedModalVisible, setIsNestedModalVisible] = React.useState(false);
   const [alertType, setAlertType] = useState<string>("");
+  const [offerPrice, setOfferPrice] = useState<number>(0);
+  const [offerID, setOfferID] = useState<string>("");
+
+
 
   const handleClose = () => {
     onClose();
@@ -53,6 +59,22 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
   const closeModal = () => {
     setIsNestedModalVisible(false);
   };
+
+  useEffect(() => {
+    getOffer();
+  }, []);
+
+  const getOffer = async () => {
+    try {
+      const offerData = await getExisitingOffer(listingId, sendTo); //uid is always the other uid
+      if (offerData) {
+        setOfferPrice(offerData.price)
+      }
+    } catch (error) {
+        console.error('Error fetching offer data:', error);
+    }
+};
+
 
 
   const sendOffer = () => {
@@ -68,6 +90,14 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
     }
     func();
 
+  };
+
+  const handleAcceptOffer = () =>   {
+    acceptOffer(listingId, sendTo);
+
+  };
+  const handleDeclineOffer = () => {
+    acceptOffer(listingId, sendTo);
   };
 
   return (
@@ -103,25 +133,18 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
             )}
       </View>
 
+
         <View style={styles.inputContainer}>
             <Text style={styles.label}>Offer: ${price}</Text>
         </View>
-
-        <TouchableOpacity style={styles.makeOfferButton} onPress={sendOffer}>
-              <Text style={styles.makeOfferButtonText}> Accept Offer</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.makeOfferButton} onPress={sendOffer}>
-              <Text style={styles.makeOfferButtonText}> Decline Offer</Text>
-        </TouchableOpacity>
-        <OfferAlertModal
-          isVisible={isNestedModalVisible}
-          onClose={closeModal}
-          sellerName={displayName}
-          alert={alertType}
-          price={itemPrice}
-          listingId={listingId}
-          sellerUid={sendTo}
-        />
+        <View style={styles.buttonsContainer}>
+            <TouchableOpacity style={styles.makeOfferButton} onPress={handleAcceptOffer}>
+                <Text style={styles.makeOfferButtonText}> Accept</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.makeOfferButton} onPress={handleDeclineOffer}>
+                <Text style={styles.makeOfferButtonText}> Decline </Text>
+            </TouchableOpacity>
+        </View>
 
         </View>
       </View>
@@ -200,6 +223,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    marginTop: 10,
   },
 });
 
