@@ -59,7 +59,6 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
 
     try {
       const querySnapshot = await getDocs(binQuery);
-      console.log("RETRIEVING BIN NAMES");
       const binNames = querySnapshot.docs.map((doc) => {
         // get name from each doc
         return doc.data().binName;

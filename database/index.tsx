@@ -77,7 +77,9 @@ export const uploadListing = async (imageUri: string, listingData: any) => {
     });
     console.log(await (await getDoc(docRef)).data().imgURL);
     console.log(docRef);
-    addListingToUser(listingData.uid, docRef.id);
+    console.log("ADD LISTING TO USER");
+    console.log(listingData.userID, docRef.id);
+    await addListingToUser(listingData.userID, docRef.id);
 
     const year = currentDate.getFullYear();
     const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
@@ -651,7 +653,7 @@ export const addListingToUser = async (userID: string, listingID: string) => {
       console.log("Listing added to the ListingIDs successfully!");
     })
     .catch((error) => {
-      console.error("Error adding Listing to the ListingxIDs: ", error);
+      console.error("Error adding Listing to the ListingIDs: ", error);
     });
 };
 
