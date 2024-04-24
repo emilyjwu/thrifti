@@ -9,10 +9,9 @@ interface FollowButtonProps {
   buttonWidth: number;
   buttonHeight: number;
   fontSize: number;
-  updateUserInfo: () => Promise<void>;
 }
 
-const FollowButton: React.FC<FollowButtonProps> = ({ userID, otherUserID, initialIsFollowing, buttonWidth, buttonHeight, fontSize, updateUserInfo }) => {
+const FollowButton: React.FC<FollowButtonProps> = ({ userID, otherUserID, initialIsFollowing, buttonWidth, buttonHeight, fontSize }) => {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [isFollowing, setIsFollowing] = useState<boolean>();
 

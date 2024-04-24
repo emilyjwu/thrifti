@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Text,
   View,
@@ -12,8 +12,9 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { usePostHog } from "posthog-react-native";
-import { BasicUserInfo, fetchBasicUserInfo } from '../database';
+import { BasicUserInfo, fetchBasicUserInfo, isListingLiked, addLikedListing, removeLikedListing, AuthContext } from '../database';
 import {createChat} from '../database/messaging';
+import LikeButton from "./LikeButton";
 
 interface ListingProps {
   navigation: any;
@@ -21,10 +22,11 @@ interface ListingProps {
 }
 
 const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
-  const [liked, setLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
   const { imageUri, binItemInfo } = route.params;
   const [imageLoading, setImageLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<BasicUserInfo | null>(null);
+  const { currentUserID } = useContext(AuthContext);
 
   const posthog = usePostHog();
 
@@ -48,7 +50,6 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
 
   };
 
-
   useEffect(() => {
     posthog.capture("FOUND_LISTING");
   }, []);
@@ -58,6 +59,8 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
       try {
         const user = await fetchBasicUserInfo(binItemInfo.userID);
         setUserInfo(user);
+        const liked = await isListingLiked(currentUserID, binItemInfo.id);
+        setIsLiked(liked);
       } catch (error) {
         console.error("Error fetching user information:", error);
       }
@@ -110,17 +113,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
           {binItemInfo.listingName ? (
             <Text style={styles.title}>{binItemInfo.listingName}</Text>
           ) : null}
-          <TouchableOpacity
-            onPress={() => {
-              setLiked(!liked);
-            }}
-          >
-            <EntypoIcon
-              name={liked ? "heart" : "heart-outlined"}
-              size={25}
-              color={liked ? "red" : "black"}
-            />
-          </TouchableOpacity>
+          <LikeButton initialIsLiked={isLiked} binItemInfo={binItemInfo} />
         </View>
         {binItemInfo.description !== "" ? (
           <View style={styles.listingDescription}>

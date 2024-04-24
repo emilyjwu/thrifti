@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image, ScrollView} from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image, ScrollView } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import { fetchAllBins, fetchBinItemsInfo, BinItemInfo, fetchBinName } from "../../database/index";
 import IconWithBackground from "../../components/IconWithBackground";
@@ -21,12 +21,12 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
 
     const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
     const [binNames, setBinNames] = useState<string[]>([]);
-    const[isBinsView, setIsBinsView] = useState(true);
+    const [isBinsView, setIsBinsView] = useState(true);
 
     const posthog = usePostHog();
 
     useEffect(() => {
-      posthog.capture("VIEWED_FILTERED_FEED");
+        posthog.capture("VIEWED_FILTERED_FEED");
     }, []);
 
     const handleIndexChange = (index: number) => {
@@ -37,31 +37,16 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Check if data exists in local storage
-                // const [storedBinsInfo, storedBinNames] = await Promise.all([
-                //     AsyncStorage.getItem('binsInfo'),
-                //     AsyncStorage.getItem('binNames')
-                // ]);
+                const bins = await fetchAllBins();
+                const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
+                    return await fetchBinItemsInfo(bin);
+                }));
+                setBinsInfo(binsInfoArray);
 
-                // if (storedBinsInfo && storedBinNames) {
-                //     setBinsInfo(JSON.parse(storedBinsInfo));
-                //     setBinNames(JSON.parse(storedBinNames));
-                // } else {
-                    const bins = await fetchAllBins();
-                    const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
-                        return await fetchBinItemsInfo(bin);
-                    }));
-                    setBinsInfo(binsInfoArray);
-
-                    const binNamesArray: string[] = await Promise.all(bins.map(async (bin) => {
-                        return await fetchBinName(bin);
-                    }));
-                    setBinNames(binNamesArray);
-
-                    // Store data in local storage
-                    // AsyncStorage.setItem('binsInfo', JSON.stringify(binsInfoArray));
-                    // AsyncStorage.setItem('binNames', JSON.stringify(binNamesArray));
-                // }
+                const binNamesArray: string[] = await Promise.all(bins.map(async (bin) => {
+                    return await fetchBinName(bin);
+                }));
+                setBinNames(binNamesArray);
             } catch (error) {
                 console.error("Error fetching bin items info:", error);
             }
@@ -70,46 +55,19 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
         fetchData();
     }, []);
 
-
-    //TEST: Try to keep data in local storage so switching between screens does not cause a full data reload!
-
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const bins = await fetchAllBins();
-    //             const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
-    //                 return await fetchBinItemsInfo(bin);
-    //             }));
-    //             setBinsInfo(binsInfoArray);
-
-    //             const binNamesArray: string[] = await Promise.all(bins.map(async (bin) => {
-    //               return await fetchBinName(bin);
-    //           }));
-    //           setBinNames(binNamesArray);
-
-    //         } catch (error) {
-    //             console.error("Error fetching bin items info:", error);
-    //         }
-    //     };
-
-    //     fetchData();
-    // }, []);
-
-
     return (
         <View style={styles.container}>
-        <View style={styles.segmentContainer} >
-            <SegmentedControl
-                style={styles.segmentedControl}
-                values={['Bins', 'Listings']}
-                selectedIndex={isBinsView ? 0 : 1}
-                onChange={(event) => {
-                    handleIndexChange(event.nativeEvent.selectedSegmentIndex);
-                }}
-
-            />
-        </View>
-        <ScrollView style={styles.scrollView}>
+            <View style={styles.segmentContainer} >
+                <SegmentedControl
+                    style={styles.segmentedControl}
+                    values={['Bins', 'Listings']}
+                    selectedIndex={isBinsView ? 0 : 1}
+                    onChange={(event) => {
+                        handleIndexChange(event.nativeEvent.selectedSegmentIndex);
+                    }}
+                />
+            </View>
+            <ScrollView style={styles.scrollView}>
                 {isBinsView ? (
                     binsInfo.map((binItems, index) => (
                         <View key={index}>
@@ -159,9 +117,9 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                         </View>
                     ))
                 ) : (
-                    <ListingScroll  navigation={navigation}/>
+                    <ListingScroll navigation={navigation} binItemsInfo={binsInfo.flat()}/>
                 )}
-        </ScrollView>
+            </ScrollView>
         </View>
 
     );
@@ -173,7 +131,6 @@ const styles = StyleSheet.create({
         padding: 10,
         position: 'relative',
         alignContent: 'center'
-
     },
     title: {
         fontSize: 25,
@@ -202,18 +159,11 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         borderRadius: 7,
         overflow: 'hidden',
-
     },
     segmentedControl: {
         width: 200,
         alignSelf: 'center',
         marginBottom: 5
-        // width: 200,
-        // fontSize: 14,
-        // position: 'absolute',
-        // marginBottom: 20,
-        // zIndex: 1,
-        // left: 70,
     },
     scrollView: {
         flex: 2,
@@ -223,7 +173,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 20,
     }
-
 });
 
 export default FilteredFeed;

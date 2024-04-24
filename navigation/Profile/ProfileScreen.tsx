@@ -1,12 +1,13 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Touchable } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Touchable, ActivityIndicator } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FollowButton from '../../components/FollowButton';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { AuthContext, fetchUserInfo, isFollowingUser, UserInfo } from "../../database/index";
+import { AuthContext, BinItemInfo, fetchUserInfo, fetchUserListings, isFollowingUser, UserInfo } from "../../database/index";
+import ListingScroll from '../../components/ListingScroll';
 
 
 interface ProfileScreenProps {
@@ -18,24 +19,6 @@ const screenWidth = Dimensions.get('window').width;
 const profilePhotoSize = screenWidth * 0.3;
 const followButtonWidth = screenWidth * 0.5;
 
-const Tab = createMaterialTopTabNavigator();
-const ListingsTab = () => (
-  <View style={styles.tabContainer}>
-    <Text>Listings Screen</Text>
-  </View>
-);
-
-const BinsTab = () => (
-  <View style={styles.tabContainer}>
-    <Text>Bins Screen</Text>
-  </View>
-);
-
-const LikedTab = () => (
-  <View style={styles.tabContainer}>
-    <Text>Liked Items Screen</Text>
-  </View>
-);
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
   const { userID } = route.params;
@@ -43,29 +26,68 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
   const { currentUserID } = useContext(AuthContext);
   const isCurrentUser = currentUserID === userID;
   const [isFollowing, setIsFollowing] = useState(false);
+  const [ listingsInfo, setListingsInfo ] = useState<BinItemInfo[]>([]);
+
+  const Tab = createMaterialTopTabNavigator();
+
+  const ListingsTab = () => (
+    <View style={styles.tabContainer}>
+      <Text>Listings Screen</Text>
+    </View>
+  );
+
+  const BinsTab = () => (
+    <View style={styles.tabContainer}>
+      <Text>Bins Screen</Text>
+    </View>
+  );
+
+  const LikedTab = () => {
+    const [loading, setLoading] = useState(true);
+    const [likedListingsInfo, setLikedListingsInfo] = useState<BinItemInfo[]>([]);
+  
+    useEffect(() => {
+      const fetchLikedItems = async () => {
+        try {
+          const userInfo = await fetchUserInfo(userID);
+          const likedListings = await fetchUserListings(userInfo.likedListings);
+          setLikedListingsInfo(likedListings);
+        } catch (error) {
+          console.error("Error fetching liked listings:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchLikedItems();
+    }, []);
+  
+    return (
+      <View style={styles.tabContainer}>
+        {!loading && (
+          <ListingScroll binItemsInfo={likedListingsInfo} navigation={navigation} />
+        )}
+      </View>
+    );
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
-      console.log("Current userID: ", currentUserID);
-      console.log("Other userID: ", userID);
       const user = await fetchUserInfo(userID);
       setUserInfo(user);
+      const listings = await fetchUserListings(userInfo.listingIDs); 
+      setListingsInfo(listings);
     };
     fetchUser();
   }, []);
 
   useEffect(() => {
-    console.log("UserInfo changed:", userInfo);
-  }, [userInfo]);
-
-  useEffect(() => {
-      const checkFollowing = async () => {
+    const checkFollowing = async () => {
       const following = await isFollowingUser(currentUserID, userID);
       setIsFollowing(following);
     };
     checkFollowing();
   }, []);
-
 
   return (
     <View style={styles.container}>
