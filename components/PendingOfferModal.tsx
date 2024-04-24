@@ -94,7 +94,7 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
   };
 
   useEffect(() => {
-  }, [alertType]);
+  }, [alertType, offerPrice]);
 
   const handleAcceptOffer = () =>   {
     async function func() {
