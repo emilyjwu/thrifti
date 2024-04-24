@@ -34,6 +34,9 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   const formatDate = (chat) => {
 
     const messageDate = chat.date.toDate();
+    if (!messageDate) {
+      return 'Date not available';
+    }
     const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
     return formattedDate;
@@ -79,7 +82,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
 
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {chatData.map((chat) => (
        <TouchableOpacity
           style={[styles.messageContainer, clicked === chat.id && styles.clickedContainer]}
@@ -118,7 +121,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
           )}
         </TouchableOpacity>
       ))}
-    </View>
+    </ScrollView>
   );
 };
 

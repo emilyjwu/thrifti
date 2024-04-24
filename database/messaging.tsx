@@ -216,7 +216,7 @@ import {
       [chatId + ".lastMessage"]: {
         text,
       },
-      [chatId + ".date"]: serverTimestamp(),
+      [chatId + ".date"]: Timestamp.now(),
 
     });
 
@@ -224,7 +224,7 @@ import {
       [chatId + ".lastMessage"]: {
         text,
       },
-      [chatId + ".date"]: serverTimestamp(),
+      [chatId + ".date"]: Timestamp.now(),
     });
     console.log("updated user chats in DB")
 

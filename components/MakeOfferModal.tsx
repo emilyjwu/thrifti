@@ -55,42 +55,22 @@ const MakeOfferModal: React.FC< MakeOfferModalProps> = ({
   };
 
 
-  // const sendOffer = () => {
-  //   async function func() {
-  //       try {
-  //           const ret = await createOffer(itemPrice, listingId, sendTo);
-  //           setAlertType(ret)
-  //           console.log("Alert Types", alertType)
-  //           setIsNestedModalVisible(true);
-  //       } catch (error) {
-  //           console.error("Error:", error);
-  //       }
-  //   }
-  //   func();
 
-  // };
-
-  useEffect(() => {
-    if (alertType !== "") {
-      console.log(alertType)
-      setIsNestedModalVisible(true);
+const sendOffer = () => {
+  async function func() {
+    try {
+      const ret = await createOffer(itemPrice, listingId, sendTo);
+      setAlertType(ret);
+      setIsNestedModalVisible(true); 
+    } catch (error) {
+      console.error("Error:", error);
     }
-  }, [alertType]);
-
-
-  const sendOffer = () => {
-    async function func() {
-        try {
-            const ret = await createOffer(itemPrice, listingId, sendTo);
-            setAlertType(ret);
-            console.log("Alert Types", ret); // Log the updated value of ret
-            setIsNestedModalVisible(true);
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    }
-    func();
+  }
+  func();
 };
+
+useEffect(() => {
+}, [alertType]);
 
   return (
     <Modal visible={isVisible} transparent={true}>
@@ -149,7 +129,7 @@ const MakeOfferModal: React.FC< MakeOfferModalProps> = ({
           onClose={closeModal}
           sellerName={displayName}
           alert={alertType}
-          price={itemPrice}
+          // price={itemPrice}
           listingId={listingId}
           sellerUid={sendTo}
         />

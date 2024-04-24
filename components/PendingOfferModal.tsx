@@ -48,7 +48,7 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
   const [isNestedModalVisible, setIsNestedModalVisible] = React.useState(false);
   const [alertType, setAlertType] = useState<string>("");
   const [offerPrice, setOfferPrice] = useState<number>(0);
-  const [offerID, setOfferID] = useState<string>("");
+  const [seller, setSeller] = useState<string>("");
 
 
 
@@ -69,6 +69,7 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
       const offerData = await getExisitingOffer(listingId, sendTo); //uid is always the other uid
       if (offerData) {
         setOfferPrice(offerData.price)
+        setSeller(offerData.sellerID)
       }
     } catch (error) {
         console.error('Error fetching offer data:', error);
@@ -92,12 +93,33 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
 
   };
 
+  useEffect(() => {
+  }, [alertType]);
+
   const handleAcceptOffer = () =>   {
-    acceptOffer(listingId, sendTo);
+    async function func() {
+      try {
+        const ret = await acceptOffer(listingId, sendTo);
+        setAlertType(ret); // State is set here
+        setIsNestedModalVisible(true); // Directly set modal visibility here
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    func();
 
   };
   const handleDeclineOffer = () => {
-    acceptOffer(listingId, sendTo);
+    async function func() {
+      try {
+        const ret = await declineOffer(listingId, sendTo);
+        setAlertType(ret); // State is set here
+        setIsNestedModalVisible(true); // Directly set modal visibility here
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+    func();
   };
 
   return (
@@ -135,7 +157,7 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
 
 
         <View style={styles.inputContainer}>
-            <Text style={styles.label}>Offer: ${price}</Text>
+            <Text style={styles.label}>Offer: ${offerPrice}</Text>
         </View>
         <View style={styles.buttonsContainer}>
             <TouchableOpacity style={styles.makeOfferButton} onPress={handleAcceptOffer}>
@@ -145,6 +167,16 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
                 <Text style={styles.makeOfferButtonText}> Decline </Text>
             </TouchableOpacity>
         </View>
+        <OfferAlertModal
+          isVisible={isNestedModalVisible}
+          onClose={closeModal}
+          sellerName={displayName}
+          alert={alertType}
+          // price={itemPrice}
+          listingId={listingId}
+          sellerUid={sendTo}
+        />
+
 
         </View>
       </View>
@@ -210,6 +242,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     marginBottom: 20,
+    marginTop: 5,
   },
   makeOfferButton: {
     backgroundColor: '#007bff',

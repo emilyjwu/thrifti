@@ -19,6 +19,7 @@ import { getConvo, handleSend } from '../../database/messaging';
 import MakeOfferModal from '../../components/MakeOfferModal';
 import { getExisitingOffer } from '../../database/offers';
 import PendingOfferModal from '../../components/PendingOfferModal';
+import OfferAlertModal from '../../components/OfferAlertModal';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -44,9 +45,9 @@ interface Offer {
 //KEY Only a buyer can initiate a conversation!
 const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const { chatId, chatData} = route.params;
-  // console.log("Chat data in chat screen", chatData)
   const { userInfo, date } = chatData;
   const { imageUri, listingName, binId, uid, photoURL, displayName, listingId, seller } = userInfo;
+
   const [text, setText] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -57,7 +58,10 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const [offerData, setOfferData] = useState<Offer[]>([]);
   const [offerButtonText, setOfferButtonText] = useState<String>("");
   const [isPendingOfferModalVisible, setIsPendingOfferModalVisible] = React.useState(false);
-  const [isSeller, setIsSeller] = useState<Boolean>();
+  const [pendingButton, setIsPendingButton] = useState<Boolean>();
+  const [isOfferAlertVisible, setIsOfferAlertVisible] = useState(false);
+  const [alertType, setAlertType] = useState<string>("");
+
 
 
   //if the current viewer of chat is NOT the buyer and there is a pending offer, show the pending offer modal
@@ -66,10 +70,23 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const closeModal = () => {
     setIsModalVisible(false);
     setIsPendingOfferModalVisible(false);
+    setIsOfferAlertVisible(false);
   };
 
   const onMakeOfferPress = () => {
-    setIsModalVisible(true);
+    if(offerButtonText == 'Make Offer') {
+      setIsModalVisible(true);
+    }
+  };
+
+  const onPendingPress = () => {
+    if(offerButtonText === 'Pending Offer') {
+      setAlertType('pending');
+      setIsOfferAlertVisible(true);
+    } else if (offerButtonText === 'SOLD') {
+      setIsOfferAlertVisible(true);
+      setAlertType('accepted');
+    }
   };
 
 
@@ -99,29 +116,24 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
     try {
       const offerData = await getExisitingOffer(listingId, uid);
       setOfferData(offerData)
+      console.log(offerData.price)
       if (offerData) {
         if(seller !== currentUser.uid) {
           if(offerData.pending) {
             setOfferButtonText("Pending Offer")
+            setIsPendingButton(true)
           } else if (offerData.sold) {
             setOfferButtonText("SOLD")
+            setIsPendingButton(true)
           } else {
             setOfferButtonText("Make Offer")
+            setIsPendingButton(false)
           }
-        } else {
-          if(offerData.pending) {
-            setOfferButtonText("Pending Offer")
-          } else if (offerData.sold) {
-            setOfferButtonText("SOLD")
-          } else {
-            setOfferButtonText("No Offers")
-          }
-        }
-        if(offerData.pending && seller === currentUser.uid) {
-          setIsPendingOfferModalVisible(true);
       }
-
-      }
+      if(offerData.pending && seller === currentUser.uid) {
+        setIsPendingOfferModalVisible(true);
+    }
+  }
 
     } catch (error) {
       setOfferButtonText("Make Offer")
@@ -134,6 +146,9 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const renderMessage = ({ item, index }) => {
     const isCurrentUser = item.senderId === currentUser?.uid;
     const messageDate = item.date.toDate();
+    if (!messageDate) {
+      return 'Date not available';
+    }
     const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
     return (
@@ -155,11 +170,7 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
 
 
   useEffect(() => {
-    if(currentUser.uid == seller) {
-      setOfferButtonText("No Offers")
-    } else {
-      setOfferButtonText("Make Offer")
-    }
+    setOfferButtonText("Make Offer")
     const intervalId = setInterval(() => {
       fetchMessages();
       getOffer();
@@ -238,9 +249,19 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
           />
           <View style={styles.textContainer}>
             <Text style={styles.title}>{listingName}</Text>
-            <TouchableOpacity style={styles.makeOfferButton} onPress={onMakeOfferPress}>
+            {/* <TouchableOpacity style={styles.makeOfferButton} onPress={onMakeOfferPress}>
               <Text style={styles.makeOfferButtonText}> {offerButtonText}</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            {seller !== currentUser.uid && !pendingButton && ( // Only render this if the current user is not the seller
+              <TouchableOpacity style={styles.makeOfferButton} onPress={onMakeOfferPress}>
+                <Text style={styles.makeOfferButtonText}>{offerButtonText}</Text>
+              </TouchableOpacity>
+            )}
+             {seller !== currentUser.uid && pendingButton &&( // Only render this if the current user is not the seller
+              <TouchableOpacity style={styles.pendingOfferButton} onPress={onPendingPress}>
+                <Text style={styles.makeOfferButtonText}>{offerButtonText}</Text>
+              </TouchableOpacity>
+            )}
             <MakeOfferModal
               isVisible={isModalVisible}
               onClose={closeModal}
@@ -267,6 +288,15 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
             listingId={listingId}
             displayName={displayName}
          />
+        <OfferAlertModal
+          isVisible={isOfferAlertVisible}
+          onClose={closeModal}
+          sellerName={displayName}
+          alert={alertType}
+          // price={offerData?.price}
+          listingId={listingId}
+          sellerUid={uid}
+        />
       </View>
 
 
@@ -332,6 +362,13 @@ const styles = StyleSheet.create({
       },
       makeOfferButton: {
         backgroundColor: '#007bff',
+        paddingVertical: 6,
+        paddingHorizontal: 30,
+        borderRadius: 5,
+        marginLeft: 10,
+      },
+      pendingOfferButton: {
+        backgroundColor: '#D3D3D3',
         paddingVertical: 6,
         paddingHorizontal: 30,
         borderRadius: 5,

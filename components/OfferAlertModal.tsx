@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,8 +7,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation} from "@react-navigation/native";
 import {getExisitingOffer} from "../database/offers";
+import { auth} from '../database/index';
 
 
 //Nested Modal
@@ -17,7 +18,6 @@ interface OfferAlertModalProps {
   onClose: () => void;
   sellerName: string;
   alert: string;
-  price: number;
   listingId: string;
   sellerUid: string;
 
@@ -28,7 +28,7 @@ const OfferAlertModal: React.FC<OfferAlertModalProps > = ({
   onClose,
   sellerName,
   alert,
-  price,
+  // price,
   listingId,
   sellerUid
 
@@ -36,16 +36,18 @@ const OfferAlertModal: React.FC<OfferAlertModalProps > = ({
 
   const navigation = useNavigation();
   const [existingPrice, setExistingPrice] = useState<number>(0);
+  const [seller, setSeller] = useState<string>("");
+
 
   const getOffer = async () => {
     try {
       const offerData = await getExisitingOffer(listingId, sellerUid);
       if (offerData) {
-        console.log(offerData)
         setExistingPrice(offerData.price);
+        setSeller(offerData.sellerID);
       }
     } catch (error) {
-      console.error('Error fetching offer data:', error);
+      console.error('Error fetching offer data in OfferAlertModal: ', error);
     }
   };
 
@@ -53,9 +55,10 @@ const OfferAlertModal: React.FC<OfferAlertModalProps > = ({
     onClose();
   };
 
-  if(alert === 'pending') {
-    getOffer();
-  }
+  useEffect(() => {
+      getOffer();
+  }, [alert, listingId, seller]);
+
 
   return (
     <Modal visible={isVisible} transparent={true}>
@@ -75,21 +78,29 @@ const OfferAlertModal: React.FC<OfferAlertModalProps > = ({
             <>
               <Text style={styles.popupTitle}>Offer Accepted!</Text>
               <View style={styles.line}></View>
-              <Text style={styles.text}>{sellerName} accepted your offer of {price}</Text>
+              {seller === auth?.currentUser.uid ? (
+                 <Text style={styles.text}> You accepted the offer of $ {existingPrice}</Text>
+              ) : (
+                <Text style={styles.text}> {sellerName} accepted your offer of $ {existingPrice}</Text>
+              )}
             </>
           )}
           {alert === 'declined' && (
             <>
               <Text style={styles.popupTitle}>Offer Declined</Text>
               <View style={styles.line}></View>
-              <Text style={styles.text}>{sellerName} declined your offer of {price}</Text>
+              {seller === auth?.currentUser.uid ? (
+                 <Text style={styles.text}> You declined the offer of ${existingPrice}</Text>
+              ) : (
+                <Text style={styles.text}> {sellerName} accepted your offer of ${existingPrice}</Text>
+              )}
             </>
           )}
            {alert === 'pending' && (
             <>
               <Text style={styles.popupTitle}>Exisiting Offer Pending</Text>
               <View style={styles.line}></View>
-              <Text style={styles.text}>You have a pending offer of {existingPrice}</Text>
+              <Text style={styles.text}>You have a pending offer of ${existingPrice}</Text>
             </>
           )}
         </View>

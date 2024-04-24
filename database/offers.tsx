@@ -1,16 +1,11 @@
 import {firestore, auth, fetchBasicUserInfo, makeItemSold} from '../database/index';
 import {
-    arrayUnion,
     doc,
     getDoc,
     updateDoc,
     setDoc,
-    serverTimestamp,
     onSnapshot,
     Timestamp,
-    addDoc,
-    collection,
-    deleteDoc
   } from "firebase/firestore";
   import uuid from 'react-native-uuid';
   import { handleSend } from './messaging';
@@ -68,7 +63,7 @@ import {
         };
         await setDoc(offerDocRef, offerData);
         console.log("added offer in DB successfully ")
-        return "sucess";
+        return "success";
 
       } else {
         const offerData = offerDocSnapshot.data();
@@ -165,7 +160,9 @@ import {
                 const text = "Offer of $" + offerData.price + " accepted."
                 handleSend(text, combinedId, otherUser);
                 makeItemSold(listingId);
+                return 'accepted';
             }
+
 
 
         } catch (err) {
@@ -198,9 +195,10 @@ import {
             sold: false,
         });
 
-      console.log("Offer Declined in DB");
+       console.log("Offer Declined in DB");
        const text = "Offer of $" + offerData.price + " declined.";
        handleSend(text, combinedId, otherUser);
+       return 'declined';
      }
    } catch (err) {
      console.log("Could not decline offer in the DB", err);
