@@ -68,7 +68,7 @@ export const uploadListing = async (imageUri: string, listingData: any) => {
       },
     };
     await uploadBytesResumable(storageRef, blob, metadata);
-
+    await addListingToUser(listingData.userID, docRef.id);
     console.log("Image uploaded successfully");
     const imageURL = await getImage(imgRef);
 
@@ -77,9 +77,6 @@ export const uploadListing = async (imageUri: string, listingData: any) => {
     });
     console.log(await (await getDoc(docRef)).data().imgURL);
     console.log(docRef);
-    console.log("ADD LISTING TO USER");
-    console.log(listingData.userID, docRef.id);
-    await addListingToUser(listingData.userID, docRef.id);
 
     const year = currentDate.getFullYear();
     const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
