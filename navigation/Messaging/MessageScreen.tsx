@@ -31,20 +31,15 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
 
 
 
-  const formatDate = (date) => {
-    if (!date) return '';
+  const formatDate = (chat) => {
 
+    const messageDate = chat.date.toDate();
+    if (!messageDate) {
+      return 'Date not available';
+    }
+    const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-      const messageDate = new Date(date);
-
-      const currentDate = new Date();
-      const isToday = currentDate.toDateString() === messageDate.toDateString();
-
-      if (isToday) {
-        return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      } else {
-        return `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-      }
+    return formattedDate;
 
   }
 
@@ -52,7 +47,6 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
     const fetchData = async () => {
       try {
         const chatData = await getChats(currentUser);
-        // console.log(chatData);
 
         if (chatData) {
           const chatArray = Object.keys(chatData).map((key) => ({
@@ -63,9 +57,12 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
             displayName: chatData[key]?.userInfo?.displayName,
             imageUri: chatData[key]?.userInfo?.imageUri,
             listingName: chatData[key]?.userInfo?.listingName,
+            listingId: chatData[key]?.userInfo?.listingId,
             photoURL: chatData[key]?.userInfo?.photoURL,
             binId: chatData[key]?.userInfo?.binId,
             userId: chatData[key]?.userInfo?.uid,
+            seller: chatData[key]?.userInfo?.seller,
+
           }));
           // Sort the array by date in descending order
           const sortedChats = chatArray.sort((a, b) => (b.date || 0) - (a.date || 0));
@@ -85,7 +82,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
 
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {chatData.map((chat) => (
        <TouchableOpacity
           style={[styles.messageContainer, clicked === chat.id && styles.clickedContainer]}
@@ -97,8 +94,8 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
           <View style={styles.userInfoText}>
             <Text style={styles.username}>{chat.userInfo.displayName}</Text>
             <Text numberOfLines={1} style={styles.message}>{chat.lastMessage}</Text>
-            {/* <Text style={styles.time}>{formatDate(chat.date)}</Text> */}
-            <Text style={styles.time}>Today</Text>
+            <Text style={styles.time}>{formatDate(chat)}</Text>
+            {/* <Text style={styles.time}>Today</Text> */}
           </View>
           {chat.imageUri ? (
             <Image
@@ -124,7 +121,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
           )}
         </TouchableOpacity>
       ))}
-    </View>
+    </ScrollView>
   );
 };
 
