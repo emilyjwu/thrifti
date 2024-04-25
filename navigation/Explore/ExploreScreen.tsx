@@ -33,8 +33,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* <MixedFeed navigation={navigation} /> */}
-      {isSearching ? (
-        <View style={styles.textAreaContainer}>
+      <View style={styles.textAreaContainer}>
           <TextInput
             style={styles.textArea}
             underlineColorAndroid="transparent"
@@ -45,13 +44,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
           />
           <Button title="Search" onPress={handleSearch} />
         </View>
-      ) : (
-        <></>
-      )}
-      <FilteredFeed navigation={navigation} />
-      <View style={styles.searchButtonContainer}>
-        <Button title="Search" onPress={() => setIsSearching(!isSearching)} />
-      </View>
+        <FilteredFeed navigation={navigation} />
     </View>
   );
 };
