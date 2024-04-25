@@ -2,7 +2,10 @@ import React, { useState, useContext, useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from "react-native-vector-icons/Ionicons";
+import EntypoIcon from "react-native-vector-icons/Entypo";
 import FollowButton from '../../components/FollowButton';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { AuthContext, BinItemInfo, fetchUserInfo, fetchUserListings, isFollowingUser, UserInfo } from "../../database/index";
@@ -31,10 +34,28 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
 
   const Tab = createMaterialTopTabNavigator();
 
-  const ListingsTab: React.FC<any> = ({ listingsInfo, navigation }) => {
+  const ListingsTab: React.FC<any> = ({ listingsInfo, navigation, isCurrentUser }) => {
     return (
       <View style={styles.tabContainer}>
-        <ListingScroll binItemsInfo={listingsInfo} navigation={navigation} />
+        {listingsInfo.length > 0 ? (
+          <ListingScroll binItemsInfo={listingsInfo} navigation={navigation} />
+        ) : (
+          <View style={styles.centerContainer}>
+            {isCurrentUser ? (
+              <>
+                <Text style={styles.tabText}>No listings yet</Text>
+                <Text style={styles.tabText}>
+                  Tap on <Ionicons name="pricetags-outline" size={20} color="gray" /> to get started!
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.tabText}>No listings yet</Text>
+                <Ionicons name="pricetags-outline" size={80} color="gray" />
+              </>
+            )}
+          </View>
+        )}
       </View>
     );
   };
@@ -42,14 +63,46 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
   const LikedTab: React.FC<any> = ({ likedListingsInfo, navigation }) => {
     return (
       <View style={styles.tabContainer}>
-        <ListingScroll binItemsInfo={likedListingsInfo} navigation={navigation} />
+        { likedListingsInfo.length ? (
+          <ListingScroll binItemsInfo={likedListingsInfo} navigation={navigation} />
+        ) : (
+          <View style={styles.centerContainer}>
+            {isCurrentUser ? (
+              <>
+                <Text style={styles.tabText}>No likes yet</Text>
+                <Text style={styles.tabText}>
+                  Tap on <Ionicons name="home-outline" size={20} color="gray" /> to get started!
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.tabText}>No likes yet</Text>
+                <EntypoIcon name="heart-outlined" size={80} color="gray"/>
+              </>
+            )}
+          </View>
+        )}
       </View>
     );
   };
 
   const BinsTab = () => (
     <View style={styles.tabContainer}>
-      <Text>Bins Screen</Text>
+      <View style={styles.centerContainer}>
+        {isCurrentUser ? (
+          <>
+            <Text style={styles.tabText}>No bins yet</Text>
+            <Text style={styles.tabText}>
+              Tap on <Ionicons name="pricetags-outline" size={20} color="gray" /> to get started!
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.tabText}>No bins yet</Text>
+            <FontAwesome5Icon name="box-open" size={80} color="gray" />
+          </>
+        )}
+      </View>
     </View>
   );
 
@@ -127,11 +180,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
         </View>
         <View style={styles.statsContainer}>
           <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
-            <Text style={styles.statsNumber}>5</Text>
+            <Text style={styles.statsNumber}>0</Text>
             <Text>Sold</Text>
           </View>
           <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
-            <Text style={styles.statsNumber}>8</Text>
+            <Text style={styles.statsNumber}>0</Text>
             <Text>Purchased</Text>
           </View>
           <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.followers })}>
@@ -175,6 +228,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+    paddingTop: 5,
   },
   usernameContainer: {
     flex: 1,
@@ -230,6 +284,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
     padding: 5,
+  },
+  centerContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: "gray",
   }
 });
 
