@@ -22,6 +22,7 @@ import {
 } from "../../database/index";
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { useStripe } from '@stripe/stripe-react-native';
+import {StripeViewModal} from "../../components/StripeViewModal";
 
 const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
@@ -41,6 +42,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const route = useRoute();
   const { selectedBin, listingData, imageUri } = route.params;
   const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [isStripeVisible, setIsStripeVisible] = React.useState(false);
   const uid = useContext(AuthContext).userAuth.uid;
   const currentDate = new Date();
 
@@ -78,38 +80,20 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   const closeModal = () => {
     setIsModalVisible(false);
+    setIsStripeVisible(false);
   };
+
 
 
   const handleBoostPress = async () => {
-    try {
-      const { error } = await initPaymentSheet({
-        //the top 3 need to be generated on the server side --> the local host server
-        paymentIntentClientSecret: "YOUR_CLIENT_SECRET", // Replace with actual client secret obtained from your backend
-        customerId: "CUSTOMER_ID", // Replace with actual customer ID if needed
-        customerEphemeralKeySecret: "CUSTOMER_EPHEMERAL_KEY_SECRET", // Replace with actual ephemeral key secret if needed
-        merchantDisplayName: 'Thrifti',
-      });
-
-      if (error) {
-        console.error('Error initializing PaymentSheet:', error);
-      } else {
-        console.log('PaymentSheet has been initialized successfully');
-        await presentPaymentSheet(); // Show payment sheet
-      }
-    } catch (error) {
-      console.error('Error initializing PaymentSheet:', error);
-    }
+    setIsStripeVisible(true);
   };
+
+
 
 
 
   return (
-    <StripeProvider
-    publishableKey="pk_test_51P9UmWAlnVITPMWk3Kl5vzD7tT6sW5ssVCr5hodGm4qXVJIPYsujWr0SrZ4f4URiHLcsgSluzsmCxMbXXxeWjzdJ00FvevaEWW"
-    urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
-    merchantIdentifier="merchant.com.{{YOUR_APP_NAME}}" // required for Apple Pay
-    >
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
         <Text style={styles.title}>Optional Info</Text>
@@ -189,7 +173,6 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         />
       </View>
     </TouchableWithoutFeedback>
-    </StripeProvider>
   );
 };
 
