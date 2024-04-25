@@ -16,6 +16,10 @@ import { NavigationProp } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { fetchBinItemsInfo, auth, firestore} from '../../database';
 import { getConvo, handleSend } from '../../database/messaging';
+import MakeOfferModal from '../../components/MakeOfferModal';
+import { getExisitingOffer } from '../../database/offers';
+import PendingOfferModal from '../../components/PendingOfferModal';
+import OfferAlertModal from '../../components/OfferAlertModal';
 
 interface ChatProps {
   navigation: NavigationProp<any>;
@@ -29,25 +33,69 @@ interface Message {
   text: string;
 }
 
+interface Offer {
+  buyerId: string;
+  date: Date;
+  listingId: string;
+  pending: boolean;
+  price: number;
+  sellerId: string;
+}
+
+//KEY Only a buyer can initiate a conversation!
 const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
   const { chatId, chatData} = route.params;
-  // console.log("Chat data in chat screen", chatData)
   const { userInfo, date } = chatData;
-  const { imageUri, listingName, binId, uid, photoURL, displayName } = userInfo;
+  const { imageUri, listingName, binId, uid, photoURL, displayName, listingId, seller } = userInfo;
+
   const [text, setText] = useState('');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const currentUser = auth?.currentUser;
   const flatListRef = useRef<FlatList>(null);
   const screenWidth = Dimensions.get('window').width;
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [offerData, setOfferData] = useState<Offer[]>([]);
+  const [offerButtonText, setOfferButtonText] = useState<String>("");
+  const [isPendingOfferModalVisible, setIsPendingOfferModalVisible] = React.useState(false);
+  const [pendingButton, setIsPendingButton] = useState<Boolean>();
+  const [isOfferAlertVisible, setIsOfferAlertVisible] = useState(false);
+  const [alertType, setAlertType] = useState<string>("");
+
+
+
+  //if the current viewer of chat is NOT the buyer and there is a pending offer, show the pending offer modal
+
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setIsPendingOfferModalVisible(false);
+    setIsOfferAlertVisible(false);
+  };
+
+  const onMakeOfferPress = () => {
+    if(offerButtonText == 'Make Offer') {
+      setIsModalVisible(true);
+    }
+  };
+
+  const onPendingPress = () => {
+    if(offerButtonText === 'Pending Offer') {
+      setAlertType('pending');
+      setIsOfferAlertVisible(true);
+    } else if (offerButtonText === 'SOLD') {
+      setIsOfferAlertVisible(true);
+      setAlertType('accepted');
+    }
+  };
 
 
   const handleArrow = () => {
     async function getBinItemData() {
       try {
-        const binItemInfo = await fetchBinItemsInfo(binId);
-        // console.log("BinItemIno", binItemInfo);
-        navigation.navigate('Listing', { imageUri: imageUri, binItemInfo: binItemInfo});
+        const binInfo = await fetchBinItemsInfo(binId);
+        const binItemInfo = binInfo[0];
+        navigation.navigate('Listing', { imageUri, binItemInfo});
       } catch (error) {
           console.error("Error:", error);
       }
@@ -62,10 +110,45 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
     setText('');
   };
 
+  //Logic: If an offer exists, and it is PENDING --> the SELLER has the option to accept or deny
+  //If an offer exists, and it is NOT pending --> that means it was accepted (i think i need a denied flag to show the offer alert modal)
+  const getOffer = async () => {
+    try {
+      const offerData = await getExisitingOffer(listingId, uid);
+      setOfferData(offerData)
+      console.log(offerData.price)
+      if (offerData) {
+        if(seller !== currentUser.uid) {
+          if(offerData.pending) {
+            setOfferButtonText("Pending Offer")
+            setIsPendingButton(true)
+          } else if (offerData.sold) {
+            setOfferButtonText("SOLD")
+            setIsPendingButton(true)
+          } else {
+            setOfferButtonText("Make Offer")
+            setIsPendingButton(false)
+          }
+      }
+      if(offerData.pending && seller === currentUser.uid) {
+        setIsPendingOfferModalVisible(true);
+    }
+  }
+
+    } catch (error) {
+      setOfferButtonText("Make Offer")
+      console.error('Error fetching offer data:', error);
+    }
+
+  };
+
 
   const renderMessage = ({ item, index }) => {
     const isCurrentUser = item.senderId === currentUser?.uid;
     const messageDate = item.date.toDate();
+    if (!messageDate) {
+      return 'Date not available';
+    }
     const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
     return (
@@ -87,8 +170,10 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
 
 
   useEffect(() => {
+    setOfferButtonText("Make Offer")
     const intervalId = setInterval(() => {
       fetchMessages();
+      getOffer();
     }, 2000);
 
     return () => clearInterval(intervalId);
@@ -106,6 +191,8 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
       console.error('Error fetching chat data:', error);
     }
   };
+
+
 
   const scrollToBottom = () => {
     if (flatListRef.current) {
@@ -162,14 +249,56 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
           />
           <View style={styles.textContainer}>
             <Text style={styles.title}>{listingName}</Text>
-            <TouchableOpacity style={styles.makeOfferButton} onPress={handleArrow}>
-              <Text style={styles.makeOfferButtonText}> Make Offer</Text>
-            </TouchableOpacity>
+            {/* <TouchableOpacity style={styles.makeOfferButton} onPress={onMakeOfferPress}>
+              <Text style={styles.makeOfferButtonText}> {offerButtonText}</Text>
+            </TouchableOpacity> */}
+            {seller !== currentUser.uid && !pendingButton && ( // Only render this if the current user is not the seller
+              <TouchableOpacity style={styles.makeOfferButton} onPress={onMakeOfferPress}>
+                <Text style={styles.makeOfferButtonText}>{offerButtonText}</Text>
+              </TouchableOpacity>
+            )}
+             {seller !== currentUser.uid && pendingButton &&( // Only render this if the current user is not the seller
+              <TouchableOpacity style={styles.pendingOfferButton} onPress={onPendingPress}>
+                <Text style={styles.makeOfferButtonText}>{offerButtonText}</Text>
+              </TouchableOpacity>
+            )}
+            <MakeOfferModal
+              isVisible={isModalVisible}
+              onClose={closeModal}
+              price={0}
+              imageUri={imageUri}
+              listingName={listingName}
+              sendTo={uid}
+              chatId={chatId}
+              listingId={listingId}
+              displayName={displayName}
+            />
           </View>
         <TouchableOpacity style={styles.arrow} onPress={handleArrow}>
           <Icon name="angle-right" size={24} color="#000" />
         </TouchableOpacity>
+        <PendingOfferModal
+            isVisible={isPendingOfferModalVisible}
+            onClose={closeModal}
+            price={offerData.price}
+            imageUri={imageUri}
+            listingName={listingName}
+            sendTo={uid}
+            chatId={chatId}
+            listingId={listingId}
+            displayName={displayName}
+         />
+        <OfferAlertModal
+          isVisible={isOfferAlertVisible}
+          onClose={closeModal}
+          sellerName={displayName}
+          alert={alertType}
+          // price={offerData?.price}
+          listingId={listingId}
+          sellerUid={uid}
+        />
       </View>
+
 
       <FlatList
         ref={flatListRef}
@@ -233,6 +362,13 @@ const styles = StyleSheet.create({
       },
       makeOfferButton: {
         backgroundColor: '#007bff',
+        paddingVertical: 6,
+        paddingHorizontal: 30,
+        borderRadius: 5,
+        marginLeft: 10,
+      },
+      pendingOfferButton: {
+        backgroundColor: '#D3D3D3',
         paddingVertical: 6,
         paddingHorizontal: 30,
         borderRadius: 5,

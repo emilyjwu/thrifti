@@ -13,6 +13,26 @@ import {
   import uuid from 'react-native-uuid';
 
 
+  export const getDate = () => {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const currentDay = currentDate.getDate();
+    const currentHours = currentDate.getHours();
+    const currentMinutes = currentDate.getMinutes();
+    const currentSeconds = currentDate.getSeconds();
+
+    return {
+      year: currentYear,
+      month: currentMonth,
+      day: currentDay,
+      hours: currentHours,
+      minutes: currentMinutes,
+      seconds: currentSeconds
+    };
+  };
+
+
 
 /**
  * Create a chat when a user clicks the chat icon on a listing
@@ -24,7 +44,7 @@ import {
  * @param binID binID to navigate back to listing form a specific chat
  * @retruns the chat ID and chat data that shows on the chat page
  */
-  export const createChat = async (recieverInfo, imageUri, listingName, listingID, binId) => {
+  export const createChat = async (recieverInfo, imageUri, listingName, listingId, binId, seller) => {
     const currentUser = auth?.currentUser;
     const currentUserID = currentUser?.uid;
 
@@ -44,8 +64,8 @@ import {
 
     const combinedId =
     currentUserID > recieverInfo.userID
-        ? currentUserID + recieverInfo.userID + listingID
-        : recieverInfo.userID + currentUserID + listingID;
+        ? currentUserID + recieverInfo.userID + listingId
+        : recieverInfo.userID + currentUserID + listingId;
 
     try {
       const res = await getDoc(doc(firestore, "chats", combinedId));
@@ -64,10 +84,13 @@ import {
             photoURL: currentUserInfo?.profilePicURL,
             imageUri: imageUri,
             listingName: listingName,
+            listingId: listingId,
             binId: binId,
+            seller: seller,
           },
         //   [combinedId + ".date"]: serverTimestamp(),
         [combinedId + ".date"]: Timestamp.now(),
+        // [combinedId + ".date"]: getDate(),
         });
         console.log("updated user chats for reciever")
 
@@ -80,10 +103,12 @@ import {
             photoURL: recieverInfo?.profilePicURL,
             imageUri: imageUri,
             listingName: listingName,
+            listingId: listingId,
             binId: binId,
           },
         //   [combinedId + ".date"]: serverTimestamp(),
         [combinedId + ".date"]: Timestamp.now(),
+        // [combinedId + ".date"]: new Date(),
         });
         console.log("updated user chats for sender")
       }
@@ -104,9 +129,11 @@ import {
               displayName: chatData[key]?.userInfo?.displayName,
               imageUri: chatData[key]?.userInfo?.imageUri,
               listingName: chatData[key]?.userInfo?.listingName,
+              listingId: chatData[key]?.userInfo?.listingId,
               photoURL: chatData[key]?.userInfo?.photoURL,
               binId: chatData[key]?.userInfo?.binId,
               userId: chatData[key]?.userInfo?.uid,
+              seller:chatData[key]?.userInfo?.seller,
           }));
 
           return { combinedId, chatArray}; // Return combinedId along with chat data
@@ -189,7 +216,7 @@ import {
       [chatId + ".lastMessage"]: {
         text,
       },
-      [chatId + ".date"]: serverTimestamp(),
+      [chatId + ".date"]: Timestamp.now(),
 
     });
 
@@ -197,7 +224,7 @@ import {
       [chatId + ".lastMessage"]: {
         text,
       },
-      [chatId + ".date"]: serverTimestamp(),
+      [chatId + ".date"]: Timestamp.now(),
     });
     console.log("updated user chats in DB")
 

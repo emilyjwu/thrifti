@@ -9,6 +9,7 @@ import { usePostHog } from "posthog-react-native";
 import ListingScroll from '../../components/ListingScroll';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import BinScroll from '../../components/BinScroll';
 
 
 interface FilteredFeedProps {
@@ -69,61 +70,21 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
             </View>
             <ScrollView style={styles.scrollView}>
                 {isBinsView ? (
-                    binsInfo.map((binItems, index) => (
-                        <View key={index}>
-                            {binItems.length !== 0 ? (
-                                <View>
-                                    <View style={styles.titleContainer}>
-                                        <Text style={styles.title}>{binNames[index]}</Text>
-                                    </View>
-                                    <TouchableOpacity onPress={() => navigation.navigate("ExpandBin", { binItems, binName: binNames[index] })} style={styles.contentContainer}>
-                                        <FlatList
-                                            horizontal
-                                            data={binItems}
-                                            renderItem={({ item }) => (
-                                                <View style={[styles.itemContainer, { width: itemWidth }]}>
-                                                    <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo: item })}>
-                                                        {item.imageUri && (
-                                                            <Image
-                                                                source={{ uri: item.imageUri }}
-                                                                style={{
-                                                                    width: 115,
-                                                                    height: 115,
-                                                                    borderRadius: 7
-                                                                }}
-                                                            />
-                                                        )}
-                                                        {!item.imageUri && (
-                                                            <IconWithBackground
-                                                                width={115}
-                                                                height={115}
-                                                                iconSize={60}
-                                                                iconColor="#000"
-                                                                iconComponent={EntypoIcon}
-                                                                iconName="image"
-                                                                backgroundColor="#eBeBeB"
-                                                            />
-                                                        )}
-                                                    </TouchableOpacity>
-                                                </View>
-                                            )}
-                                            keyExtractor={(item, index) => item.id.toString()}
-                                            pagingEnabled={true}
-                                            style={{ marginTop: 10, paddingLeft: 5 }}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                            ) : null}
-                        </View>
-                    ))
+                    <BinScroll
+                        binsInfo={binsInfo}
+                        binNames={binNames}
+                        navigation={navigation}
+                        itemWidth={itemWidth}
+                    />
                 ) : (
                     <ListingScroll navigation={navigation} binItemsInfo={binsInfo.flat()}/>
                 )}
             </ScrollView>
         </View>
-
     );
 };
+
+
 const styles = StyleSheet.create({
     container: {
         flex: 2,
