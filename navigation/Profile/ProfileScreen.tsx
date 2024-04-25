@@ -1,8 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Touchable, ActivityIndicator } from 'react-native';
-import { NavigationProp, useIsFocused } from '@react-navigation/native';
+import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
+import { NavigationProp } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FollowButton from '../../components/FollowButton';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -17,7 +16,7 @@ interface ProfileScreenProps {
 
 const screenWidth = Dimensions.get('window').width;
 const profilePhotoSize = screenWidth * 0.3;
-const followButtonWidth = screenWidth * 0.5;
+const followButtonWidth = screenWidth * 0.6;
 
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
@@ -26,34 +25,24 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
   const { currentUserID } = useContext(AuthContext);
   const isCurrentUser = currentUserID === userID;
   const [isFollowing, setIsFollowing] = useState(false);
-
   const [listingsInfo, setListingsInfo] = useState<BinItemInfo[]>([]);
   const [likedListingsInfo, setLikedListingsInfo] = useState<BinItemInfo[]>([]);
-  const [loadingListings, setLoadingListings] = useState(true);
-  const [loadingLiked, setLoadingLiked] = useState(true);
 
 
   const Tab = createMaterialTopTabNavigator();
 
-  const ListingsTab: React.FC<any> = ({ listingsInfo, loading, navigation }) => {
-    console.log("on the listings tab");
-
+  const ListingsTab: React.FC<any> = ({ listingsInfo, navigation }) => {
     return (
       <View style={styles.tabContainer}>
-        {!loading && (
-          <ListingScroll binItemsInfo={listingsInfo} navigation={navigation} />
-        )}
+        <ListingScroll binItemsInfo={listingsInfo} navigation={navigation} />
       </View>
     );
   };
   
-  const LikedTab: React.FC<any> = ({ likedListingsInfo, loading, navigation }) => {
-    console.log("on the likes tab");
+  const LikedTab: React.FC<any> = ({ likedListingsInfo, navigation }) => {
     return (
       <View style={styles.tabContainer}>
-        {!loading && (
-          <ListingScroll binItemsInfo={likedListingsInfo} navigation={navigation} />
-        )}
+        <ListingScroll binItemsInfo={likedListingsInfo} navigation={navigation} />
       </View>
     );
   };
@@ -64,6 +53,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     </View>
   );
 
+  const updateUserInfo = (updatedFields) => {
+    setUserInfo(prevUserInfo => ({
+        ...prevUserInfo,
+        ...updatedFields
+    }));
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -72,11 +68,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
 
         const userListingInfo = await fetchUserListings(user.listingIDs);
         setListingsInfo(userListingInfo);
-        setLoadingListings(false);
 
         const likedListingInfo = await fetchUserListings(user.likedListings);
         setLikedListingsInfo(likedListingInfo);
-        setLoadingLiked(false);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -105,12 +99,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
       }
       <View style={{paddingBottom: 10, paddingHorizontal: 10 }}>
         <View style={styles.topContainer}>
-          <FontAwesome name="user-circle" size={profilePhotoSize} color='gray' style={styles.profilePhoto}/>
+        {(userInfo && userInfo.profilePicURL) ? (
+            <Image source={{ uri: userInfo.profilePicURL }} style={styles.profilePhoto} />
+        ) : (
+            <FontAwesome name="user-circle" size={profilePhotoSize} color='gray' style={styles.profilePhoto} />
+        )}
           <View style={styles.verticalColumn}>
             <Text style={styles.nameText}>{userInfo ? userInfo.fullName : ""}</Text>
             <View style={styles.horizontalRow}>
-              {isCurrentUser ? (
-                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("hi")}>
+              {(isCurrentUser) ? (
+                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("EditProfile", { navigation, userInfo, updateUserInfo })}>
                   <Text style={{ fontSize: 17 }}>Edit profile</Text>
                 </TouchableOpacity>
               ) : (
@@ -123,7 +121,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                   fontSize={17}
                 />
               )}
-              <Feather name="mail" size={40} style={{marginLeft: 5}}/>
             </View>
           </View>
         </View>
@@ -157,12 +154,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
           tabBarIndicatorStyle: { backgroundColor: 'black' }, 
         }}
       >
-          <Tab.Screen name="Listings">
-          {() => <ListingsTab listingsInfo={listingsInfo} loading={loadingListings} navigation={navigation} />}
-          </Tab.Screen>
-          <Tab.Screen name="Bins" component={BinsTab} />
-          <Tab.Screen name="Likes">
-            {() => <LikedTab likedListingsInfo={likedListingsInfo} loading={loadingLiked} navigation={navigation} />}
+        <Tab.Screen name="Listings">
+          {() => <ListingsTab listingsInfo={listingsInfo} navigation={navigation} />}
+        </Tab.Screen>
+        <Tab.Screen name="Bins" component={BinsTab} />
+        <Tab.Screen name="Likes">
+          {() => <LikedTab likedListingsInfo={likedListingsInfo} navigation={navigation} />}
         </Tab.Screen>
         </Tab.Navigator>
     </View>
@@ -190,6 +187,7 @@ const styles = StyleSheet.create({
   profilePhoto: {
     height: profilePhotoSize,
     width: profilePhotoSize,
+    borderRadius: profilePhotoSize,
     marginRight: 10,
   },
   verticalColumn: {

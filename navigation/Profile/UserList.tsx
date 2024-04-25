@@ -14,7 +14,7 @@ const screenWidth = Dimensions.get('window').width;
 const followButtonWidth = screenWidth * 0.4;
 
 const UserList: React.FC<UserListProps> = ({navigation, route}) => {
-  const { userIDList, updateUserInfo } = route.params;
+  const { userIDList } = route.params;
   const { currentUserID } = useContext(AuthContext);
   const [userInfoList, setUserInfoList] = useState<BasicUserInfo[]>([]);
   const [initialIsFollowing, setInitialIsFollowing] = useState<boolean[]>([]);
@@ -57,7 +57,6 @@ const UserList: React.FC<UserListProps> = ({navigation, route}) => {
           buttonWidth={followButtonWidth}
           buttonHeight={30}
           fontSize={15}
-          updateUserInfo={updateUserInfo}
         />
       </View>
     );

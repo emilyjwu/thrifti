@@ -28,6 +28,7 @@ import UserList from "./Profile/UserList";
 import Chat from "./Messaging/Chat";
 import { PostHogProvider } from "posthog-react-native";
 import { posthog } from "../database/index";
+import EditProfile from "./Profile/EditProfile";
 
 // Screen names
 const exploreName = "Explore";
@@ -175,6 +176,11 @@ const ProfileStack = ({ navigation }) => {
       <Stack.Screen
         name="UserList"
         component={UserList}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

@@ -9,15 +9,12 @@ import {
   Keyboard,
 } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import DoneListingModal from "../../components/DoneListingModal";
-import { setStatusBarBackgroundColor } from "expo-status-bar";
+import { useRoute } from "@react-navigation/native";
 import {
-  firestore,
   uploadListing,
   AuthContext,
-  addListingToUser,
 } from "../../database/index";
+import DoneListingModal from "../../components/DoneListingModal";
 interface ExploreScreenProps {
   navigation: any;
 }

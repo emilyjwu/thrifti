@@ -432,6 +432,39 @@ export const fetchBasicUserInfo = async (
 };
 
 /**
+ * Updates user profile information
+ * @param userID The ID of the user to update information for
+ * @param updatedInfo An object containing the updated information
+ * @param profilePicData Profile picture data to upload
+ * @returns A Promise<void> indicating the completion of the update operation
+ */
+export const updateUserInfo = async (
+  userID: string,
+  updatedInfo: Partial<UserInfo>,
+  profilePicUri: string,
+): Promise<void> => {
+  const userDocRef = doc(firestore, 'users', userID);
+  const storage = getStorage();
+  
+  try {
+    if (profilePicUri) {
+      const response = await fetch(profilePicUri);
+      const blob = await response.blob();
+      const storageRef = ref(storage, `profilePictures/${userID}`);
+      await uploadBytesResumable(storageRef, blob);
+      const profilePicURL = await getDownloadURL(storageRef);
+      updatedInfo.profilePicURL = profilePicURL;
+    }
+
+    await updateDoc(userDocRef, updatedInfo);
+    console.log('User profile updated successfully');
+  } catch (error) {
+    console.error('Error updating user information:', error);
+    throw error; 
+  }
+};
+
+/**
  * Check if the current user is following another user
  * @param currentUserID the current
  * @param otherUserID the user to check
