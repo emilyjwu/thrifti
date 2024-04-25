@@ -109,6 +109,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'black', 
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   confirmButton: {
     backgroundColor: 'lightblue',

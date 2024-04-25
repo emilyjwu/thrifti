@@ -20,9 +20,9 @@ interface ListingProps {
   navigation: any;
   route: any;
 }
+const profilePhotoSize = 50;
 
 const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
-  const [isLiked, setIsLiked] = useState(false);
   const { imageUri, binItemInfo } = route.params;
   const [imageLoading, setImageLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<BasicUserInfo | null>(null);
@@ -59,8 +59,6 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
       try {
         const user = await fetchBasicUserInfo(binItemInfo.userID);
         setUserInfo(user);
-        const liked = await isListingLiked(currentUserID, binItemInfo.id);
-        setIsLiked(liked);
       } catch (error) {
         console.error("Error fetching user information:", error);
       }
@@ -78,16 +76,11 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
         >
           <View style={styles.horizontalBox}>
             {userInfo && userInfo.profilePicURL != "" ? (
-              <FontAwesome
-                name="user-circle"
-                size={50}
-                color="pink"
-                style={styles.profilePhoto}
-              />
+            <Image source={{ uri: userInfo.profilePicURL }} style={styles.profilePhoto} />
             ) : (
               <FontAwesome
                 name="user-circle"
-                size={50}
+                size={profilePhotoSize}
                 color="gray"
                 style={styles.profilePhoto}
               />
@@ -113,7 +106,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
           {binItemInfo.listingName ? (
             <Text style={styles.title}>{binItemInfo.listingName}</Text>
           ) : null}
-          <LikeButton initialIsLiked={isLiked} binItemInfo={binItemInfo} />
+          <LikeButton binItemInfo={binItemInfo} />
         </View>
         {binItemInfo.description !== "" ? (
           <View style={styles.listingDescription}>
@@ -167,6 +160,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   profilePhoto: {
+    height: profilePhotoSize,
+    width: profilePhotoSize,
+    borderRadius: profilePhotoSize,
     marginRight: 5,
   },
   profileName: {

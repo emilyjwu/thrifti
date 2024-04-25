@@ -441,20 +441,17 @@ export const fetchBasicUserInfo = async (
 export const updateUserInfo = async (
   userID: string,
   updatedInfo: Partial<UserInfo>,
-  profilePicUri: string,
 ): Promise<void> => {
   const userDocRef = doc(firestore, 'users', userID);
   const storage = getStorage();
   
   try {
-    if (profilePicUri) {
-      const response = await fetch(profilePicUri);
-      const blob = await response.blob();
-      const storageRef = ref(storage, `profilePictures/${userID}`);
-      await uploadBytesResumable(storageRef, blob);
-      const profilePicURL = await getDownloadURL(storageRef);
-      updatedInfo.profilePicURL = profilePicURL;
-    }
+    const response = await fetch(updatedInfo.profilePicURL);
+    const blob = await response.blob();
+    const storageRef = ref(storage, `profilePictures/${userID}`);
+    await uploadBytesResumable(storageRef, blob);
+    const profilePicURL = await getDownloadURL(storageRef);
+    updatedInfo.profilePicURL = profilePicURL;
 
     await updateDoc(userDocRef, updatedInfo);
     console.log('User profile updated successfully');

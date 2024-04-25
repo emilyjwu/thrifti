@@ -183,6 +183,11 @@ const ProfileStack = ({ navigation }) => {
         component={EditProfile}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="OtherProfile"
+        component={ProfileScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };

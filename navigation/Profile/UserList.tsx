@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Image } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import { FlatList } from 'react-native-gesture-handler';
 import FollowButton from '../../components/FollowButton';
@@ -12,6 +12,7 @@ interface UserListProps {
 }
 const screenWidth = Dimensions.get('window').width;
 const followButtonWidth = screenWidth * 0.4;
+const profilePhotoSize = 55;
 
 const UserList: React.FC<UserListProps> = ({navigation, route}) => {
   const { userIDList } = route.params;
@@ -41,9 +42,13 @@ const UserList: React.FC<UserListProps> = ({navigation, route}) => {
   const renderUserItem = ({ item, index }) => {
     return (
       <View style={styles.userContainer}>
-        <TouchableOpacity onPress={()=> navigation.navigate("Profile", { userID: item.userID })}>
+        <TouchableOpacity onPress={()=> navigation.navigate("OtherProfile", { userID: item.userID })}>
           <View style={styles.rowContainer}>
-            <FontAwesome name="user-circle" size={55} color="gray" style={styles.profilePhoto} />
+            {item.profilePicURL ? (
+                <Image source={{ uri: item.profilePicURL }} style={styles.profilePhoto} />
+            ) : (
+                <FontAwesome name="user-circle" size={profilePhotoSize} color='gray' style={styles.profilePhoto} />
+            )}
             <View style={styles.verticalColumn}>
               <Text style={styles.nameText}>{item.fullName}</Text>
               <Text style={styles.usernameText}>{item.userName}</Text>
@@ -92,8 +97,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profilePhoto: {
-    height: 55,
-    width: 55,
+    height: profilePhotoSize,
+    width: profilePhotoSize,
+    borderRadius: profilePhotoSize,
     marginRight: 5,
   },
   verticalColumn: {

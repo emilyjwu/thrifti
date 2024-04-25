@@ -53,12 +53,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     </View>
   );
 
-  const updateUserInfo = (updatedFields) => {
-    setUserInfo(prevUserInfo => ({
-        ...prevUserInfo,
-        ...updatedFields
-    }));
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -87,6 +81,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     checkFollowing();
   }, []);
 
+  const finishEditProfile = (updatedFields) => {
+      setUserInfo(prevUserInfo => ({
+        ...prevUserInfo,
+        ...updatedFields
+    }));
+  };
+
   return (
     <View style={styles.container}>
       { !isCurrentUser &&
@@ -108,7 +109,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
             <Text style={styles.nameText}>{userInfo ? userInfo.fullName : ""}</Text>
             <View style={styles.horizontalRow}>
               {(isCurrentUser) ? (
-                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("EditProfile", { navigation, userInfo, updateUserInfo })}>
+                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("EditProfile", { navigation, userInfo, finishEditProfile })}>
                   <Text style={{ fontSize: 17 }}>Edit profile</Text>
                 </TouchableOpacity>
               ) : (

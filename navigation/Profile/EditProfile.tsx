@@ -10,6 +10,7 @@ import { NavigationProp } from '@react-navigation/native';
 const screenWidth = Dimensions.get('window').width;
 const profilePhotoSize = screenWidth * 0.3;
 const columnWidth = screenWidth * 0.3;
+const saveButtonWidth = screenWidth * 0.5;
 
 interface EditProfileProps {
     navigation: NavigationProp<any>;
@@ -18,7 +19,7 @@ interface EditProfileProps {
 
 const EditProfile: React.FC<EditProfileProps> = ({ navigation, route }) => {
     const { currentUserID } = useContext(AuthContext);
-    const { userInfo } = route.params;
+    const { userInfo, finishEditProfile } = route.params;
     const [profilePicUri, setProfilePicUri] = useState(userInfo.profilePicURL);
     const [name, setName] = useState(userInfo.fullName);
     const [bio, setBio] = useState(userInfo.bio);
@@ -46,9 +47,11 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation, route }) => {
             const updatedInfo = {
                 fullName: name,
                 bio: bio,
+                profilePicURL: profilePicUri,
             };
-            await updateUserInfo(currentUserID, updatedInfo, profilePicUri);
+            await updateUserInfo(currentUserID, updatedInfo);
             setIsModalVisible(true);
+            finishEditProfile(updatedInfo);
         } catch (error) {
             console.error("Error updating profile: ", error);
         }
@@ -62,8 +65,8 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation, route }) => {
         <View style={styles.container}>
             <TouchableOpacity onPress={handleProfilePhotoPress}>
                 <View style={styles.photoContainer}>
-                    {userInfo.profilePicURL ? (
-                        <Image source={{ uri: userInfo.profilePicURL }} style={styles.profilePhoto} />
+                    {profilePicUri ? (
+                        <Image source={{ uri: profilePicUri }} style={styles.profilePhoto} />
                     ) : (
                         <FontAwesome name="user-circle" size={profilePhotoSize} color='gray' style={styles.profilePhoto} />
                     )}
@@ -156,7 +159,7 @@ const styles = StyleSheet.create({
     },
     fieldTitle: {
         fontSize: 15,
-        fontWeight: "bold",
+        // fontWeight: "bold",
     },
     input: {
         flex: 1,
@@ -168,13 +171,14 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         backgroundColor: "darkslategrey",
         paddingVertical: 10,
-        paddingHorizontal: 20,
         borderRadius: 5,
+        width: saveButtonWidth,
     },
     buttonText: {
         fontSize: 20,
         fontWeight: "bold",
         color: "white",
+        textAlign: "center",
     }
 });
 
