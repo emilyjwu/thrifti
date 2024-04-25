@@ -35,65 +35,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
 
   const Tab = createMaterialTopTabNavigator();
 
-  // const ListingsTab = () => {
-  //   const [loading, setLoading] = useState(true);
-  //   const [listingsInfo, setListingsInfo] = useState<BinItemInfo[]>([]);
-  
-  //   useEffect(() => {
-  //     const fetchListings = async () => {
-  //       try {
-  //         const userInfo = await fetchUserInfo(userID);
-  //         const listings = await fetchUserListings(userInfo.listingIDs);
-  //         setListingsInfo(listings);
-  //       } catch (error) {
-  //         console.error("Error fetching liked listings:", error);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-  
-  //     fetchListings();
-  //   }, []);
-  
-  //   return (
-  //     <View style={styles.tabContainer}>
-  //       {!loading && (
-  //         <ListingScroll binItemsInfo={listingsInfo} navigation={navigation} />
-  //       )}
-  //     </View>
-  //   );
-  // };
-
-  // const LikedTab = () => {
-  //   const [loading, setLoading] = useState(true);
-  //   const [likedListingsInfo, setLikedListingsInfo] = useState<BinItemInfo[]>([]);
-  
-  //   useEffect(() => {
-  //     const fetchLikedItems = async () => {
-  //       try {
-  //         const userInfo = await fetchUserInfo(userID);
-  //         const likedListings = await fetchUserListings(userInfo.likedListings);
-  //         setLikedListingsInfo(likedListings);
-  //       } catch (error) {
-  //         console.error("Error fetching liked listings:", error);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-  
-  //     fetchLikedItems();
-  //   }, []);
-  
-  //   return (
-  //     <View style={styles.tabContainer}>
-  //       {!loading && (
-  //         <ListingScroll binItemsInfo={likedListingsInfo} navigation={navigation} />
-  //       )}
-  //     </View>
-  //   );
-  // };
-
   const ListingsTab: React.FC<any> = ({ listingsInfo, loading, navigation }) => {
+    console.log("on the listings tab");
+
     return (
       <View style={styles.tabContainer}>
         {!loading && (
@@ -104,6 +48,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
   };
   
   const LikedTab: React.FC<any> = ({ likedListingsInfo, loading, navigation }) => {
+    console.log("on the likes tab");
     return (
       <View style={styles.tabContainer}>
         {!loading && (
@@ -118,14 +63,6 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
       <Text>Bins Screen</Text>
     </View>
   );
-
-  // useEffect(() => {
-  //   const fetchUser = async () => {
-  //     const user = await fetchUserInfo(userID);
-  //     setUserInfo(user);
-  //   };
-  //   fetchUser();
-  // }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -146,7 +83,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     };
 
     fetchData();
-  }, [userID]);
+  }, []);
 
   useEffect(() => {
     const checkFollowing = async () => {
