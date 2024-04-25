@@ -7,17 +7,27 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert
 } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
+import EntypoIcon from "react-native-vector-icons/Entypo";
 import {
   firestore,
   uploadListing,
   AuthContext,
   addListingToUser,
 } from "../../database/index";
+import { StripeProvider } from '@stripe/stripe-react-native';
+import { useStripe } from '@stripe/stripe-react-native';
+
+const { initPaymentSheet, presentPaymentSheet } = useStripe();
+
+
+
+
 interface ExploreScreenProps {
   navigation: any;
 }
@@ -70,7 +80,36 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
     setIsModalVisible(false);
   };
 
+
+  const handleBoostPress = async () => {
+    try {
+      const { error } = await initPaymentSheet({
+        //the top 3 need to be generated on the server side --> the local host server
+        paymentIntentClientSecret: "YOUR_CLIENT_SECRET", // Replace with actual client secret obtained from your backend
+        customerId: "CUSTOMER_ID", // Replace with actual customer ID if needed
+        customerEphemeralKeySecret: "CUSTOMER_EPHEMERAL_KEY_SECRET", // Replace with actual ephemeral key secret if needed
+        merchantDisplayName: 'Thrifti',
+      });
+
+      if (error) {
+        console.error('Error initializing PaymentSheet:', error);
+      } else {
+        console.log('PaymentSheet has been initialized successfully');
+        await presentPaymentSheet(); // Show payment sheet
+      }
+    } catch (error) {
+      console.error('Error initializing PaymentSheet:', error);
+    }
+  };
+
+
+
   return (
+    <StripeProvider
+    publishableKey="pk_test_51P9UmWAlnVITPMWk3Kl5vzD7tT6sW5ssVCr5hodGm4qXVJIPYsujWr0SrZ4f4URiHLcsgSluzsmCxMbXXxeWjzdJ00FvevaEWW"
+    urlScheme="your-url-scheme" // required for 3D Secure and bank redirects
+    merchantIdentifier="merchant.com.{{YOUR_APP_NAME}}" // required for Apple Pay
+    >
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
         <Text style={styles.title}>Optional Info</Text>
@@ -135,6 +174,10 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
               }}
             />
           </View>
+          <TouchableOpacity style={styles.boostButton} onPress={() => handleBoostPress()}>
+            <EntypoIcon name="flash" size={20} color="white" />
+            <Text style={styles.buttonText}>Boost</Text>
+        </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.button} onPress={onDonePress}>
           <Text style={styles.subTitle}> Done </Text>
@@ -146,6 +189,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         />
       </View>
     </TouchableWithoutFeedback>
+    </StripeProvider>
   );
 };
 
@@ -204,8 +248,27 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: "lightblue",
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
     borderRadius: 5,
+  },
+  boostButton: {
+    flexDirection: 'row',
+    // backgroundColor: "lightblue",
+    backgroundColor: '#007bff',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+    maxWidth: 100,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white', // Text color
+    marginLeft: 5, // Space between icon and text
+    fontSize: 20, // Font size
+    fontWeight: "bold",
+
   },
 });
 
