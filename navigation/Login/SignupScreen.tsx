@@ -1,7 +1,10 @@
 import React, { useState, useContext } from "react";
 import { View, TextInput, Button, StyleSheet, Text } from "react-native";
 import { auth } from "../../database/index";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import Toast from "react-native-toast-message";
 import { doc, setDoc, collection } from "firebase/firestore";
 import {
@@ -24,13 +27,32 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp, onReturn }) => {
   const currentDate = new Date();
 
   const handleSignUp = async () => {
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+    // ******************** ******************** GATECH EMAIL CHECK ******************** ********************
+    /*
+    const pattern = /@gatech\.edu$/;
+    if (!pattern.test(email)) {
+      return;
+    }
+    */
+    await createUserWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        // // ******************** ******************** EMAIL VERIFICATION ******************** ********************
+        /*
+        await sendEmailVerification(userCredential.user)
+          .then(() => {
+            // Email verification sent
+            console.log("Email verification sent");
+          })
+          .catch((error) => {
+            // Handle errors
+            console.error("Error sending email verification:", error);
+          });
+        */
         const myDocRef = doc(
           collection(firestore, "users"),
           userCredential.user.uid
         );
-        setDoc(myDocRef, {
+        await setDoc(myDocRef, {
           userName: username,
           fullName: fullName,
           email: email,
@@ -55,8 +77,7 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp, onReturn }) => {
           collection(firestore, "userChats"),
           userCredential.user.uid
         );
-        setDoc(myDocRef2, {
-        });
+        setDoc(myDocRef2, {});
         onSignUp();
       })
       .catch((error) => {
