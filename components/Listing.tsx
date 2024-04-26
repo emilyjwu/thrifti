@@ -28,7 +28,6 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
 
   const [imageLoading, setImageLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<BasicUserInfo | null>(null);
-  const { currentUserID } = useContext(AuthContext);
 
   const posthog = usePostHog();
 
@@ -60,6 +59,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
     const fetchUser = async () => {
       try {
         const user = await fetchBasicUserInfo(binItemInfo.userID);
+        console.log(binItemInfo.sold);
         setUserInfo(user);
       } catch (error) {
         console.error("Error fetching user information:", error);
@@ -76,7 +76,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
             navigation.navigate("Profile", { userID: binItemInfo.userID });
           }}
         >
-          <View style={styles.horizontalBox}>
+          <View style={[styles.horizontalBox, { marginBottom: 10 }]}>
             {userInfo && userInfo.profilePicURL != "" ? (
             <Image source={{ uri: userInfo.profilePicURL }} style={styles.profilePhoto} />
             ) : (
@@ -98,11 +98,15 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
               <ActivityIndicator size="large" color="#0000ff" />
             </View>
           )}
-          <Image
-            style={styles.square}
-            source={{ uri: imageUri }}
-            onLoad={() => setImageLoading(false)}
-          />
+          {binItemInfo.sold ? (
+            <>
+              <Image style={styles.image} source={{ uri: imageUri }} onLoad={() => setImageLoading(false)}/>
+              <View style={[styles.imageOverlay]} />
+              <Text style={styles.soldText}>SOLD</Text>
+            </>
+          ) : (
+            <Image style={styles.square} source={{ uri: imageUri }} onLoad={() => setImageLoading(false)}/>
+          )}
         </View>
         <View style={styles.horizontalBox}>
           {binItemInfo.listingName ? (
@@ -137,7 +141,11 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
         ) : null}
       </ScrollView>
       <View style={styles.bottomBar}>
-        <Text style={styles.title}>${binItemInfo.price}</Text>
+        {binItemInfo.sold ? (
+          <Text style={[styles.title, styles.strikethrough]}>${binItemInfo.price}</Text>
+        ) : (
+          <Text style={styles.title}>${binItemInfo.price}</Text>
+        )}
          <TouchableOpacity onPress={() => handleMessageButton()}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity>
@@ -158,7 +166,6 @@ const styles = StyleSheet.create({
   horizontalBox: {
     flexDirection: "row",
     alignItems: "center",
-    // backgroundColor: 'pink',
     marginBottom: 5,
   },
   profilePhoto: {
@@ -173,20 +180,43 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: "relative",
     aspectRatio: 1,
+    justifyContent: "center", 
+    alignItems: "center", 
   },
   square: {
-    marginTop: 10,
-    marginBottom: 10,
     flex: 1,
     borderRadius: 10,
+  },
+  image: {
+    flex: 1,
+    width: "100%", 
+    height: "100%",
+    borderRadius: 10,
+    resizeMode: "cover",
+  },
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+  },
+  soldText: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "white",
+    position: "absolute",
   },
   titleContainer: {
     justifyContent: "center",
   },
   title: {
     marginRight: 5,
+    marginTop: 10,
     fontSize: 25,
     fontWeight: "bold",
+  },
+  strikethrough: {
+    textDecorationLine: 'line-through',
+    color: 'black', 
   },
   listingDescription: {
     backgroundColor: "#eBeBeB",

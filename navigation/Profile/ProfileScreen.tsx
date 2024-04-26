@@ -40,7 +40,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
 
   const Tab = createMaterialTopTabNavigator();
 
-  const ListingsTab: React.FC<any> = ({ listingsInfo, navigation, isCurrentUser }) => {
+  const ListingsTab: React.FC<any> = ({ listingsInfo, navigation }) => {
     return (
       <View style={styles.tabContainer}>
         {listingsInfo.length > 0 ? (

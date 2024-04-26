@@ -218,6 +218,7 @@ export interface BinItemInfo {
   sold: boolean;
   tags: string[];
   userID: string;
+  boosted: boolean;
 }
 
 export const fetchBinItemsInfo = async (
@@ -244,6 +245,7 @@ export const fetchBinItemsInfo = async (
           sold: data.sold,
           tags: data.tags,
           userID: data.userID,
+          boosted: data.boosted,
         };
       }
     );

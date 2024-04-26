@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, StyleSheet, FlatList, Dimensions, Image } from 'react-native';
+import { TouchableOpacity, View, StyleSheet, FlatList, Dimensions, Image, Text } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import { BinItemInfo } from "../database/index";
 import IconWithBackground from "./IconWithBackground";
@@ -25,14 +25,15 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation, binItemsInfo 
             <View style={[styles.itemContainer, { width: itemWidth, marginRight }]}>
                 <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo: item })}>
                     {item.imageUri ? (
-                        <Image
-                            source={{ uri: item.imageUri }}
-                            style={{
-                                width: itemWidth,
-                                height: itemWidth,
-                                borderRadius: 7,
-                            }}
-                        />
+                        <View style={styles.imageContainer}>
+                            <Image source={{ uri: item.imageUri }} style={styles.image}/>
+                            {item.sold && (
+                                <>
+                                    <View style={[styles.imageOverlay]}/>
+                                    <Text style={styles.soldText}>SOLD</Text>
+                                </>
+                            )}
+                        </View>
                     ) : (
                         <View style={styles.itemContainer}>
                             <IconWithBackground
@@ -73,6 +74,32 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'flex-start',
     },
+    imageContainer: {
+        position: "relative",
+        aspectRatio: 1,
+        width: itemWidth,
+        height: itemWidth,
+        justifyContent: "center", 
+        alignItems: "center", 
+      },
+      image: {
+        flex: 1,
+        width: "100%", 
+        height: "100%",
+        borderRadius: 10,
+        resizeMode: "cover",
+      },
+      imageOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 10,
+        backgroundColor: "rgba(0, 0, 0, 0.45)",
+      },
+      soldText: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "white",
+        position: "absolute",
+      },
     itemContainer: {
         marginBottom: 7,
         alignItems: 'flex-start', 
