@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView} 
 import { NavigationProp } from '@react-navigation/native';
 import IconWithBackground from '../../components/IconWithBackground';
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getChats } from '../../database/messaging';
 import {auth} from '../../database/index';
 
