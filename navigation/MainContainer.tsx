@@ -269,11 +269,7 @@ const MainContainer: React.FC = () => {
             <Tab.Screen name="Request" component={RequestStack} />
             <Tab.Screen name="Sell" component={SellStack} />
             <Tab.Screen name="Explore" component={ExploreStack} />
-            <Tab.Screen
-              name="Message"
-              component={MessageStack}
-              options={{ headerShown: false }}
-            />
+            <Tab.Screen name="Message" component={MessageStack} options={{ headerShown: false }}/>
             <Tab.Screen name="Profile" component={ProfileStack} />
           </Tab.Navigator>
         </PostHogProvider>

@@ -224,7 +224,7 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
         const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
           let binItems = await fetchBinItemsInfo(bin);
           binItems = binItems.filter(binItem => binItem.userID !== currentUserID);
-          binItems = binItems.filter(binItem => binItem.sold !== true);
+          binItems = binItems.filter(binItem => !binItem.sold);
           return binItems;
       }));
         setBinsInfo(binsInfoArray);

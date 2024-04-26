@@ -50,9 +50,8 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
                     // Fetch bin items info
                     let binItems = await fetchBinItemsInfo(bin);
                     // Filter out items where userID matches current auth/uid
-                    binItems = binItems.filter(binItem => binItem.sold !== true);
-                    //filter out sold items
                     binItems = binItems.filter(binItem => binItem.userID !== currentUserID);
+                    binItems = binItems.filter(binItem => !binItem.sold);
                     return binItems;
                 }));
 

@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { fetchBinItemsInfo, auth, firestore} from '../../database';
+import { fetchBinItemsInfo, auth} from '../../database/index';
 import { getConvo, handleSend } from '../../database/messaging';
 import MakeOfferModal from '../../components/MakeOfferModal';
 import { getExisitingOffer } from '../../database/offers';
