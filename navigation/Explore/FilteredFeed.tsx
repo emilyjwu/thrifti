@@ -89,7 +89,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 2,
         backgroundColor: "#fff",
-        paddingHorizontal: 10,
         position: 'relative',
         alignContent: 'center'
     },
@@ -110,7 +109,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 5,
         marginTop: 10,
-        flex: 1
+        flex: 1,
+        backgroundColor: 'pink',
     },
     contentContainer: {
         flex: 1,
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     segmentedControl: {
         width: 200,
         alignSelf: 'center',
-        marginBottom: 5
+        marginTop: 5,
     },
     scrollView: {
         flex: 2,
@@ -132,7 +132,6 @@ const styles = StyleSheet.create({
     },
     segmentContainer: {
         alignItems: 'center',
-        marginBottom: 20,
     }
 });
 

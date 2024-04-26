@@ -75,8 +75,7 @@ const styles = StyleSheet.create({
     },
     itemContainer: {
         marginBottom: 7,
-        alignItems: 'flex-start',
-        paddingLeft: 0, 
+        alignItems: 'flex-start', 
     },
     contentContainer: {
         flex: 1,
