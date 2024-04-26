@@ -93,7 +93,7 @@ const StripeViewModal: React.FC<StripeViewModalProps> = ({
             <TouchableOpacity style={styles.xButton} onPress={handleClose}>
               <FontAwesome5Icon name="times" size={30} color="#000" />
             </TouchableOpacity>
-            <Text style={styles.popupTitle}>Pay $1 to boost your listing</Text>
+            <Text style={styles.popupTitle}>Boost your listing for $1</Text>
             <TextInput
               autoCapitalize="none"
               placeholder="E-mail"
@@ -121,34 +121,34 @@ const StripeViewModal: React.FC<StripeViewModalProps> = ({
 };
 
 const styles = StyleSheet.create({
-  // modalContainer: {
-  //   flex: 1,
-  //   justifyContent: "center",
-  //   alignItems: "center",
-  //   backgroundColor: "rgba(0, 0, 0, 0.5)",
-  // },
-  // modalContent: {
-  //   backgroundColor: "#fff",
-  //   width: "80%",
-  //   padding: 20,
-  //   borderRadius: 10,
-  //   alignItems: "center",
-  // },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    padding: 20, // Added padding for better spacing
   },
   modalContent: {
     backgroundColor: "#fff",
-    width: "90%", // Increase if necessary
-    minHeight: "60%", // Ensuring there is enough height for all elements
+    width: "80%",
     padding: 20,
     borderRadius: 10,
     alignItems: "center",
   },
+  // modalContainer: {
+  //   flex: 1,
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  //   backgroundColor: "rgba(0, 0, 0, 0.5)",
+  //   padding: 20, // Added padding for better spacing
+  // },
+  // modalContent: {
+  //   backgroundColor: "#fff",
+  //   width: "90%", // Increase if necessary
+  //   minHeight: "60%", // Ensuring there is enough height for all elements
+  //   padding: 20,
+  //   borderRadius: 10,
+  //   alignItems: "center",
+  // },
   popupTitle: {
     fontSize: 20,
     fontWeight: "bold",
