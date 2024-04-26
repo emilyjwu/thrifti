@@ -1,4 +1,4 @@
-const search_base_url = "https://thrifti-search-kreubhtdsa-ue.a.run.app/";
+const search_base_url = "https://lgastaldi-2003-kreubhtdsa-uc.a.run.app/";
 //const search_base_url = "http://143.215.118.252:8000/";
 
 export const searchKListings = async (search_string: string, k: number) => {
