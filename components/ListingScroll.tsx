@@ -81,25 +81,25 @@ const styles = StyleSheet.create({
         height: itemWidth,
         justifyContent: "center",
         alignItems: "center",
-      },
-      image: {
+    },
+    image: {
         flex: 1,
         width: "100%",
         height: "100%",
         borderRadius: 10,
         resizeMode: "cover",
-      },
-      imageOverlay: {
+    },
+    imageOverlay: {
         ...StyleSheet.absoluteFillObject,
         borderRadius: 10,
         backgroundColor: "rgba(0, 0, 0, 0.45)",
-      },
-      soldText: {
+    },
+    soldText: {
         fontSize: 20,
         fontWeight: "bold",
         color: "white",
         position: "absolute",
-      },
+    },
     itemContainer: {
         marginBottom: 7,
         alignItems: 'flex-start',
