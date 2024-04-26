@@ -13,7 +13,7 @@ import {
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import NewBinModal from "../../components/NewBinModal";
 import IconWithBackground from "../../components/IconWithBackground";
 import {
@@ -22,6 +22,7 @@ import {
   fetchBinSize,
   addBinToUser,
 } from "../../database/index";
+import { usePostHog } from "posthog-react-native";
 import { addDoc, getDocs, collection, query, where } from "firebase/firestore";
 
 interface SellScreenMain {
@@ -50,6 +51,30 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [updatedBins, setUpdatedBins] = useState(false);
   const { currentUserID } = useContext(AuthContext);
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+  const uid = useContext(AuthContext).userAuth.uid;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Sell Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   async function getBinNames(firestoreObject, currentUserID) {
     const binQuery = query(

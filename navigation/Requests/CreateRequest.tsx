@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,10 +12,8 @@ import SelectDropdown from "react-native-select-dropdown";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
-import {
-  createRequest,
-  AuthContext,
-} from "../../database/index";
+import { createRequest, AuthContext } from "../../database/index";
+import { usePostHog } from "posthog-react-native";
 
 interface CreateRequestProps {
   navigation: any;
@@ -28,6 +26,29 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
   const route = useRoute();
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const uid = useContext(AuthContext).userAuth.uid;
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Create Request Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   const handleInputChange = (text) => {
     setInputValue(text);
@@ -38,7 +59,6 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
   };
 
   const onDonePress = async () => {
-    
     setIsModalVisible(true);
   };
 
@@ -77,15 +97,20 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
             />
           </View>
         </View>
-        <TouchableOpacity style={styles.button} onPress={() => {
-          navigation.navigate('MyRequests')
-          createRequest(uid, listingName, inputValue)
-          }}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            navigation.navigate("MyRequests");
+            createRequest(uid, listingName, inputValue);
+          }}
+        >
           <Text style={styles.subTitle}> Done </Text>
         </TouchableOpacity>
         <DoneListingModal
           isVisible={isModalVisible}
-          onClose={closeModal} selectedBin={""}        />
+          onClose={closeModal}
+          selectedBin={""}
+        />
       </View>
     </TouchableWithoutFeedback>
   );

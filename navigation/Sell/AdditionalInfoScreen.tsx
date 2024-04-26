@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -10,11 +10,9 @@ import {
 } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 import { useRoute } from "@react-navigation/native";
-import {
-  uploadListing,
-  AuthContext,
-} from "../../database/index";
+import { uploadListing, AuthContext } from "../../database/index";
 import DoneListingModal from "../../components/DoneListingModal";
+import { usePostHog } from "posthog-react-native";
 interface ExploreScreenProps {
   navigation: any;
 }
@@ -30,6 +28,29 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const uid = useContext(AuthContext).userAuth.uid;
   const currentDate = new Date();
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Additional Info Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   const handleInputChange = (text) => {
     setInputValue(text);

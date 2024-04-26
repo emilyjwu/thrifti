@@ -1,46 +1,75 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView} from 'react-native';
-import { NavigationProp } from '@react-navigation/native';
-import IconWithBackground from '../../components/IconWithBackground';
+import React, { useState, useEffect, useContext } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from "react-native";
+import { NavigationProp } from "@react-navigation/native";
+import IconWithBackground from "../../components/IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { getChats } from '../../database/messaging';
-import {auth} from '../../database/index';
-
-
+import MaterialIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import { getChats } from "../../database/messaging";
+import { auth, AuthContext } from "../../database/index";
+import { usePostHog } from "posthog-react-native";
 
 interface MessageScreenProps {
   navigation: NavigationProp<any>;
 }
-
 
 const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   const [clicked, setClicked] = useState<string | null>(null);
 
   const [chatData, setChats] = useState([]);
   const [info, setInfo] = useState<[]>([]);
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+  const uid = useContext(AuthContext).userAuth.uid;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Message Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   const handlePress = (chat) => {
     setClicked(chat);
     // console.log(chat)
-    navigation.navigate('Chat', { chatId: chat.id, chatData: chat});
+    navigation.navigate("Chat", { chatId: chat.id, chatData: chat });
   };
 
   const currentUser = auth?.currentUser;
 
-
-
   const formatDate = (chat) => {
-
     const messageDate = chat.date.toDate();
     if (!messageDate) {
-      return 'Date not available';
+      return "Date not available";
     }
-    const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+    const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString(
+      [],
+      { hour: "2-digit", minute: "2-digit" }
+    )}`;
 
     return formattedDate;
-
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +80,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
           const chatArray = Object.keys(chatData).map((key) => ({
             id: key,
             date: chatData[key]?.date,
-            lastMessage: chatData[key]?.lastMessage?.text || '',
+            lastMessage: chatData[key]?.lastMessage?.text || "",
             userInfo: chatData[key]?.userInfo,
             displayName: chatData[key]?.userInfo?.displayName,
             imageUri: chatData[key]?.userInfo?.imageUri,
@@ -61,14 +90,15 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
             binId: chatData[key]?.userInfo?.binId,
             userId: chatData[key]?.userInfo?.uid,
             seller: chatData[key]?.userInfo?.seller,
-
           }));
           // Sort the array by date in descending order
-          const sortedChats = chatArray.sort((a, b) => (b.date || 0) - (a.date || 0));
+          const sortedChats = chatArray.sort(
+            (a, b) => (b.date || 0) - (a.date || 0)
+          );
           setChats(sortedChats);
         }
       } catch (error) {
-        console.error('Error fetching chat data:', error);
+        console.error("Error fetching chat data:", error);
       }
     };
 
@@ -84,7 +114,10 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
       {chatData.length > 0 ? (
         chatData.map((chat) => (
           <TouchableOpacity
-            style={[styles.messageContainer, clicked === chat.id && styles.clickedContainer]}
+            style={[
+              styles.messageContainer,
+              clicked === chat.id && styles.clickedContainer,
+            ]}
             key={chat.id}
             onPress={() => handlePress(chat)}
             activeOpacity={0.7}
@@ -92,7 +125,9 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
             <View style={styles.circle}></View>
             <View style={styles.userInfoText}>
               <Text style={styles.username}>{chat.userInfo.displayName}</Text>
-              <Text numberOfLines={1} style={styles.message}>{chat.lastMessage}</Text>
+              <Text numberOfLines={1} style={styles.message}>
+                {chat.lastMessage}
+              </Text>
               <Text style={styles.time}>{formatDate(chat)}</Text>
             </View>
             {chat.imageUri ? (
@@ -101,7 +136,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
                 style={{
                   width: 80,
                   height: 80,
-                  borderRadius: 7
+                  borderRadius: 7,
                 }}
               />
             ) : (
@@ -122,7 +157,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
       ) : (
         <View style={styles.defaultContainer}>
           <Text style={styles.defaultText}>Your inbox is empty!</Text>
-          <MaterialIcons name="mailbox-outline" size={80} color="gray"/>
+          <MaterialIcons name="mailbox-outline" size={80} color="gray" />
         </View>
       )}
     </ScrollView>
@@ -132,16 +167,16 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   messageContainer: {
-    width: '100%',
+    width: "100%",
     height: 90,
-    backgroundColor: '#d3d3d3',
+    backgroundColor: "#d3d3d3",
     borderRadius: 7,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     marginBottom: 10,
   },
@@ -149,29 +184,29 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 80 / 2,
-    backgroundColor: 'gray',
+    backgroundColor: "gray",
     marginLeft: -5,
   },
   username: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginRight: 0,
     marginBottom: 4,
   },
   userInfoText: {
-    flexDirection: 'column',
+    flexDirection: "column",
     marginLeft: 7,
     flex: 1,
   },
   message: {
     fontSize: 16,
-    color: '#888',
+    color: "#888",
     marginTop: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   time: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 10,
   },
   clickedContainer: {
@@ -179,14 +214,14 @@ const styles = StyleSheet.create({
   },
   defaultContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   defaultText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: "gray",
-  }
+  },
 });
 
 export default MessageScreen;
