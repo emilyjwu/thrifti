@@ -12,8 +12,15 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { usePostHog } from "posthog-react-native";
-import { BasicUserInfo, fetchBasicUserInfo, isListingLiked, addLikedListing, removeLikedListing, AuthContext } from '../database';
-import {createChat} from '../database/messaging';
+import {
+  BasicUserInfo,
+  fetchBasicUserInfo,
+  isListingLiked,
+  addLikedListing,
+  removeLikedListing,
+  AuthContext,
+} from "../database";
+import { createChat } from "../database/messaging";
 import LikeButton from "./LikeButton";
 
 interface ListingProps {
@@ -25,35 +32,62 @@ const profilePhotoSize = 50;
 const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
   const { imageUri, binItemInfo } = route.params;
 
-
   const [imageLoading, setImageLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<BasicUserInfo | null>(null);
 
   const posthog = usePostHog();
+  const [startTime, setStartTime] = useState(Date.now());
+  const emailAddr = useContext(AuthContext).userAuth.email;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Listing Screen", { timeSpent, emailAddr });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   const handleMessageButton = () => {
     async function getAndCreateChat() {
       try {
-          const { combinedId, chatArray } = await createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id, binItemInfo.binID, binItemInfo.userID);
-          //i need the specific index where the id == combined ID but i can't index directly because i need all fields in the object
-          const index = chatArray.findIndex(item => item.id === combinedId);
-          if (index !== -1) {
-            const chatData = chatArray[index];
-            navigation.navigate('Chat', { chatId: combinedId, chatData: chatData });
-          } else {
-            console.log("Chat not found in the array.");
-          }
+        const { combinedId, chatArray } = await createChat(
+          userInfo,
+          imageUri,
+          binItemInfo.listingName,
+          binItemInfo.id,
+          binItemInfo.binID,
+          binItemInfo.userID
+        );
+        //i need the specific index where the id == combined ID but i can't index directly because i need all fields in the object
+        const index = chatArray.findIndex((item) => item.id === combinedId);
+        if (index !== -1) {
+          const chatData = chatArray[index];
+          navigation.navigate("Chat", {
+            chatId: combinedId,
+            chatData: chatData,
+          });
+        } else {
+          console.log("Chat not found in the array.");
+        }
       } catch (error) {
-          console.error("Error:", error);
+        console.error("Error:", error);
       }
-   }
+    }
     getAndCreateChat();
-
   };
-
-  useEffect(() => {
-    posthog.capture("FOUND_LISTING");
-  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -78,7 +112,10 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
         >
           <View style={[styles.horizontalBox, { marginBottom: 10 }]}>
             {userInfo && userInfo.profilePicURL != "" ? (
-            <Image source={{ uri: userInfo.profilePicURL }} style={styles.profilePhoto} />
+              <Image
+                source={{ uri: userInfo.profilePicURL }}
+                style={styles.profilePhoto}
+              />
             ) : (
               <FontAwesome
                 name="user-circle"
@@ -149,7 +186,6 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
          <TouchableOpacity onPress={() => handleMessageButton()}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity>
-
       </View>
     </View>
   );
@@ -268,4 +304,3 @@ const styles = StyleSheet.create({
 });
 
 export default Listing;
-

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   FlatList,
@@ -13,7 +13,8 @@ import {
   fetchAllBins,
   fetchBinItemsInfo,
   fetchBinName,
-  auth
+  auth,
+  AuthContext,
 } from "../../database";
 import { usePostHog } from "posthog-react-native";
 const currentUser = auth?.currentUser;
@@ -210,12 +211,30 @@ const renderItem = ({ item }: { item: DataEntry }) => {
 const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
   const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
   const [data, setData] = useState<DataEntry[]>([]);
-
   const posthog = usePostHog();
+  const [startTime, setStartTime] = useState(Date.now());
+  const emailAddr = useContext(AuthContext).userAuth.email;
 
   useEffect(() => {
-    posthog.capture("MIXED_FEED");
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Mixed Feed Screen", { timeSpent, emailAddr });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   useEffect(() => {
     const fetchData = async () => {
