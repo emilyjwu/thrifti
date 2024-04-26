@@ -24,11 +24,14 @@ const API_URL = "https://lgastaldi-2003-kreubhtdsa-uc.a.run.app";
 interface StripeViewModalProps {
   isVisible: boolean;
   onClose: () => void;
+  updateIsBoosted: (isBoosted: boolean) => void;
 }
 
 const StripeViewModal: React.FC<StripeViewModalProps> = ({
   isVisible,
   onClose,
+  updateIsBoosted,
+
 }) => {
   const handleClose = () => {
     onClose();
@@ -77,10 +80,11 @@ const StripeViewModal: React.FC<StripeViewModalProps> = ({
         } else if (paymentIntent) {
           alert("Payment Sucessful");
           console.log("Payment sucessful", paymentIntent);
+          updateIsBoosted(true);
         }
       }
     } catch (e) {
-      console.log("here");
+      // console.log("here");
       console.log(e);
     }
   };
@@ -134,21 +138,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
   },
-  // modalContainer: {
-  //   flex: 1,
-  //   justifyContent: "center",
-  //   alignItems: "center",
-  //   backgroundColor: "rgba(0, 0, 0, 0.5)",
-  //   padding: 20, // Added padding for better spacing
-  // },
-  // modalContent: {
-  //   backgroundColor: "#fff",
-  //   width: "90%", // Increase if necessary
-  //   minHeight: "60%", // Ensuring there is enough height for all elements
-  //   padding: 20,
-  //   borderRadius: 10,
-  //   alignItems: "center",
-  // },
   popupTitle: {
     fontSize: 20,
     fontWeight: "bold",

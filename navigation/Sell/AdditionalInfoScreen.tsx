@@ -41,6 +41,9 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const [isStripeVisible, setIsStripeVisible] = React.useState(false);
   const uid = useContext(AuthContext).userAuth.uid;
+  const [isBoosted, setIsBoosted] = useState(false);
+
+
   const currentDate = new Date();
 
   const handleInputChange = (text) => {
@@ -67,6 +70,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         currentDate.getDate();
       listingData.imgURL = "";
       listingData.sold = false;
+      listingData.boosted = isBoosted;
       if ((await uploadListing(imageUri, listingData)) == 400) {
         console.log("Unable to store image.");
         return;
@@ -79,6 +83,11 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
     setIsModalVisible(false);
     setIsStripeVisible(false);
   };
+
+  const updateIsBoosted = (boosted) => {
+    setIsBoosted(boosted);
+  };
+
 
 
 
@@ -169,6 +178,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         <StripeViewModal
           isVisible={isStripeVisible}
           onClose={closeModal}
+          updateIsBoosted={updateIsBoosted}
         />
       </View>
     </TouchableWithoutFeedback>
