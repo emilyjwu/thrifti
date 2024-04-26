@@ -20,11 +20,8 @@ import {
   AuthContext,
   addListingToUser,
 } from "../../database/index";
-import { StripeProvider } from '@stripe/stripe-react-native';
-import { useStripe } from '@stripe/stripe-react-native';
-import {StripeViewModal} from "../../components/StripeViewModal";
+import StripeViewModal from "../../components/StripeViewModal";
 
-const { initPaymentSheet, presentPaymentSheet } = useStripe();
 
 
 
@@ -88,8 +85,6 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const handleBoostPress = async () => {
     setIsStripeVisible(true);
   };
-
-
 
 
 
@@ -158,7 +153,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
               }}
             />
           </View>
-          <TouchableOpacity style={styles.boostButton} onPress={() => handleBoostPress()}>
+          <TouchableOpacity style={styles.boostButton} onPress={handleBoostPress}>
             <EntypoIcon name="flash" size={20} color="white" />
             <Text style={styles.buttonText}>Boost</Text>
         </TouchableOpacity>
@@ -170,6 +165,10 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
           isVisible={isModalVisible}
           onClose={closeModal}
           selectedBin={selectedBin}
+        />
+        <StripeViewModal
+          isVisible={isStripeVisible}
+          onClose={closeModal}
         />
       </View>
     </TouchableWithoutFeedback>
