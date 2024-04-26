@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { TouchableOpacity, View, StyleSheet, FlatList, Dimensions, Image, Text } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import { AuthContext, BinItemInfo } from "../database/index";
@@ -88,55 +88,18 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation, binItemsInfo,
     };
 
     return (
-      <View style={[styles.itemContainer, { width: itemWidth, marginRight }]}>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate("Listing", {
-              imageUri: item.imageUri,
-              binItemInfo: item,
-            })
-          }
-        >
-          {item.imageUri ? (
-            <Image
-              source={{ uri: item.imageUri }}
-              style={{
-                width: itemWidth,
-                height: itemWidth,
-                borderRadius: 7,
-              }}
-            />
-          ) : (
-            <View style={styles.itemContainer}>
-              <IconWithBackground
-                width={itemWidth}
-                height={itemWidth}
-                iconSize={60}
-                iconColor="#000"
-                iconComponent={EntypoIcon}
-                iconName="image"
-                backgroundColor="#eBeBeB"
-              />
-            </View>
-          )}
-        </TouchableOpacity>
+      <View style={styles.container}>
+        <View style={styles.contentContainer}>
+          <FlatList
+            data={binItemsInfo}
+            renderItem={renderListing}
+            keyExtractor={(item, index) => index.toString()}
+            numColumns={3}
+            contentContainerStyle={styles.flatList}
+          />
+        </View>
       </View>
     );
-  };
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        <FlatList
-          data={binItemsInfo}
-          renderItem={renderListing}
-          keyExtractor={(item, index) => index.toString()}
-          numColumns={3}
-          contentContainerStyle={styles.flatList}
-        />
-      </View>
-    </View>
-  );
 };
 
 const styles = StyleSheet.create({
