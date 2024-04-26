@@ -24,7 +24,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [isSearching, setIsSearching] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
   const posthog = usePostHog();
-  const email = useContext(AuthContext).userAuth.email;
+  const emailAddr = useContext(AuthContext).userAuth.email;
 
   useEffect(() => {
     const unsubscribe = navigation.addListener("focus", () => {
@@ -39,7 +39,7 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
-          posthog.screen("Explore Screen", { timeSpent, email });
+          posthog.screen("Explore Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);
       }
