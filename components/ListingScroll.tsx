@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { TouchableOpacity, View, StyleSheet, FlatList, Dimensions, Image, Text } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
-import { BinItemInfo } from "../database/index";
+import { AuthContext, BinItemInfo } from "../database/index";
 import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 
@@ -14,12 +14,16 @@ const totalMarginSpace = marginHorizontal / numColumns;
 interface ListingScrollProps {
     navigation: NavigationProp<any>;
     binItemsInfo: BinItemInfo[];
+    userID?: string,
 }
 
-const ListingScroll: React.FC<ListingScrollProps> = ({ navigation, binItemsInfo }) => {
+const ListingScroll: React.FC<ListingScrollProps> = ({ navigation, binItemsInfo, userID }) => {
+    const { currentUserID } = useContext(AuthContext);
+    const isCurrentUser = currentUserID === userID;
     const renderListing = ({ item , index}) => {
         const isLastInRow = (index + 1) % numColumns === 0;
         const marginRight = isLastInRow ? 0 : totalMarginSpace;
+        console.log(item.boosted);
 
         return (
             <View style={[styles.itemContainer, { width: itemWidth, marginRight }]}>

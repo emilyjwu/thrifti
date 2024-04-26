@@ -245,7 +245,7 @@ export const fetchBinItemsInfo = async (
           sold: data.sold,
           tags: data.tags,
           userID: data.userID,
-          boosted: data.boosted,
+          boosted: data.boosted
         };
       }
     );
@@ -279,6 +279,7 @@ export const fetchUserListings = async (listingIDs: string[]): Promise<BinItemIn
             sold: data.sold,
             tags: data.tags,
             userID: data.userID,
+            boosted: data.boosted,
           };
         } else {
           console.log(`No document found with ID ${listingID}`);

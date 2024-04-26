@@ -44,7 +44,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     return (
       <View style={styles.tabContainer}>
         {listingsInfo.length > 0 ? (
-          <ListingScroll binItemsInfo={listingsInfo} navigation={navigation} />
+          <ListingScroll binItemsInfo={listingsInfo} navigation={navigation} userID={userID}/>
         ) : (
           <View style={styles.centerContainer}>
             {isCurrentUser ? (
