@@ -19,7 +19,7 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import IconWithBackground from "../../components/IconWithBackground";
 import { limit, getDocs, collection, query, where } from "firebase/firestore";
 import { firestore, AuthContext } from "../../database/index";
-
+import { usePostHog } from "posthog-react-native";
 interface ListItemScreenProps {
   navigation: any;
 }
@@ -42,6 +42,29 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
   const [isReadyToNavigate, setIsReadyToNavigate] = useState<boolean>(false);
   const navigation = useNavigation();
   const uid = useContext(AuthContext).userAuth.uid;
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("List Item Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   // pick image
   useEffect(() => {

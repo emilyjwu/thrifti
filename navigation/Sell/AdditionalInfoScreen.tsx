@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import {
   AuthContext,
   addListingToUser,
 } from "../../database/index";
+import { usePostHog } from "posthog-react-native";
 interface ExploreScreenProps {
   navigation: any;
 }
@@ -33,6 +34,29 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const [isModalVisible, setIsModalVisible] = React.useState(false);
   const uid = useContext(AuthContext).userAuth.uid;
   const currentDate = new Date();
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Additional Info Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   const handleInputChange = (text) => {
     setInputValue(text);

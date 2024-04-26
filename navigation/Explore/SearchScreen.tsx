@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   TouchableOpacity,
@@ -9,7 +9,8 @@ import {
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { fetchFieldsAnyCollection } from "../../database/index";
-
+import { AuthContext } from "../../database/index";
+import { usePostHog } from "posthog-react-native";
 interface ExploreScreenProps {
   navigation: any;
 }
@@ -19,6 +20,31 @@ const SearchScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const { searchResults } = route.params;
   const listingIDs: string[] = searchResults.map((item) => item.id);
   const [listingInfos, setListingInfos] = useState([]);
+  const [startTime, setStartTime] = useState(Date.now());
+  const uid = useContext(AuthContext).userAuth.uid;
+  const posthog = usePostHog();
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Search Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   const getIDs = async () => {
     const listings = await Promise.all(

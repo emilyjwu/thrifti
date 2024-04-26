@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Text,
   View,
@@ -12,9 +12,9 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { usePostHog } from "posthog-react-native";
-import { BasicUserInfo, fetchBasicUserInfo } from '../database';
-import {createChat} from '../database/messaging';
-
+import { BasicUserInfo, fetchBasicUserInfo } from "../database";
+import { createChat } from "../database/messaging";
+import { AuthContext } from "../database/index";
 interface ListingProps {
   navigation: any;
   route: any;
@@ -24,32 +24,63 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
   const [liked, setLiked] = useState(false);
   const { imageUri, binItemInfo } = route.params;
 
-
   const [imageLoading, setImageLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<BasicUserInfo | null>(null);
 
   const posthog = usePostHog();
 
+  const [startTime, setStartTime] = useState(Date.now());
+  const uid = useContext(AuthContext).userAuth.uid;
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Listing Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, startTime]);
+
   const handleMessageButton = () => {
     async function getAndCreateChat() {
       try {
-          const { combinedId, chatArray } = await createChat(userInfo, imageUri, binItemInfo.listingName, binItemInfo.id, binItemInfo.binID, binItemInfo.userID);
-          //i need the specific index where the id == combined ID but i can't index directly because i need all fields in the object
-          const index = chatArray.findIndex(item => item.id === combinedId);
-          if (index !== -1) {
-            const chatData = chatArray[index];
-            navigation.navigate('Chat', { chatId: combinedId, chatData: chatData });
-          } else {
-            console.log("Chat not found in the array.");
-          }
+        const { combinedId, chatArray } = await createChat(
+          userInfo,
+          imageUri,
+          binItemInfo.listingName,
+          binItemInfo.id,
+          binItemInfo.binID,
+          binItemInfo.userID
+        );
+        //i need the specific index where the id == combined ID but i can't index directly because i need all fields in the object
+        const index = chatArray.findIndex((item) => item.id === combinedId);
+        if (index !== -1) {
+          const chatData = chatArray[index];
+          navigation.navigate("Chat", {
+            chatId: combinedId,
+            chatData: chatData,
+          });
+        } else {
+          console.log("Chat not found in the array.");
+        }
       } catch (error) {
-          console.error("Error:", error);
+        console.error("Error:", error);
       }
-   }
+    }
     getAndCreateChat();
-
   };
-
 
   useEffect(() => {
     posthog.capture("FOUND_LISTING");
@@ -152,10 +183,9 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
       </ScrollView>
       <View style={styles.bottomBar}>
         <Text style={styles.title}>${binItemInfo.price}</Text>
-         <TouchableOpacity onPress={() => handleMessageButton()}>
+        <TouchableOpacity onPress={() => handleMessageButton()}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity>
-
       </View>
     </View>
   );
@@ -249,4 +279,3 @@ const styles = StyleSheet.create({
 });
 
 export default Listing;
-

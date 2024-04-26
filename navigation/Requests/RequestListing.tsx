@@ -1,12 +1,39 @@
 import * as React from "react";
+import { useEffect, useState, useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
-
+import { AuthContext } from "../../database/index";
+import { usePostHog } from "posthog-react-native";
 interface RequestListingProps {
   navigation: NavigationProp<any>;
 }
 
 const RequestListing: React.FC<RequestListingProps> = ({ navigation }) => {
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+  const uid = useContext(AuthContext).userAuth.uid;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Request Listing Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
+
   // Sample data for demonstration
   const requestDetails = {
     name: "Liam Neeson",

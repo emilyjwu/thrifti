@@ -1,7 +1,8 @@
 import * as React from "react";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
 import { AuthContext } from "../../database/index";
+import { usePostHog } from "posthog-react-native";
 
 import MixedFeed from "./MixedFeed";
 import FilteredFeed from "./FilteredFeed";
@@ -12,9 +13,32 @@ interface ExploreScreenProps {
 }
 
 const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
-  const uid = useContext(AuthContext).userAuth.uid;
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+  const uid = useContext(AuthContext).userAuth.uid;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Explore Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   const handleSearch = async () => {
     if (searchQuery.trim() !== "") {
@@ -34,17 +58,17 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
     <View style={styles.container}>
       {/* <MixedFeed navigation={navigation} /> */}
       <View style={styles.textAreaContainer}>
-          <TextInput
-            style={styles.textArea}
-            underlineColorAndroid="transparent"
-            placeholderTextColor="grey"
-            placeholder="Search for Something!"
-            onChangeText={(text) => setSearchQuery(text)}
-            value={searchQuery}
-          />
-          <Button title="Search" onPress={handleSearch} />
-        </View>
-        <FilteredFeed navigation={navigation} />
+        <TextInput
+          style={styles.textArea}
+          underlineColorAndroid="transparent"
+          placeholderTextColor="grey"
+          placeholder="Search for Something!"
+          onChangeText={(text) => setSearchQuery(text)}
+          value={searchQuery}
+        />
+        <Button title="Search" onPress={handleSearch} />
+      </View>
+      <FilteredFeed navigation={navigation} />
     </View>
   );
 };

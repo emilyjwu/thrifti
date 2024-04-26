@@ -1,32 +1,72 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import { NavigationProp } from '@react-navigation/native';
-import { FlatList } from 'react-native-gesture-handler';
-import FollowButton from '../../components/FollowButton';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { fetchBasicUserInfo, BasicUserInfo, isFollowingUser, AuthContext } from '../../database';
-
+import React, { useContext, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+import { NavigationProp } from "@react-navigation/native";
+import { FlatList } from "react-native-gesture-handler";
+import FollowButton from "../../components/FollowButton";
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+import {
+  fetchBasicUserInfo,
+  BasicUserInfo,
+  isFollowingUser,
+  AuthContext,
+} from "../../database";
+import { usePostHog } from "posthog-react-native";
 interface UserListProps {
   navigation: NavigationProp<any>;
   route: any;
 }
-const screenWidth = Dimensions.get('window').width;
+const screenWidth = Dimensions.get("window").width;
 const followButtonWidth = screenWidth * 0.4;
 
-const UserList: React.FC<UserListProps> = ({navigation, route}) => {
+const UserList: React.FC<UserListProps> = ({ navigation, route }) => {
   const { userIDList, updateUserInfo } = route.params;
   const { currentUserID } = useContext(AuthContext);
   const [userInfoList, setUserInfoList] = useState<BasicUserInfo[]>([]);
   const [initialIsFollowing, setInitialIsFollowing] = useState<boolean[]>([]);
 
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+  const uid = useContext(AuthContext).userAuth.uid;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("User List Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const userPromises = userIDList.map(userID => fetchBasicUserInfo(userID)); 
-        const userList = await Promise.all(userPromises); 
-        setUserInfoList(userList.filter(user => user)); 
+        const userPromises = userIDList.map((userID) =>
+          fetchBasicUserInfo(userID)
+        );
+        const userList = await Promise.all(userPromises);
+        setUserInfoList(userList.filter((user) => user));
 
-        const isFollowingPromises = userIDList.map(userID => isFollowingUser(currentUserID, userID));
+        const isFollowingPromises = userIDList.map((userID) =>
+          isFollowingUser(currentUserID, userID)
+        );
         const isFollowingValues = await Promise.all(isFollowingPromises);
         setInitialIsFollowing(isFollowingValues);
       } catch (error) {
@@ -37,13 +77,21 @@ const UserList: React.FC<UserListProps> = ({navigation, route}) => {
     fetchUsers();
   }, [userIDList]);
 
-  
   const renderUserItem = ({ item, index }) => {
     return (
       <View style={styles.userContainer}>
-        <TouchableOpacity onPress={()=> navigation.navigate("Profile", { userID: item.userID })}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate("Profile", { userID: item.userID })
+          }
+        >
           <View style={styles.rowContainer}>
-            <FontAwesome name="user-circle" size={55} color="gray" style={styles.profilePhoto} />
+            <FontAwesome
+              name="user-circle"
+              size={55}
+              color="gray"
+              style={styles.profilePhoto}
+            />
             <View style={styles.verticalColumn}>
               <Text style={styles.nameText}>{item.fullName}</Text>
               <Text style={styles.usernameText}>{item.userName}</Text>
@@ -62,15 +110,15 @@ const UserList: React.FC<UserListProps> = ({navigation, route}) => {
       </View>
     );
   };
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.userContainer}>
-      <FlatList 
-        data={userInfoList} 
-        renderItem={renderUserItem} 
-        keyExtractor={item => item.id}
-      />
+        <FlatList
+          data={userInfoList}
+          renderItem={renderUserItem}
+          keyExtractor={(item) => item.id}
+        />
       </View>
     </View>
   );
@@ -79,18 +127,18 @@ const UserList: React.FC<UserListProps> = ({navigation, route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 10,
   },
   userContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   rowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   profilePhoto: {
     height: 55,
@@ -98,11 +146,11 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   verticalColumn: {
-    flexDirection: 'column',
+    flexDirection: "column",
   },
   nameText: {
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   usernameText: {
     fontSize: 13,

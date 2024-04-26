@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   FlatList,
@@ -15,6 +15,7 @@ import {
   fetchBinName,
 } from "../../database";
 import { usePostHog } from "posthog-react-native";
+import { AuthContext } from "../../database/index";
 
 interface MixedFeedProps {
   navigation: NavigationProp<any>;
@@ -209,6 +210,30 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
   const [data, setData] = useState<DataEntry[]>([]);
 
   const posthog = usePostHog();
+
+  const [startTime, setStartTime] = useState(Date.now());
+  const uid = useContext(AuthContext).userAuth.uid;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Mixed Feed Screen", { timeSpent, uid });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   useEffect(() => {
     posthog.capture("MIXED_FEED");
