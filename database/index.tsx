@@ -68,7 +68,7 @@ export const uploadListing = async (imageUri: string, listingData: any) => {
       },
     };
     await uploadBytesResumable(storageRef, blob, metadata);
-
+    await addListingToUser(listingData.userID, docRef.id);
     console.log("Image uploaded successfully");
     const imageURL = await getImage(imgRef);
 
@@ -77,7 +77,6 @@ export const uploadListing = async (imageUri: string, listingData: any) => {
     });
     console.log(await (await getDoc(docRef)).data().imgURL);
     console.log(docRef);
-    addListingToUser(listingData.uid, docRef.id);
 
     const year = currentDate.getFullYear();
     const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
@@ -259,6 +258,43 @@ export const fetchBinItemsInfo = async (
 };
 
 // ********** LISTING INFORMATION **********
+export const fetchUserListings = async (listingIDs: string[]): Promise<BinItemInfo[]> => {
+  try {
+    const binItemsInfoPromises: Promise<BinItemInfo | null>[] = listingIDs.map(async (listingID) => {
+      try {
+        const docSnap = await getDoc(doc(collection(firestore, "items"), listingID));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          return {
+            id: docSnap.id,
+            binID: data.binID,
+            condition: data.condition,
+            date: data.date,
+            description: data.description,
+            imageUri: data.imgURL,
+            listingName: data.listingName,
+            price: data.price,
+            sold: data.sold,
+            tags: data.tags,
+            userID: data.userID,
+          };
+        } else {
+          console.log(`No document found with ID ${listingID}`);
+          return null;
+        }
+      } catch (error) {
+        console.error(`Error fetching document with ID ${listingID}:`, error);
+        return null;
+      }
+    });
+
+    const binItemsInfo: (BinItemInfo | null)[] = await Promise.all(binItemsInfoPromises);
+    return binItemsInfo;
+  } catch (error) {
+    console.error("Issue getting user listings: ", error);
+    return [];
+  }
+};
 
 export const getImageURL = async (listingID: string) => {
   try {
@@ -396,6 +432,36 @@ export const fetchBasicUserInfo = async (
 };
 
 /**
+ * Updates user profile information
+ * @param userID The ID of the user to update information for
+ * @param updatedInfo An object containing the updated information
+ * @param profilePicData Profile picture data to upload
+ * @returns A Promise<void> indicating the completion of the update operation
+ */
+export const updateUserInfo = async (
+  userID: string,
+  updatedInfo: Partial<UserInfo>,
+): Promise<void> => {
+  const userDocRef = doc(firestore, 'users', userID);
+  const storage = getStorage();
+  
+  try {
+    const response = await fetch(updatedInfo.profilePicURL);
+    const blob = await response.blob();
+    const storageRef = ref(storage, `profilePictures/${userID}`);
+    await uploadBytesResumable(storageRef, blob);
+    const profilePicURL = await getDownloadURL(storageRef);
+    updatedInfo.profilePicURL = profilePicURL;
+
+    await updateDoc(userDocRef, updatedInfo);
+    console.log('User profile updated successfully');
+  } catch (error) {
+    console.error('Error updating user information:', error);
+    throw error; 
+  }
+};
+
+/**
  * Check if the current user is following another user
  * @param currentUserID the current
  * @param otherUserID the user to check
@@ -425,32 +491,33 @@ export const isFollowingUser = async (
 
 /**
  * Add follower to follower list
- *
- * @param userID the user to follow
+ * 
+ * @param userID userID the user to follow
  * @param followerID the user following that user
+ * @returns the updated following list of the follower
  */
-export const addFollowerToUser = async (userID: string, followerID: string) => {
-  const userDoc = doc(firestore, "users", userID);
-  updateDoc(userDoc, {
-    followers: arrayUnion(followerID),
-  })
-    .then(() => {
-      console.log("Item added to followers successfully!");
+export const addFollowerToUser = async (userID: string, followerID: string): Promise<string[]> => {
+  try {
+    const userDoc = doc(firestore, "users", userID);
+    updateDoc(userDoc, {
+      followers: arrayUnion(followerID),
     })
-    .catch((error) => {
-      console.error("Error adding user to followers: ", error);
-    });
 
-  const followerDoc = doc(firestore, "users", followerID);
-  updateDoc(followerDoc, {
-    following: arrayUnion(userID),
-  })
-    .then(() => {
-      console.log("Following user added successfully!");
+    const followerDoc = doc(firestore, "users", followerID);
+    updateDoc(followerDoc, {
+      following: arrayUnion(userID),
     })
-    .catch((error) => {
-      console.error("Error adding user to the following: ", error);
-    });
+
+    console.log("Follower added successfully!");
+
+    const followingSnapshot = await getDoc(followerDoc);
+    const followingData = followingSnapshot.data();
+    const updatedFollowingList: string[] = followingData?.following || [];
+    return updatedFollowingList;
+  } catch (error) {
+    console.error("Error adding follower to user:", error);
+    throw error; 
+  }
 };
 
 /**
@@ -459,33 +526,59 @@ export const addFollowerToUser = async (userID: string, followerID: string) => {
  * @param userID the user to unfollow
  * @param followerID the user unfollowing that user
  */
-export const removeFollowerFromUser = async (
-  userID: string,
-  followerID: string
-) => {
-  const userDoc = doc(firestore, "users", userID);
+export const removeFollowerFromUser = async (userID: string, followerID: string): Promise<string[]> => {
   try {
-    await updateDoc(userDoc, {
+    const userDoc = doc(firestore, "users", userID);
+    updateDoc(userDoc, {
       followers: arrayRemove(followerID),
     });
-    console.log("User unfollowed successfully!");
-  } catch (error) {
-    console.error("Error unfollowing user: ", error);
-  }
 
-  const followerDoc = doc(firestore, "users", followerID); // Corrected followerDoc
-  try {
-    await updateDoc(followerDoc, {
+    const followerDoc = doc(firestore, "users", followerID);
+    updateDoc(followerDoc, {
       following: arrayRemove(userID),
     });
+
     console.log("Follower removed successfully!");
+
+    const followingSnapshot = await getDoc(followerDoc);
+    const followingData = followingSnapshot.data();
+    const updatedFollowingList: string[] = followingData?.following || [];
+    return updatedFollowingList;
   } catch (error) {
-    console.error("Error removing follower: ", error);
+    console.error("Error removing follower from user:", error);
+    throw error; 
   }
 };
 
-// add liked listing to likedListings list
-export const addLikedListingToUser = async (
+/**
+ * Check if the current user is following another user
+ * @param currentUserID the current
+ * @param otherUserID the user to check
+ * @returns true or false
+ */
+
+export const isListingLiked = async (
+  currentUserID: string,
+  listingID: string
+) => {
+  try {
+    const userDoc = doc(collection(firestore, "users"), currentUserID);
+    const userDocSnapshot = await getDoc(userDoc);
+
+    if (userDocSnapshot.exists()) {
+      const userData = userDocSnapshot.data();
+      if (userData.likedListings && userData.likedListings.includes(listingID)) {
+        return true;
+      }
+    }
+    return false;
+  } catch (error) {
+    console.error("Error checking if the listing is liked:", error);
+    return false;
+  }
+};
+
+export const addLikedListing = async (
   userID: string,
   listingID: string
 ) => {
@@ -498,6 +591,22 @@ export const addLikedListingToUser = async (
     })
     .catch((error) => {
       console.error("Error adding listing to LikedListings: ", error);
+    });
+};
+
+export const removeLikedListing = async (
+  userID: string,
+  listingID: string
+) => {
+  const docRef = doc(firestore, "users", userID);
+  updateDoc(docRef, {
+    likedListings: arrayRemove(listingID),
+  })
+    .then(() => {
+      console.log("Listing removed from LikedListings successfully!");
+    })
+    .catch((error) => {
+      console.error("Error removing listing from LikedListings: ", error);
     });
 };
 
@@ -571,7 +680,7 @@ export const addListingToUser = async (userID: string, listingID: string) => {
       console.log("Listing added to the ListingIDs successfully!");
     })
     .catch((error) => {
-      console.error("Error adding Listing to the ListingxIDs: ", error);
+      console.error("Error adding Listing to the ListingIDs: ", error);
     });
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Text,
   View,
@@ -12,21 +12,23 @@ import EntypoIcon from "react-native-vector-icons/Entypo";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
 import { usePostHog } from "posthog-react-native";
-import { BasicUserInfo, fetchBasicUserInfo } from '../database';
+import { BasicUserInfo, fetchBasicUserInfo, isListingLiked, addLikedListing, removeLikedListing, AuthContext } from '../database';
 import {createChat} from '../database/messaging';
+import LikeButton from "./LikeButton";
 
 interface ListingProps {
   navigation: any;
   route: any;
 }
+const profilePhotoSize = 50;
 
 const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
-  const [liked, setLiked] = useState(false);
   const { imageUri, binItemInfo } = route.params;
 
 
   const [imageLoading, setImageLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<BasicUserInfo | null>(null);
+  const { currentUserID } = useContext(AuthContext);
 
   const posthog = usePostHog();
 
@@ -49,7 +51,6 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
     getAndCreateChat();
 
   };
-
 
   useEffect(() => {
     posthog.capture("FOUND_LISTING");
@@ -77,16 +78,11 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
         >
           <View style={styles.horizontalBox}>
             {userInfo && userInfo.profilePicURL != "" ? (
-              <FontAwesome
-                name="user-circle"
-                size={50}
-                color="pink"
-                style={styles.profilePhoto}
-              />
+            <Image source={{ uri: userInfo.profilePicURL }} style={styles.profilePhoto} />
             ) : (
               <FontAwesome
                 name="user-circle"
-                size={50}
+                size={profilePhotoSize}
                 color="gray"
                 style={styles.profilePhoto}
               />
@@ -112,17 +108,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
           {binItemInfo.listingName ? (
             <Text style={styles.title}>{binItemInfo.listingName}</Text>
           ) : null}
-          <TouchableOpacity
-            onPress={() => {
-              setLiked(!liked);
-            }}
-          >
-            <EntypoIcon
-              name={liked ? "heart" : "heart-outlined"}
-              size={25}
-              color={liked ? "red" : "black"}
-            />
-          </TouchableOpacity>
+          <LikeButton binItemInfo={binItemInfo} />
         </View>
         {binItemInfo.description !== "" ? (
           <View style={styles.listingDescription}>
@@ -176,6 +162,9 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   profilePhoto: {
+    height: profilePhotoSize,
+    width: profilePhotoSize,
+    borderRadius: profilePhotoSize,
     marginRight: 5,
   },
   profileName: {

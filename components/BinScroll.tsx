@@ -70,16 +70,14 @@ const styles = StyleSheet.create({
     titleContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 5,
-        marginTop: 10,
-        flex: 1
+        flex: 1,
     },
     contentContainer: {
         flex: 1,
-        backgroundColor: '#d3d3d3',
+        backgroundColor: '#eBeBeB',
         paddingHorizontal: 10,
         paddingVertical: 10,
-        marginBottom: 5,
+        marginBottom: 10,
         borderRadius: 7,
         overflow: 'hidden',
     }
