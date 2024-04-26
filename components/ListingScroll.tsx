@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image } from 'react-native';
+import React from 'react';
+import { TouchableOpacity, View, StyleSheet, FlatList, Dimensions, Image } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
-import { fetchAllBins, fetchBinItemsInfo } from "../database/index";
 import { BinItemInfo } from "../database/index";
 import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import { usePostHog } from "posthog-react-native";
-
 
 const windowWidth = Dimensions.get('window').width;
 const numColumns = 3;
@@ -16,52 +13,18 @@ const totalMarginSpace = marginHorizontal / numColumns;
 
 interface ListingScrollProps {
     navigation: NavigationProp<any>;
+    binItemsInfo: BinItemInfo[]; 
 }
 
-const ListingScroll: React.FC<ListingScrollProps> = ({ navigation }) => {
-
-
-    const [binItemsInfo, setBinItemsInfo] = useState<BinItemInfo[]>([]);
-
-
-    const posthog = usePostHog();
-
-
-
-
-    useEffect(() => {
-      posthog.capture("CHANGED_FILTER_TO_LISTINGSCROLL");
-    }, []);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const bins = await fetchAllBins();
-                const binItemsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
-                    return await fetchBinItemsInfo(bin);
-                }));
-                const flattenedBinItemsInfo = binItemsInfoArray.flat();
-                setBinItemsInfo(flattenedBinItemsInfo);
-                console.log(flattenedBinItemsInfo);
-            } catch (error) {
-                console.error("Error fetching bin items info:", error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
+const ListingScroll: React.FC<ListingScrollProps> = ({ navigation, binItemsInfo }) => {
     const renderListing = ({ item , index}) => {
-        const binItemInfo = item;
         const isLastInRow = (index + 1) % numColumns === 0;
         const marginRight = isLastInRow ? 0 : totalMarginSpace;
-        {console.log(item.imageUri)}
 
         return (
             <View style={[styles.itemContainer, { width: itemWidth, marginRight }]}>
-                <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo })}>
-
-                {item.imageUri ? (
+                <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo: item })}>
+                    {item.imageUri ? (
                         <Image
                             source={{ uri: item.imageUri }}
                             style={{
@@ -112,8 +75,7 @@ const styles = StyleSheet.create({
     },
     itemContainer: {
         marginBottom: 7,
-        alignItems: 'flex-start',
-        paddingLeft: 0, // Ensure no padding on the left side
+        alignItems: 'flex-start', 
     },
     contentContainer: {
         flex: 1,
@@ -125,6 +87,3 @@ const styles = StyleSheet.create({
 });
 
 export default ListingScroll;
-
-
-

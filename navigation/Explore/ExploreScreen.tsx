@@ -1,11 +1,12 @@
 import * as React from "react";
 import { useState, useContext } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import { View, TextInput, Button, StyleSheet, TouchableOpacity } from "react-native";
 import { AuthContext } from "../../database/index";
 
 import MixedFeed from "./MixedFeed";
 import FilteredFeed from "./FilteredFeed";
 import { searchKListings } from "../../search/search";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 interface ExploreScreenProps {
   navigation: any;
@@ -32,19 +33,21 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* <MixedFeed navigation={navigation} /> */}
       <View style={styles.textAreaContainer}>
           <TextInput
             style={styles.textArea}
             underlineColorAndroid="transparent"
             placeholderTextColor="grey"
-            placeholder="Search for Something!"
+            placeholder="Start shopping..."
             onChangeText={(text) => setSearchQuery(text)}
             value={searchQuery}
           />
-          <Button title="Search" onPress={handleSearch} />
+          <TouchableOpacity onPress={handleSearch}>
+            <Ionicons name="search" size={30} color="black" />
+          </TouchableOpacity>
         </View>
         <FilteredFeed navigation={navigation} />
+        {/* <MixedFeed navigation={navigation} /> */}
     </View>
   );
 };
@@ -57,6 +60,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
     width: "100%",
+    padding: 9,
   },
   imageContainer: {
     marginVertical: 10,
@@ -67,22 +71,21 @@ const styles = StyleSheet.create({
     height: 200,
   },
   textArea: {
-    height: 15,
     justifyContent: "flex-start",
   },
   textAreaContainer: {
-    padding: 10,
-    margin: 5,
+    marginVertical: 5,
+    height: 40,
+    paddingLeft: 5,
     backgroundColor: "#eBeBeB",
-    borderRadius: 20,
+    borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: "70%",
+    width: "100%",
   },
   searchButtonContainer: {
     alignSelf: "flex-start",
-    align: "left",
     position: "absolute",
     top: 10,
     left: 10,

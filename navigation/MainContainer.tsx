@@ -28,6 +28,7 @@ import UserList from "./Profile/UserList";
 import Chat from "./Messaging/Chat";
 import { PostHogProvider } from "posthog-react-native";
 import { posthog } from "../database/index";
+import EditProfile from "./Profile/EditProfile";
 
 // Screen names
 const exploreName = "Explore";
@@ -177,6 +178,16 @@ const ProfileStack = ({ navigation }) => {
         component={UserList}
         options={{ headerShown: false }}
       />
+      <Stack.Screen
+        name="EditProfile"
+        component={EditProfile}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="OtherProfile"
+        component={ProfileScreen}
+        options={{ headerShown: false }}
+      />
     </Stack.Navigator>
   );
 };
@@ -185,6 +196,7 @@ const ProfileStack = ({ navigation }) => {
 const TutorialStack = ({ setIsLoggedIn }) => {
   // thought this should include Login and Signup but did not know how
 };
+
 
 const MainContainer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -219,45 +231,46 @@ const MainContainer: React.FC = () => {
     return (
       <NavigationContainer>
         <PostHogProvider client={posthog}>
-          <Tab.Navigator
-            initialRouteName={exploreName}
-            screenOptions={({ route }) => ({
-              tabBarIcon: ({ focused, color, size }) => {
-                let iconName;
-                let routeName = route.name;
+        <Tab.Navigator
+          initialRouteName={exploreName}
+          screenOptions={({ route }) => {
+            const iconMappings = {
+              [exploreName]: { icon: "home", library: Ionicons },
+              [sellName]: { icon: "pricetags", library: Ionicons },
+              [messageName]: { icon: "chatbubble", library: Ionicons },
+              [requestName]: { icon: "help-circle", library: Ionicons },
+              [profileName]: { icon: "person-circle", library: Ionicons },
+            };
 
-                if (routeName === exploreName) {
-                  iconName = focused ? "home" : "home-outline";
-                } else if (routeName === sellName) {
-                  iconName = focused ? "cube" : "cube-outline";
-                } else if (routeName === messageName) {
-                  iconName = focused ? "chatbubble" : "chatbubble-outline";
-                } else if (routeName === requestName) {
-                  iconName = focused ? "help-circle" : "help-circle-outline";
-                } else if (routeName === profileName) {
-                  iconName = focused
-                    ? "person-circle"
-                    : "person-circle-outline";
-                }
+            const getTabIcon = (routeName, focused, size, color) => {
+              const { icon, library } = iconMappings[routeName] || {};
+              if (icon && library) {
+                const IconComponent = library;
+                const iconName = focused ? icon : `${icon}-outline`;
+                return <IconComponent name={iconName} size={size} color={color} />;
+              }
+              return null;
+            };
 
-                return <Ionicons name={iconName} size={size} color={color} />;
-              },
+            return {
+              tabBarIcon: ({ focused, color, size }) => getTabIcon(route.name, focused, size, color),
               tabBarStyle: {
                 height: 100,
                 paddingVertical: 5,
                 paddingHorizontal: 10,
               },
-              tabBarActiveTintColor: "#9747FF",
-              tabBarInactiveTintColor: "#9DB2CE",
+              tabBarActiveTintColor: "black",
+              tabBarInactiveTintColor: "gray",
               tabBarLabelStyle: { fontSize: 10, paddingBottom: 10 },
-            })}
-          >
-            <Tab.Screen name="Request" component={RequestStack} />
-            <Tab.Screen name="Sell" component={SellStack} />
-            <Tab.Screen name="Explore" component={ExploreStack} />
-            <Tab.Screen name="Message" component={MessageStack} options={{ headerShown: false }}/>
-            <Tab.Screen name="Profile" component={ProfileStack} />
-          </Tab.Navigator>
+            };
+          }}
+        >
+          <Tab.Screen name="Request" component={RequestStack} />
+          <Tab.Screen name="Sell" component={SellStack} />
+          <Tab.Screen name="Explore" component={ExploreStack} />
+          <Tab.Screen name="Message" component={MessageStack} options={{ headerShown: false }}/>
+          <Tab.Screen name="Profile" component={ProfileStack} />
+        </Tab.Navigator>
         </PostHogProvider>
       </NavigationContainer>
     );

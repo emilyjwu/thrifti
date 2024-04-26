@@ -1,12 +1,17 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Touchable } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Dimensions, Image } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Feather from 'react-native-vector-icons/Feather';
+import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from "react-native-vector-icons/Ionicons";
+import EntypoIcon from "react-native-vector-icons/Entypo";
 import FollowButton from '../../components/FollowButton';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { AuthContext, fetchUserInfo, isFollowingUser, UserInfo } from "../../database/index";
+import { AuthContext, BinItemInfo, fetchBinItemsInfo, fetchBinName, fetchUserInfo, fetchUserListings, isFollowingUser, UserInfo } from "../../database/index";
+import ListingScroll from '../../components/ListingScroll';
+import BinScroll from '../../components/BinScroll';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 interface ProfileScreenProps {
@@ -16,26 +21,10 @@ interface ProfileScreenProps {
 
 const screenWidth = Dimensions.get('window').width;
 const profilePhotoSize = screenWidth * 0.3;
-const followButtonWidth = screenWidth * 0.5;
+const followButtonWidth = screenWidth * 0.6;
+const windowWidth = Dimensions.get('window').width;
+const itemWidth = (windowWidth - 40) / 3;
 
-const Tab = createMaterialTopTabNavigator();
-const ListingsTab = () => (
-  <View style={styles.tabContainer}>
-    <Text>Listings Screen</Text>
-  </View>
-);
-
-const BinsTab = () => (
-  <View style={styles.tabContainer}>
-    <Text>Bins Screen</Text>
-  </View>
-);
-
-const LikedTab = () => (
-  <View style={styles.tabContainer}>
-    <Text>Liked Items Screen</Text>
-  </View>
-);
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
   const { userID } = route.params;
@@ -43,29 +32,135 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
   const { currentUserID } = useContext(AuthContext);
   const isCurrentUser = currentUserID === userID;
   const [isFollowing, setIsFollowing] = useState(false);
+  const [listingsInfo, setListingsInfo] = useState<BinItemInfo[]>([]);
+  const [likedListingsInfo, setLikedListingsInfo] = useState<BinItemInfo[]>([]);
+  const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
+  const [binNames, setBinNames] = useState<string[]>([]);
+
+
+  const Tab = createMaterialTopTabNavigator();
+
+  const ListingsTab: React.FC<any> = ({ listingsInfo, navigation, isCurrentUser }) => {
+    return (
+      <View style={styles.tabContainer}>
+        {listingsInfo.length > 0 ? (
+          <ListingScroll binItemsInfo={listingsInfo} navigation={navigation} />
+        ) : (
+          <View style={styles.centerContainer}>
+            {isCurrentUser ? (
+              <>
+                <Text style={styles.tabText}>No listings yet</Text>
+                <Text style={styles.tabText}>
+                  Tap on <Ionicons name="pricetags-outline" size={20} color="gray" /> to get started!
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.tabText}>No listings yet</Text>
+                <Ionicons name="pricetags-outline" size={80} color="gray" />
+              </>
+            )}
+          </View>
+        )}
+      </View>
+    );
+  };
+  
+  const LikedTab: React.FC<any> = ({ likedListingsInfo, navigation }) => {
+    return (
+      <View style={styles.tabContainer}>
+        { likedListingsInfo.length ? (
+          <ListingScroll binItemsInfo={likedListingsInfo} navigation={navigation} />
+        ) : (
+          <View style={styles.centerContainer}>
+            {isCurrentUser ? (
+              <>
+                <Text style={styles.tabText}>No likes yet</Text>
+                <Text style={styles.tabText}>
+                  Tap on <Ionicons name="home-outline" size={20} color="gray" /> to get started!
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={styles.tabText}>No likes yet</Text>
+                <EntypoIcon name="heart-outlined" size={80} color="gray"/>
+              </>
+            )}
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const BinsTab: React.FC<any> = ({ binsInfo, binNames, navigation }) => (
+    <View style={styles.tabContainer}>
+      {binsInfo.length ? (
+        <ScrollView>
+          <BinScroll binsInfo={binsInfo} binNames={binNames} navigation={navigation} itemWidth={itemWidth}/>
+        </ScrollView>
+      ) : (
+        <View style={styles.centerContainer}>
+          {isCurrentUser ? (
+            <>
+              <Text style={styles.tabText}>No bins yet</Text>
+              <Text style={styles.tabText}>
+                Tap on <Ionicons name="pricetags-outline" size={20} color="gray" /> to get started!
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.tabText}>No bins yet</Text>
+              <FontAwesome5Icon name="box-open" size={80} color="gray" />
+            </>
+          )}
+        </View>
+      )}
+    </View>
+  );
+
 
   useEffect(() => {
-    const fetchUser = async () => {
-      console.log("Current userID: ", currentUserID);
-      console.log("Other userID: ", userID);
-      const user = await fetchUserInfo(userID);
-      setUserInfo(user);
+    const fetchData = async () => {
+      try {
+        const user = await fetchUserInfo(userID);
+        setUserInfo(user);
+
+        const userListingInfo = await fetchUserListings(user.listingIDs);
+        setListingsInfo(userListingInfo);
+
+        const likedListingInfo = await fetchUserListings(user.likedListings);
+        setLikedListingsInfo(likedListingInfo);
+
+        const binsInfoArray: BinItemInfo[][] = await Promise.all(user.binIDs.map(async (bin) => {
+          return await fetchBinItemsInfo(bin);
+        }));
+        setBinsInfo(binsInfoArray);
+          const binNamesArray: string[] = await Promise.all(user.binIDs.map(async (bin) => {
+            return await fetchBinName(bin);
+        }));
+        setBinNames(binNamesArray);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
-    fetchUser();
+
+    fetchData();
   }, []);
 
   useEffect(() => {
-    console.log("UserInfo changed:", userInfo);
-  }, [userInfo]);
-
-  useEffect(() => {
-      const checkFollowing = async () => {
+    const checkFollowing = async () => {
       const following = await isFollowingUser(currentUserID, userID);
       setIsFollowing(following);
     };
     checkFollowing();
   }, []);
 
+  const userInfoCallback = (updatedFields) => {
+      setUserInfo(prevUserInfo => ({
+        ...prevUserInfo,
+        ...updatedFields
+    }));
+  };
 
   return (
     <View style={styles.container}>
@@ -79,12 +174,16 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
       }
       <View style={{paddingBottom: 10, paddingHorizontal: 10 }}>
         <View style={styles.topContainer}>
-          <FontAwesome name="user-circle" size={profilePhotoSize} color='gray' style={styles.profilePhoto}/>
+        {(userInfo && userInfo.profilePicURL) ? (
+            <Image source={{ uri: userInfo.profilePicURL }} style={styles.profilePhoto} />
+        ) : (
+            <FontAwesome name="user-circle" size={profilePhotoSize} color='gray' style={styles.profilePhoto} />
+        )}
           <View style={styles.verticalColumn}>
             <Text style={styles.nameText}>{userInfo ? userInfo.fullName : ""}</Text>
             <View style={styles.horizontalRow}>
-              {isCurrentUser ? (
-                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("hi")}>
+              {(isCurrentUser) ? (
+                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("EditProfile", { navigation, userInfo, userInfoCallback })}>
                   <Text style={{ fontSize: 17 }}>Edit profile</Text>
                 </TouchableOpacity>
               ) : (
@@ -95,28 +194,28 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                   buttonWidth={followButtonWidth}
                   buttonHeight={35}
                   fontSize={17}
+                  userInfoCallback={userInfoCallback}
                 />
               )}
-              <Feather name="mail" size={40} style={{marginLeft: 5}}/>
             </View>
           </View>
         </View>
         <View style={styles.statsContainer}>
           <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
-            <Text style={styles.statsNumber}>5</Text>
+            <Text style={styles.statsNumber}>0</Text>
             <Text>Sold</Text>
           </View>
           <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
-            <Text style={styles.statsNumber}>8</Text>
+            <Text style={styles.statsNumber}>0</Text>
             <Text>Purchased</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.followers })}>
+          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.followers, userInfoCallback })}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
               <Text style={styles.statsNumber}>{userInfo ? userInfo.followers.length : 0}</Text>
               <Text>Followers</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.following })}>
+          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.following, userInfoCallback })}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
               <Text style={styles.statsNumber}>{userInfo ? userInfo.following.length : 0}</Text>
               <Text>Following</Text>
@@ -131,9 +230,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
           tabBarIndicatorStyle: { backgroundColor: 'black' }, 
         }}
       >
-          <Tab.Screen name="Listings" component={ListingsTab} />
-          <Tab.Screen name="Bins" component={BinsTab} />
-          <Tab.Screen name="Likes" component={LikedTab} />
+        <Tab.Screen name="Listings">
+          {() => <ListingsTab listingsInfo={listingsInfo} navigation={navigation} />}
+        </Tab.Screen>
+        <Tab.Screen name="Bins">
+          {() => <BinsTab binsInfo={binsInfo} binNames={binNames} navigation={navigation} />}
+        </Tab.Screen>
+        <Tab.Screen name="Likes">
+          {() => <LikedTab likedListingsInfo={likedListingsInfo} navigation={navigation} />}
+        </Tab.Screen>
         </Tab.Navigator>
     </View>
   );
@@ -147,6 +252,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+    paddingTop: 5,
   },
   usernameContainer: {
     flex: 1,
@@ -160,6 +266,7 @@ const styles = StyleSheet.create({
   profilePhoto: {
     height: profilePhotoSize,
     width: profilePhotoSize,
+    borderRadius: profilePhotoSize,
     marginRight: 10,
   },
   verticalColumn: {
@@ -200,8 +307,17 @@ const styles = StyleSheet.create({
   tabContainer: {
     flex: 1,
     backgroundColor: 'white',
+    padding: 5,
+  },
+  centerContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  tabText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: "gray",
   }
 });
 
