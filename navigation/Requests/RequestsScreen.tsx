@@ -1,18 +1,51 @@
-import React from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
+import { AuthContext, fetchAllRequests, fetchFieldsAnyCollection } from "../../database/index";
+
 
 interface RequestsScreenProps {
   navigation: NavigationProp<any>;
 }
 
 const RequestsScreen: React.FC<RequestsScreenProps> = ({ navigation }) => {
+  const [requests, setRequests] = useState<any[]>([]);
+  const [requestDetails, setRequestDetails] = useState<any[]>([]);
+  const currentUserID = useContext(AuthContext).userAuth.uid;
+  
+  //async blocc because renderitem flatlist gets pissed if you async 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch user-specific request IDs
+        const userRequestIDs = (await fetchAllRequests());
+        setRequests(userRequestIDs);
+
+        // Fetch details for each request
+        const details = await Promise.all(userRequestIDs.map(id => fetchFieldsAnyCollection('requests', id)));
+        
+        setRequestDetails(details);
+      } catch (error) {
+        console.error("Error fetching user requests:", error);
+      }
+    };
+
+    fetchData();
+  }, [currentUserID]);
+
   const renderItem = ({ item }: { item: any }) => {
+    // Find the index of the item in the requests array
+    const index = requests.indexOf(item);
+
+    // Retrieve the corresponding requestDetail using the index
+    const requestDetail = requestDetails[index];
+    if (!requestDetail) return null;
+
     return (
       <TouchableOpacity onPress={() => navigation.navigate('RequestListing')}>
         <View style={styles.requestItem}>
-          <Text style={styles.requestTitle}>{"randomItem"}</Text>
-          <Text style={styles.requestText}>{"randomDescription"}</Text>
+          <Text style={styles.requestTitle}>{requestDetail.title}</Text>
+          <Text style={styles.requestText}>{requestDetail.description}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -27,7 +60,7 @@ const RequestsScreen: React.FC<RequestsScreenProps> = ({ navigation }) => {
       <FlatList
         style={styles.flatList}
         contentContainerStyle={styles.flatListContent}
-        data={Array.from({ length: 30 }, (_, index) => index)}
+        data={requests}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
       />

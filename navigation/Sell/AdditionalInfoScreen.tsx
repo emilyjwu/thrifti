@@ -15,16 +15,10 @@ import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import {
-  firestore,
   uploadListing,
   AuthContext,
-  addListingToUser,
 } from "../../database/index";
 import StripeViewModal from "../../components/StripeViewModal";
-
-
-
-
 
 interface ExploreScreenProps {
   navigation: any;
@@ -64,9 +58,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
       listingData.userID = uid;
       listingData.date =
         currentDate.getFullYear() +
-        "-" +
         (currentDate.getMonth() + 1) +
-        "-" +
         currentDate.getDate();
       listingData.imgURL = "";
       listingData.sold = false;

@@ -13,10 +13,10 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
 import {
-  firestore,
+  createRequest,
   AuthContext,
 } from "../../database/index";
-import { addDoc, collection } from "firebase/firestore";
+
 interface CreateRequestProps {
   navigation: any;
 }
@@ -77,7 +77,10 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ navigation }) => {
             />
           </View>
         </View>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('MyRequests')}>
+        <TouchableOpacity style={styles.button} onPress={() => {
+          navigation.navigate('MyRequests')
+          createRequest(uid, listingName, inputValue)
+          }}>
           <Text style={styles.subTitle}> Done </Text>
         </TouchableOpacity>
         <DoneListingModal

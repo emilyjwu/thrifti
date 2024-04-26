@@ -9,10 +9,10 @@ interface FollowButtonProps {
   buttonWidth: number;
   buttonHeight: number;
   fontSize: number;
-  updateUserInfo: () => Promise<void>;
+  userInfoCallback: (updatedInfo: Record<string, any>) => void;
 }
 
-const FollowButton: React.FC<FollowButtonProps> = ({ userID, otherUserID, initialIsFollowing, buttonWidth, buttonHeight, fontSize, updateUserInfo }) => {
+const FollowButton: React.FC<FollowButtonProps> = ({ userID, otherUserID, initialIsFollowing, buttonWidth, buttonHeight, fontSize, userInfoCallback }) => {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [isFollowing, setIsFollowing] = useState<boolean>();
 
@@ -20,24 +20,41 @@ const FollowButton: React.FC<FollowButtonProps> = ({ userID, otherUserID, initia
     setIsFollowing(initialIsFollowing);
   }, [initialIsFollowing]);
 
-  const confirmUnfollow = () => {
+  const confirmUnfollow = async () => {
     setShowConfirmationModal(false);
-    setIsFollowing(!isFollowing);
-    removeFollowerFromUser(otherUserID, userID);
+    setIsFollowing(false);
+    try {
+      const updatedFollowingList = await removeFollowerFromUser(otherUserID, userID);
+      const updatedInfo = {
+        following: updatedFollowingList,
+      };
+      userInfoCallback(updatedInfo);
+    } catch (error) {
+      console.error('Error reomoving follower:', error);
+    }
   };
 
   const cancelUnfollow = () => {
     setShowConfirmationModal(false);
   };
 
-  const handlePress = () => {
+  const handlePress = async () => {
     if (isFollowing) {
-      setShowConfirmationModal(true);
+      setShowConfirmationModal(true); 
     } else {
-      setIsFollowing(!isFollowing);
-      addFollowerToUser(otherUserID, userID);
+      setIsFollowing(true); 
+      try {
+        const updatedFollowingList = await addFollowerToUser(otherUserID, userID);
+        const updatedInfo = {
+          following: updatedFollowingList,
+        };
+        userInfoCallback(updatedInfo);
+      } catch (error) {
+        console.error('Error adding follower:', error);
+      }
     }
   };
+  
 
   return (
     <>
@@ -110,6 +127,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'black', 
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   confirmButton: {
     backgroundColor: 'lightblue',
