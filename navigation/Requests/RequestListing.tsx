@@ -1,34 +1,91 @@
-import * as React from "react";
+import React, { useState, useContext, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { NavigationProp } from "@react-navigation/native";
+import { AuthContext, fetchUserInfo, fetchFieldsAnyCollection } from "../../database/index";
+
 
 interface RequestListingProps {
   navigation: NavigationProp<any>;
+  route: any;
 }
 
-const RequestListing: React.FC<RequestListingProps> = ({ navigation }) => {
+const RequestListing: React.FC<RequestListingProps> = ({ navigation, route }) => {
   // Sample data for demonstration
-  const requestDetails = {
-    name: "Liam Neeson",
-    description:
-      "I don’t know who you are. I don’t know what you want. If you are looking for ransom I can tell you I don’t have money, but what I do have are a very particular set of skills. Skills I have acquired over a very long career. Skills that make me a nightmare for people like you. If you let my daughter go now that’ll be the end of it. I will not look for you, I will not pursue you, but if you don’t, I will look for you, I will find you and I will kill you.",
+  const { requestID } = route.params;
+  const [requestDetail, setRequestDetails] = useState<{ title: string, description: string } | null>(null);
+  const [usersRequestBool, setUsersRequestBool] = useState<boolean>(false);
+  const currentUserID = useContext(AuthContext).userAuth.uid;
+  
+  //async blocc because renderitem flatlist gets pissed if you async 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        interface RequestDetails {
+          title: string;
+          description: string;
+        }
+        const details = await fetchFieldsAnyCollection('requests', requestID) as RequestDetails;
+        const { title, description } = details; // Destructuring to extract title and description
+        setRequestDetails({ title, description }); // Setting details with only title and description     
+          // fetch the current user's request lists
+        const userRequestIDs = (await fetchUserInfo(currentUserID)).requestIDs;
+          // if the id is present in the user's request id's, isPresent == true
+        const isPresentinit: boolean = userRequestIDs.includes(requestID);
+        setUsersRequestBool(isPresentinit);
+        
+      } catch (error) {
+        console.error("Error fetching user requests:", error);
+      }
+    };
+
+    fetchData();
+  }, [currentUserID]);
+
+  const renderItem = ({ item }: { item: any }) => {
+    
+
+    return (
+      <TouchableOpacity onPress={() => navigation.navigate('RequestListing')}>
+        <View style={styles.container}>
+          <Text style={styles.title}>{requestDetail.title}</Text>
+          <Text style={styles.description}>{requestDetail.description}</Text>
+        </View>
+      </TouchableOpacity>
+    );
   };
 
   const handleMessaging = () => {
     // Handle messaging functionality here
-    // For demonstration, you can navigate to a messaging screen
+    // get chat data to send to chat window
+    const formatDate = (chat) => {
+
+      const messageDate = chat.date.toDate();
+      if (!messageDate) {
+        return 'Date not available';
+      }
+      const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  
+      return formattedDate;
+  
+    }
+    
     navigation.navigate("Message");
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.name}>{requestDetails.name}</Text>
-      <Text style={styles.description}>{requestDetails.description}</Text>
+      {requestDetail && ( // Conditionally render if requestDetail is not null
+        <>
+          <Text style={styles.title}>{requestDetail.title}</Text>
+          <Text style={styles.description}>{requestDetail.description}</Text>
+        </>
+      )}
       <TouchableOpacity onPress={handleMessaging} style={styles.button}>
         <Text style={styles.buttonText}>Message</Text>
       </TouchableOpacity>
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({
@@ -37,7 +94,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
   },
-  name: {
+  title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,

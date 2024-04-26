@@ -614,7 +614,7 @@ export const removeLikedListing = async (
 const addRequestToUser = async (userID: string, requestID: string) => {
   const docRef = doc(firestore, "users", userID);
   updateDoc(docRef, {
-    requests: arrayUnion(requestID),
+    requestIDs: arrayUnion(requestID),
   })
     .then(() => {
       console.log("Request added to the requests successfully!");
@@ -727,6 +727,17 @@ export const createRequest = async (
     addRequestToUser(userID, docRef.id);
   } catch (error) {
     console.error("Problem creating request: " + error);
+  }
+};
+
+export const fetchAllRequests = async () => {
+  try {
+    const querySnapshot = await getDocs(collection(firestore, "requests"));
+    const ids = querySnapshot.docs.map((doc) => doc.id);
+    return ids;
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+    return [];
   }
 };
 
