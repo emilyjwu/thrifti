@@ -13,7 +13,7 @@ const totalMarginSpace = marginHorizontal / numColumns;
 
 interface ListingScrollProps {
     navigation: NavigationProp<any>;
-    binItemsInfo: BinItemInfo[]; 
+    binItemsInfo: BinItemInfo[];
 }
 
 const ListingScroll: React.FC<ListingScrollProps> = ({ navigation, binItemsInfo }) => {
@@ -79,12 +79,12 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         width: itemWidth,
         height: itemWidth,
-        justifyContent: "center", 
-        alignItems: "center", 
+        justifyContent: "center",
+        alignItems: "center",
       },
       image: {
         flex: 1,
-        width: "100%", 
+        width: "100%",
         height: "100%",
         borderRadius: 10,
         resizeMode: "cover",
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
       },
     itemContainer: {
         marginBottom: 7,
-        alignItems: 'flex-start', 
+        alignItems: 'flex-start',
     },
     contentContainer: {
         flex: 1,

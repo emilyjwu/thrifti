@@ -13,8 +13,11 @@ import {
   fetchAllBins,
   fetchBinItemsInfo,
   fetchBinName,
+  auth
 } from "../../database";
 import { usePostHog } from "posthog-react-native";
+const currentUser = auth?.currentUser;
+const currentUserID = currentUser?.uid;
 
 interface MixedFeedProps {
   navigation: NavigationProp<any>;
@@ -218,11 +221,12 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
     const fetchData = async () => {
       try {
         const bins = await fetchAllBins();
-        const binsInfoArray: BinItemInfo[][] = await Promise.all(
-          bins.map(async (bin) => {
-            return await fetchBinItemsInfo(bin);
-          })
-        );
+        const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
+          let binItems = await fetchBinItemsInfo(bin);
+          binItems = binItems.filter(binItem => binItem.userID !== currentUserID);
+          binItems = binItems.filter(binItem => binItem.sold !== true);
+          return binItems;
+      }));
         setBinsInfo(binsInfoArray);
       } catch (error) {
         console.error("Error fetching bin items info:", error);

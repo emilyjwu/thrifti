@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, Text, View, StyleSheet, FlatList, Dimensions, Image, ScrollView } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
-import { fetchAllBins, fetchBinItemsInfo, BinItemInfo, fetchBinName } from "../../database/index";
+import { fetchAllBins, fetchBinItemsInfo, BinItemInfo, fetchBinName, auth } from "../../database/index";
 import IconWithBackground from "../../components/IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,6 +10,8 @@ import ListingScroll from '../../components/ListingScroll';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BinScroll from '../../components/BinScroll';
+
+
 
 
 interface FilteredFeedProps {
@@ -23,6 +25,9 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
     const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
     const [binNames, setBinNames] = useState<string[]>([]);
     const [isBinsView, setIsBinsView] = useState(true);
+    const currentUser = auth?.currentUser;
+    const currentUserID = currentUser?.uid;
+
 
     const posthog = usePostHog();
 
@@ -35,13 +40,22 @@ const FilteredFeed: React.FC<FilteredFeedProps> = ({ navigation }) => {
     };
 
 
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const bins = await fetchAllBins();
                 const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
-                    return await fetchBinItemsInfo(bin);
+                    // Fetch bin items info
+                    let binItems = await fetchBinItemsInfo(bin);
+                    // Filter out items where userID matches current auth/uid
+                    binItems = binItems.filter(binItem => binItem.sold !== true);
+                    //filter out sold items
+                    binItems = binItems.filter(binItem => binItem.userID !== currentUserID);
+                    return binItems;
                 }));
+
                 setBinsInfo(binsInfoArray);
 
                 const binNamesArray: string[] = await Promise.all(bins.map(async (bin) => {

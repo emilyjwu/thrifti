@@ -46,8 +46,8 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
             <Ionicons name="search" size={30} color="black" />
           </TouchableOpacity>
         </View>
-        <FilteredFeed navigation={navigation} />
-        {/* <MixedFeed navigation={navigation} /> */}
+        {/* <FilteredFeed navigation={navigation} /> */}
+        <MixedFeed navigation={navigation} />
     </View>
   );
 };
