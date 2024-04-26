@@ -1,8 +1,14 @@
 import * as React from "react";
-import { useState, useContext } from "react";
-import { View, TextInput, Button, StyleSheet, TouchableOpacity } from "react-native";
+import { useState, useContext, useEffect } from "react";
+import {
+  View,
+  TextInput,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { AuthContext } from "../../database/index";
-
+import { usePostHog } from "posthog-react-native";
 import MixedFeed from "./MixedFeed";
 import FilteredFeed from "./FilteredFeed";
 import { searchKListings } from "../../search/search";
@@ -16,6 +22,30 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const uid = useContext(AuthContext).userAuth.uid;
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+  const email = useContext(AuthContext).userAuth.email;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Explore Screen", { timeSpent, email });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   const handleSearch = async () => {
     if (searchQuery.trim() !== "") {
@@ -34,20 +64,20 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.textAreaContainer}>
-          <TextInput
-            style={styles.textArea}
-            underlineColorAndroid="transparent"
-            placeholderTextColor="grey"
-            placeholder="Start shopping..."
-            onChangeText={(text) => setSearchQuery(text)}
-            value={searchQuery}
-          />
-          <TouchableOpacity onPress={handleSearch}>
-            <Ionicons name="search" size={30} color="black" />
-          </TouchableOpacity>
-        </View>
-        <FilteredFeed navigation={navigation} />
-        {/* <MixedFeed navigation={navigation} /> */}
+        <TextInput
+          style={styles.textArea}
+          underlineColorAndroid="transparent"
+          placeholderTextColor="grey"
+          placeholder="Start shopping..."
+          onChangeText={(text) => setSearchQuery(text)}
+          value={searchQuery}
+        />
+        <TouchableOpacity onPress={handleSearch}>
+          <Ionicons name="search" size={30} color="black" />
+        </TouchableOpacity>
+      </View>
+      <FilteredFeed navigation={navigation} />
+      {/* <MixedFeed navigation={navigation} /> */}
     </View>
   );
 };
