@@ -23,20 +23,25 @@ const ListingScroll: React.FC<ListingScrollProps> = ({ navigation, binItemsInfo,
     const renderListing = ({ item , index}) => {
         const isLastInRow = (index + 1) % numColumns === 0;
         const marginRight = isLastInRow ? 0 : totalMarginSpace;
-        console.log(item.boosted);
 
         return (
             <View style={[styles.itemContainer, { width: itemWidth, marginRight }]}>
                 <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo: item })}>
                     {item.imageUri ? (
                         <View style={styles.imageContainer}>
-                            <Image source={{ uri: item.imageUri }} style={styles.image}/>
-                            {item.sold && (
-                                <>
-                                    <View style={[styles.imageOverlay]}/>
-                                    <Text style={styles.soldText}>SOLD</Text>
-                                </>
-                            )}
+                        <Image source={{ uri: item.imageUri }} style={styles.image}/>
+                        {(item.sold || (item.boosted && isCurrentUser)) && (
+                            <>
+                                {item.sold ? (
+                                    <>
+                                        <View style={styles.imageOverlay}/>
+                                        <Text style={styles.soldText}>SOLD</Text>
+                                    </>
+                                ) : (
+                                    <EntypoIcon style={styles.boostedIcon} name="flash" size={24} color="white" />
+                                )}
+                            </>
+                        )}
                         </View>
                     ) : (
                         <View style={styles.itemContainer}>
@@ -102,6 +107,9 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
         color: "white",
+        position: "absolute",
+    },
+    boostedIcon: {
         position: "absolute",
     },
     itemContainer: {
