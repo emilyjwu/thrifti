@@ -7,12 +7,20 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert
 } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
-import { useRoute } from "@react-navigation/native";
-import { uploadListing, AuthContext } from "../../database/index";
-import DoneListingModal from "../../components/DoneListingModal";
 import { usePostHog } from "posthog-react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import DoneListingModal from "../../components/DoneListingModal";
+import { setStatusBarBackgroundColor } from "expo-status-bar";
+import EntypoIcon from "react-native-vector-icons/Entypo";
+import {
+  uploadListing,
+  AuthContext,
+} from "../../database/index";
+import StripeViewModal from "../../components/StripeViewModal";
+
 interface ExploreScreenProps {
   navigation: any;
 }
@@ -26,7 +34,11 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const route = useRoute();
   const { selectedBin, listingData, imageUri } = route.params;
   const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [isStripeVisible, setIsStripeVisible] = React.useState(false);
   const uid = useContext(AuthContext).userAuth.uid;
+  const [isBoosted, setIsBoosted] = useState(false);
+
+
   const currentDate = new Date();
   const [startTime, setStartTime] = useState(Date.now());
   const posthog = usePostHog();
@@ -74,6 +86,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         currentDate.getDate();
       listingData.imgURL = "";
       listingData.sold = false;
+      listingData.boosted = isBoosted;
       if ((await uploadListing(imageUri, listingData)) == 400) {
         console.log("Unable to store image.");
         return;
@@ -84,7 +97,21 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   const closeModal = () => {
     setIsModalVisible(false);
+    setIsStripeVisible(false);
   };
+
+  const updateIsBoosted = (boosted) => {
+    setIsBoosted(boosted);
+  };
+
+
+
+
+  const handleBoostPress = async () => {
+    setIsStripeVisible(true);
+  };
+
+
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -151,6 +178,10 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
               }}
             />
           </View>
+          <TouchableOpacity style={styles.boostButton} onPress={handleBoostPress}>
+            <EntypoIcon name="flash" size={20} color="white" />
+            <Text style={styles.buttonText}>Boost</Text>
+        </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.button} onPress={onDonePress}>
           <Text style={styles.subTitle}> Done </Text>
@@ -159,6 +190,11 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
           isVisible={isModalVisible}
           onClose={closeModal}
           selectedBin={selectedBin}
+        />
+        <StripeViewModal
+          isVisible={isStripeVisible}
+          onClose={closeModal}
+          updateIsBoosted={updateIsBoosted}
         />
       </View>
     </TouchableWithoutFeedback>
@@ -220,8 +256,27 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: "lightblue",
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
     borderRadius: 5,
+  },
+  boostButton: {
+    flexDirection: 'row',
+    // backgroundColor: "lightblue",
+    backgroundColor: '#007bff',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+    maxWidth: 100,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white', // Text color
+    marginLeft: 5, // Space between icon and text
+    fontSize: 20, // Font size
+    fontWeight: "bold",
+
   },
 });
 
