@@ -15,7 +15,7 @@ const followButtonWidth = screenWidth * 0.4;
 const profilePhotoSize = 55;
 
 const UserList: React.FC<UserListProps> = ({navigation, route}) => {
-  const { userIDList } = route.params;
+  const { userIDList, userInfoCallback } = route.params;
   const { currentUserID } = useContext(AuthContext);
   const [userInfoList, setUserInfoList] = useState<BasicUserInfo[]>([]);
   const [initialIsFollowing, setInitialIsFollowing] = useState<boolean[]>([]);
@@ -25,7 +25,7 @@ const UserList: React.FC<UserListProps> = ({navigation, route}) => {
       try {
         const userPromises = userIDList.map(userID => fetchBasicUserInfo(userID)); 
         const userList = await Promise.all(userPromises); 
-        setUserInfoList(userList.filter(user => user)); 
+        setUserInfoList(userList); 
 
         const isFollowingPromises = userIDList.map(userID => isFollowingUser(currentUserID, userID));
         const isFollowingValues = await Promise.all(isFollowingPromises);
@@ -62,6 +62,7 @@ const UserList: React.FC<UserListProps> = ({navigation, route}) => {
           buttonWidth={followButtonWidth}
           buttonHeight={30}
           fontSize={15}
+          userInfoCallback={userInfoCallback}
         />
       </View>
     );
@@ -73,7 +74,7 @@ const UserList: React.FC<UserListProps> = ({navigation, route}) => {
       <FlatList 
         data={userInfoList} 
         renderItem={renderUserItem} 
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.userID}
       />
       </View>
     </View>

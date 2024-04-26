@@ -8,8 +8,10 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import FollowButton from '../../components/FollowButton';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { AuthContext, BinItemInfo, fetchUserInfo, fetchUserListings, isFollowingUser, UserInfo } from "../../database/index";
+import { AuthContext, BinItemInfo, fetchBinItemsInfo, fetchBinName, fetchUserInfo, fetchUserListings, isFollowingUser, UserInfo } from "../../database/index";
 import ListingScroll from '../../components/ListingScroll';
+import BinScroll from '../../components/BinScroll';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 interface ProfileScreenProps {
@@ -20,6 +22,8 @@ interface ProfileScreenProps {
 const screenWidth = Dimensions.get('window').width;
 const profilePhotoSize = screenWidth * 0.3;
 const followButtonWidth = screenWidth * 0.6;
+const windowWidth = Dimensions.get('window').width;
+const itemWidth = (windowWidth - 40) / 3;
 
 
 const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
@@ -30,6 +34,8 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [listingsInfo, setListingsInfo] = useState<BinItemInfo[]>([]);
   const [likedListingsInfo, setLikedListingsInfo] = useState<BinItemInfo[]>([]);
+  const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
+  const [binNames, setBinNames] = useState<string[]>([]);
 
 
   const Tab = createMaterialTopTabNavigator();
@@ -86,23 +92,29 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     );
   };
 
-  const BinsTab = () => (
+  const BinsTab: React.FC<any> = ({ binsInfo, binNames, navigation }) => (
     <View style={styles.tabContainer}>
-      <View style={styles.centerContainer}>
-        {isCurrentUser ? (
-          <>
-            <Text style={styles.tabText}>No bins yet</Text>
-            <Text style={styles.tabText}>
-              Tap on <Ionicons name="pricetags-outline" size={20} color="gray" /> to get started!
-            </Text>
-          </>
-        ) : (
-          <>
-            <Text style={styles.tabText}>No bins yet</Text>
-            <FontAwesome5Icon name="box-open" size={80} color="gray" />
-          </>
-        )}
-      </View>
+      {binsInfo.length ? (
+        <ScrollView>
+          <BinScroll binsInfo={binsInfo} binNames={binNames} navigation={navigation} itemWidth={itemWidth}/>
+        </ScrollView>
+      ) : (
+        <View style={styles.centerContainer}>
+          {isCurrentUser ? (
+            <>
+              <Text style={styles.tabText}>No bins yet</Text>
+              <Text style={styles.tabText}>
+                Tap on <Ionicons name="pricetags-outline" size={20} color="gray" /> to get started!
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text style={styles.tabText}>No bins yet</Text>
+              <FontAwesome5Icon name="box-open" size={80} color="gray" />
+            </>
+          )}
+        </View>
+      )}
     </View>
   );
 
@@ -118,6 +130,15 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
 
         const likedListingInfo = await fetchUserListings(user.likedListings);
         setLikedListingsInfo(likedListingInfo);
+
+        const binsInfoArray: BinItemInfo[][] = await Promise.all(user.binIDs.map(async (bin) => {
+          return await fetchBinItemsInfo(bin);
+        }));
+        setBinsInfo(binsInfoArray);
+          const binNamesArray: string[] = await Promise.all(user.binIDs.map(async (bin) => {
+            return await fetchBinName(bin);
+        }));
+        setBinNames(binNamesArray);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -134,7 +155,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     checkFollowing();
   }, []);
 
-  const finishEditProfile = (updatedFields) => {
+  const userInfoCallback = (updatedFields) => {
       setUserInfo(prevUserInfo => ({
         ...prevUserInfo,
         ...updatedFields
@@ -162,7 +183,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
             <Text style={styles.nameText}>{userInfo ? userInfo.fullName : ""}</Text>
             <View style={styles.horizontalRow}>
               {(isCurrentUser) ? (
-                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("EditProfile", { navigation, userInfo, finishEditProfile })}>
+                <TouchableOpacity style={styles.editProfileButton} onPress={()=>navigation.navigate("EditProfile", { navigation, userInfo, userInfoCallback })}>
                   <Text style={{ fontSize: 17 }}>Edit profile</Text>
                 </TouchableOpacity>
               ) : (
@@ -173,6 +194,7 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
                   buttonWidth={followButtonWidth}
                   buttonHeight={35}
                   fontSize={17}
+                  userInfoCallback={userInfoCallback}
                 />
               )}
             </View>
@@ -187,13 +209,13 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
             <Text style={styles.statsNumber}>0</Text>
             <Text>Purchased</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.followers })}>
+          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.followers, userInfoCallback })}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
               <Text style={styles.statsNumber}>{userInfo ? userInfo.followers.length : 0}</Text>
               <Text>Followers</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.following })}>
+          <TouchableOpacity onPress={() => navigation.navigate("UserList", { userIDList: userInfo.following, userInfoCallback })}>
             <View style={[styles.verticalColumn, {alignItems: 'center'}]}>
               <Text style={styles.statsNumber}>{userInfo ? userInfo.following.length : 0}</Text>
               <Text>Following</Text>
@@ -211,7 +233,9 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
         <Tab.Screen name="Listings">
           {() => <ListingsTab listingsInfo={listingsInfo} navigation={navigation} />}
         </Tab.Screen>
-        <Tab.Screen name="Bins" component={BinsTab} />
+        <Tab.Screen name="Bins">
+          {() => <BinsTab binsInfo={binsInfo} binNames={binNames} navigation={navigation} />}
+        </Tab.Screen>
         <Tab.Screen name="Likes">
           {() => <LikedTab likedListingsInfo={likedListingsInfo} navigation={navigation} />}
         </Tab.Screen>

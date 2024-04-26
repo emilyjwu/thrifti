@@ -19,7 +19,7 @@ interface EditProfileProps {
 
 const EditProfile: React.FC<EditProfileProps> = ({ navigation, route }) => {
     const { currentUserID } = useContext(AuthContext);
-    const { userInfo, finishEditProfile } = route.params;
+    const { userInfo, userInfoCallback } = route.params;
     const [profilePicUri, setProfilePicUri] = useState(userInfo.profilePicURL);
     const [name, setName] = useState(userInfo.fullName);
     const [bio, setBio] = useState(userInfo.bio);
@@ -51,7 +51,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation, route }) => {
             };
             await updateUserInfo(currentUserID, updatedInfo);
             setIsModalVisible(true);
-            finishEditProfile(updatedInfo);
+            userInfoCallback(updatedInfo);
         } catch (error) {
             console.error("Error updating profile: ", error);
         }
@@ -87,9 +87,13 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation, route }) => {
             </View>
             <View style={[styles.rowContainer, { marginBottom: 25 }]}>
             <View style={styles.column}>
-                    <Text style={styles.fieldTitle}>Joined</Text>
-                </View>
-                <Text>{userInfo ? userInfo.joinedDate : "Date"}</Text>
+                <Text style={styles.fieldTitle}>Joined</Text>
+            </View>
+            <Text>
+            {userInfo
+            ? new Date(userInfo.joinedDate).toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'})
+            : 'Date'}
+            </Text>
             </View>
             <Text style={styles.title}>About me</Text>
             <View style={styles.rowContainer}>
@@ -139,14 +143,13 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: 10,
     },
-        profilePhoto: {
+    profilePhoto: {
         height: profilePhotoSize,
         width: profilePhotoSize,
         borderRadius: profilePhotoSize,
     },
     rowContainer: {
         flexDirection: "row",
-        // backgroundColor: "pink",
         alignItems: "center",
         paddingVertical: 7,
     },
@@ -159,7 +162,6 @@ const styles = StyleSheet.create({
     },
     fieldTitle: {
         fontSize: 15,
-        // fontWeight: "bold",
     },
     input: {
         flex: 1,

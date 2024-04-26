@@ -491,32 +491,33 @@ export const isFollowingUser = async (
 
 /**
  * Add follower to follower list
- *
- * @param userID the user to follow
+ * 
+ * @param userID userID the user to follow
  * @param followerID the user following that user
+ * @returns the updated following list of the follower
  */
-export const addFollowerToUser = async (userID: string, followerID: string) => {
-  const userDoc = doc(firestore, "users", userID);
-  updateDoc(userDoc, {
-    followers: arrayUnion(followerID),
-  })
-    .then(() => {
-      console.log("Item added to followers successfully!");
+export const addFollowerToUser = async (userID: string, followerID: string): Promise<string[]> => {
+  try {
+    const userDoc = doc(firestore, "users", userID);
+    updateDoc(userDoc, {
+      followers: arrayUnion(followerID),
     })
-    .catch((error) => {
-      console.error("Error adding user to followers: ", error);
-    });
 
-  const followerDoc = doc(firestore, "users", followerID);
-  updateDoc(followerDoc, {
-    following: arrayUnion(userID),
-  })
-    .then(() => {
-      console.log("Following user added successfully!");
+    const followerDoc = doc(firestore, "users", followerID);
+    updateDoc(followerDoc, {
+      following: arrayUnion(userID),
     })
-    .catch((error) => {
-      console.error("Error adding user to the following: ", error);
-    });
+
+    console.log("Follower added successfully!");
+
+    const followingSnapshot = await getDoc(followerDoc);
+    const followingData = followingSnapshot.data();
+    const updatedFollowingList: string[] = followingData?.following || [];
+    return updatedFollowingList;
+  } catch (error) {
+    console.error("Error adding follower to user:", error);
+    throw error; 
+  }
 };
 
 /**
@@ -525,28 +526,27 @@ export const addFollowerToUser = async (userID: string, followerID: string) => {
  * @param userID the user to unfollow
  * @param followerID the user unfollowing that user
  */
-export const removeFollowerFromUser = async (
-  userID: string,
-  followerID: string
-) => {
-  const userDoc = doc(firestore, "users", userID);
+export const removeFollowerFromUser = async (userID: string, followerID: string): Promise<string[]> => {
   try {
-    await updateDoc(userDoc, {
+    const userDoc = doc(firestore, "users", userID);
+    updateDoc(userDoc, {
       followers: arrayRemove(followerID),
     });
-    console.log("User unfollowed successfully!");
-  } catch (error) {
-    console.error("Error unfollowing user: ", error);
-  }
 
-  const followerDoc = doc(firestore, "users", followerID); // Corrected followerDoc
-  try {
-    await updateDoc(followerDoc, {
+    const followerDoc = doc(firestore, "users", followerID);
+    updateDoc(followerDoc, {
       following: arrayRemove(userID),
     });
+
     console.log("Follower removed successfully!");
+
+    const followingSnapshot = await getDoc(followerDoc);
+    const followingData = followingSnapshot.data();
+    const updatedFollowingList: string[] = followingData?.following || [];
+    return updatedFollowingList;
   } catch (error) {
-    console.error("Error removing follower: ", error);
+    console.error("Error removing follower from user:", error);
+    throw error; 
   }
 };
 
