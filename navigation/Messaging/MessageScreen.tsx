@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView} 
 import { NavigationProp } from '@react-navigation/native';
 import IconWithBackground from '../../components/IconWithBackground';
 import EntypoIcon from "react-native-vector-icons/Entypo";
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { getChats } from '../../database/messaging';
 import {auth} from '../../database/index';
 
@@ -119,9 +120,9 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         ))
       ) : (
-        <View>
-          <Text style={styles.defaultText}>No chats available</Text>
-          {/* You can customize the default view further as needed */}
+        <View style={styles.defaultContainer}>
+          <Text style={styles.defaultText}>Your inbox is empty!</Text>
+          <MaterialIcons name="mailbox-outline" size={80} color="gray"/>
         </View>
       )}
     </ScrollView>
@@ -175,6 +176,11 @@ const styles = StyleSheet.create({
   },
   clickedContainer: {
     opacity: 0.5,
+  },
+  defaultContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   defaultText: {
     fontSize: 20,

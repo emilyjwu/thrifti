@@ -52,7 +52,7 @@ const MessageStack = ({ navigation }) => (
     <Stack.Screen
       name="Messages"
       component={MessageScreen}
-      options={{ headerShown: false }}
+      options={{ headerShown: true }}
     />
      <Stack.Screen
       name="Chat"
@@ -268,7 +268,7 @@ const MainContainer: React.FC = () => {
           <Tab.Screen name="Request" component={RequestStack} />
           <Tab.Screen name="Sell" component={SellStack} />
           <Tab.Screen name="Explore" component={ExploreStack} />
-          <Tab.Screen name="Message" component={MessageStack} />
+          <Tab.Screen name="Message" component={MessageStack} options={{ headerShown: false }}/>
           <Tab.Screen name="Profile" component={ProfileStack} />
         </Tab.Navigator>
         </PostHogProvider>
