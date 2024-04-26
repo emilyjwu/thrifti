@@ -56,19 +56,36 @@ const RequestListing: React.FC<RequestListingProps> = ({ navigation, route }) =>
 
   const handleMessaging = () => {
     // Handle messaging functionality here
-    // For demonstration, you can navigate to a messaging screen
+    // get chat data to send to chat window
+    const formatDate = (chat) => {
+
+      const messageDate = chat.date.toDate();
+      if (!messageDate) {
+        return 'Date not available';
+      }
+      const formattedDate = `${messageDate.toDateString()} ${messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  
+      return formattedDate;
+  
+    }
+    
     navigation.navigate("Message");
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{requestDetail.title}</Text>
-      <Text style={styles.description}>{requestDetail.description}</Text>
+      {requestDetail && ( // Conditionally render if requestDetail is not null
+        <>
+          <Text style={styles.title}>{requestDetail.title}</Text>
+          <Text style={styles.description}>{requestDetail.description}</Text>
+        </>
+      )}
       <TouchableOpacity onPress={handleMessaging} style={styles.button}>
         <Text style={styles.buttonText}>Message</Text>
       </TouchableOpacity>
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({
