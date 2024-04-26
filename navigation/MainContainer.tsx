@@ -39,7 +39,6 @@ const profileName = "Profile";
 const loginName = "LoginScreen";
 const signupName = "SignupScreen";
 
-
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -54,7 +53,7 @@ const MessageStack = ({ navigation }) => (
       component={MessageScreen}
       options={{ headerShown: true }}
     />
-     <Stack.Screen
+    <Stack.Screen
       name="Chat"
       component={Chat}
       options={{ headerShown: false }}
@@ -197,7 +196,6 @@ const TutorialStack = ({ setIsLoggedIn }) => {
   // thought this should include Login and Signup but did not know how
 };
 
-
 const MainContainer: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
@@ -231,46 +229,49 @@ const MainContainer: React.FC = () => {
     return (
       <NavigationContainer>
         <PostHogProvider client={posthog}>
-        <Tab.Navigator
-          initialRouteName={exploreName}
-          screenOptions={({ route }) => {
-            const iconMappings = {
-              [exploreName]: { icon: "home", library: Ionicons },
-              [sellName]: { icon: "pricetags", library: Ionicons },
-              [messageName]: { icon: "chatbubble", library: Ionicons },
-              [requestName]: { icon: "help-circle", library: Ionicons },
-              [profileName]: { icon: "person-circle", library: Ionicons },
-            };
+          <Tab.Navigator
+            initialRouteName={exploreName}
+            screenOptions={({ route }) => {
+              const iconMappings = {
+                [exploreName]: { icon: "home", library: Ionicons },
+                [sellName]: { icon: "pricetags", library: Ionicons },
+                [messageName]: { icon: "chatbubble", library: Ionicons },
+                [requestName]: { icon: "help-circle", library: Ionicons },
+                [profileName]: { icon: "person-circle", library: Ionicons },
+              };
 
-            const getTabIcon = (routeName, focused, size, color) => {
-              const { icon, library } = iconMappings[routeName] || {};
-              if (icon && library) {
-                const IconComponent = library;
-                const iconName = focused ? icon : `${icon}-outline`;
-                return <IconComponent name={iconName} size={size} color={color} />;
-              }
-              return null;
-            };
+              const getTabIcon = (routeName, focused, size, color) => {
+                const { icon, library } = iconMappings[routeName] || {};
+                if (icon && library) {
+                  const IconComponent = library;
+                  const iconName = focused ? icon : `${icon}-outline`;
+                  return (
+                    <IconComponent name={iconName} size={size} color={color} />
+                  );
+                }
+                return null;
+              };
 
-            return {
-              tabBarIcon: ({ focused, color, size }) => getTabIcon(route.name, focused, size, color),
-              tabBarStyle: {
-                height: 100,
-                paddingVertical: 5,
-                paddingHorizontal: 10,
-              },
-              tabBarActiveTintColor: "black",
-              tabBarInactiveTintColor: "gray",
-              tabBarLabelStyle: { fontSize: 10, paddingBottom: 10 },
-            };
-          }}
-        >
-          <Tab.Screen name="Request" component={RequestStack} />
-          <Tab.Screen name="Sell" component={SellStack} />
-          <Tab.Screen name="Explore" component={ExploreStack} />
-          <Tab.Screen name="Message" component={MessageStack} options={{ headerShown: false }}/>
-          <Tab.Screen name="Profile" component={ProfileStack} />
-        </Tab.Navigator>
+              return {
+                tabBarIcon: ({ focused, color, size }) =>
+                  getTabIcon(route.name, focused, size, color),
+                tabBarStyle: {
+                  height: 100,
+                  paddingVertical: 5,
+                  paddingHorizontal: 10,
+                },
+                tabBarActiveTintColor: "black",
+                tabBarInactiveTintColor: "gray",
+                tabBarLabelStyle: { fontSize: 10, paddingBottom: 10 },
+              };
+            }}
+          >
+            <Tab.Screen name="Request" component={RequestStack} />
+            <Tab.Screen name="Sell" component={SellStack} />
+            <Tab.Screen name="Explore" component={ExploreStack} />
+            <Tab.Screen name="Message" component={MessageStack} options={{ headerShown: false }}/>
+            <Tab.Screen name="Profile" component={ProfileStack} />
+          </Tab.Navigator>
         </PostHogProvider>
       </NavigationContainer>
     );

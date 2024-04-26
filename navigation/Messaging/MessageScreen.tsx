@@ -61,7 +61,6 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
             binId: chatData[key]?.userInfo?.binId,
             userId: chatData[key]?.userInfo?.uid,
             seller: chatData[key]?.userInfo?.seller,
-
           }));
           // Sort the array by date in descending order
           const sortedChats = chatArray.sort((a, b) => (b.date || 0) - (a.date || 0));
@@ -80,9 +79,10 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   }, [currentUser]);
 
   return (
-    <ScrollView style={styles.container}>
+    <>
       {chatData.length > 0 ? (
         chatData.map((chat) => (
+          <ScrollView style={styles.container}>
           <TouchableOpacity
             style={[styles.messageContainer, clicked === chat.id && styles.clickedContainer]}
             key={chat.id}
@@ -118,6 +118,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
               </View>
             )}
           </TouchableOpacity>
+          </ScrollView>
         ))
       ) : (
         <View style={styles.defaultContainer}>
@@ -125,7 +126,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
           <MaterialIcons name="mailbox-outline" size={80} color="gray"/>
         </View>
       )}
-    </ScrollView>
+    </>
   );
 };
 
@@ -181,6 +182,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'white',
   },
   defaultText: {
     fontSize: 20,

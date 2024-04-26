@@ -218,6 +218,7 @@ export interface BinItemInfo {
   sold: boolean;
   tags: string[];
   userID: string;
+  boosted: boolean;
 }
 
 export const fetchBinItemsInfo = async (
@@ -244,6 +245,7 @@ export const fetchBinItemsInfo = async (
           sold: data.sold,
           tags: data.tags,
           userID: data.userID,
+          boosted: data.boosted
         };
       }
     );
@@ -277,6 +279,7 @@ export const fetchUserListings = async (listingIDs: string[]): Promise<BinItemIn
             sold: data.sold,
             tags: data.tags,
             userID: data.userID,
+            boosted: data.boosted,
           };
         } else {
           console.log(`No document found with ID ${listingID}`);

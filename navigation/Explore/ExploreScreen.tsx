@@ -64,20 +64,20 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.textAreaContainer}>
-        <TextInput
-          style={styles.textArea}
-          underlineColorAndroid="transparent"
-          placeholderTextColor="grey"
-          placeholder="Start shopping..."
-          onChangeText={(text) => setSearchQuery(text)}
-          value={searchQuery}
-        />
-        <TouchableOpacity onPress={handleSearch}>
-          <Ionicons name="search" size={30} color="black" />
-        </TouchableOpacity>
-      </View>
-      <FilteredFeed navigation={navigation} />
-      {/* <MixedFeed navigation={navigation} /> */}
+          <TextInput
+            style={styles.textArea}
+            underlineColorAndroid="transparent"
+            placeholderTextColor="grey"
+            placeholder="Start shopping..."
+            onChangeText={(text) => setSearchQuery(text)}
+            value={searchQuery}
+          />
+          <TouchableOpacity onPress={handleSearch}>
+            <Ionicons name="search" size={30} color="black" />
+          </TouchableOpacity>
+        </View>
+        {/* <FilteredFeed navigation={navigation} /> */}
+        <MixedFeed navigation={navigation} />
     </View>
   );
 };

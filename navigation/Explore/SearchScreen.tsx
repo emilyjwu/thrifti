@@ -89,10 +89,10 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
     padding: 10,
+    backgroundColor: "white",
   },
   item: {
-    width: "48%", // Adjust as needed based on your design
-    marginBottom: 10,
+    width: "50%", 
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#ccc",
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
   image: {
     width: 100,
     height: 100,
+    borderRadius: 10,
     marginBottom: 5,
   },
 });
