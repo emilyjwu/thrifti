@@ -7,15 +7,19 @@ import {
   Button,
   Modal,
   TouchableOpacity,
-  Alert
+  Alert,
 } from "react-native";
 import FontAwesome5Icon from "react-native-vector-icons/FontAwesome5";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { StripeProvider, CardField, useConfirmPayment } from "@stripe/stripe-react-native";
+import {
+  StripeProvider,
+  CardField,
+  useConfirmPayment,
+} from "@stripe/stripe-react-native";
 
 // const API_URL = "http://localhost:3000";
 // const API_URL = "http://143.215.94.26:3000";
-const API_URL = "http://143.215.94.26:3000";
+const API_URL = "https://lgastaldi-2003-kreubhtdsa-uc.a.run.app";
 
 interface StripeViewModalProps {
   isVisible: boolean;
@@ -26,108 +30,92 @@ const StripeViewModal: React.FC<StripeViewModalProps> = ({
   isVisible,
   onClose,
 }) => {
-
   const handleClose = () => {
     onClose();
   };
 
-
   const navigation = useNavigation();
   const [cardDetails, setCardDetails] = useState();
-  const {confirmPayment, loading} = useConfirmPayment();
-  const[email, setEmail] = useState("");
+  const { confirmPayment, loading } = useConfirmPayment();
+  const [email, setEmail] = useState("");
 
   const fetchPaymentIntentClientSecret = async () => {
     const response = await fetch(`${API_URL}/create-payment-intent`, {
       method: "POST",
-      headers : {
+      headers: {
         "Content-Type": "application/json",
       },
-  });
-  const {clientSecret, error} = await response.json();
-  return {clientSecret, error};
-}
+    });
+    const { clientSecret, error } = await response.json();
+    return { clientSecret, error };
+  };
 
-
-
-
-
-  const handlePayPress = async() => {
+  const handlePayPress = async () => {
     //gather email, fetch intent client secret from the backend
     //confirm the payment with the card details
-    if(!cardDetails?.complete || !email) {
+    if (!cardDetails?.complete || !email) {
       Alert.alert("Plear enter complete card details and email");
       return;
     }
     const billingDetails = {
-      email:email
-    }
+      email: email,
+    };
 
-    try{
-      const {clientSecret, error} = await fetchPaymentIntentClientSecret();
+    try {
+      const { clientSecret, error } = await fetchPaymentIntentClientSecret();
       if (error) {
         console.log("Unable to process payment");
       } else {
-        const { paymentIntent, error } = await confirmPayment
-        (clientSecret, {
-        paymentMethodType: "Card",
-        paymentMethodData: {
-          billingDetails: billingDetails, // This needs to be nested under paymentMethodData
-        },
+        const { paymentIntent, error } = await confirmPayment(clientSecret, {
+          paymentMethodType: "Card",
+          paymentMethodData: {
+            billingDetails: billingDetails, // This needs to be nested under paymentMethodData
+          },
         });
-        if(error) {
+        if (error) {
           alert(`Payment Confirmation Error ${error.message}`);
         } else if (paymentIntent) {
           alert("Payment Sucessful");
           console.log("Payment sucessful", paymentIntent);
         }
       }
-    }catch (e) {
+    } catch (e) {
       console.log("here");
       console.log(e);
     }
-
   };
 
-
   return (
-    <StripeProvider
-      publishableKey="pk_test_51P9UmWAlnVITPMWk3Kl5vzD7tT6sW5ssVCr5hodGm4qXVJIPYsujWr0SrZ4f4URiHLcsgSluzsmCxMbXXxeWjzdJ00FvevaEWW"
-    >
-    <Modal visible={isVisible} transparent={true}>
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <TouchableOpacity style={styles.xButton} onPress={handleClose}>
-            <FontAwesome5Icon name="times" size={30} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.popupTitle}>Pay $1 to boost your listing</Text>
-          <TextInput
-            autoCapitalize="none"
-            placeholder="E-mail"
-            keyboardType="email-address"
-            onChangeText={text => setEmail(text)}
-            style={styles.input}
-          />
-          <CardField
-            postalCodeEnabled={true}
-            placeholders={{
-              number: "4242 4242 4242 4242",
-            }}
-            cardStyle={styles.card}
-            style ={styles.cardContainer}
-            onCardChange={cardDetails => {
-              setCardDetails(cardDetails);
-            }}
-
-          />
-          <Button onPress={handlePayPress} title="Pay"
-          disabled={loading}
-          />
-
-
+    <StripeProvider publishableKey="pk_test_51P9UmWAlnVITPMWk3Kl5vzD7tT6sW5ssVCr5hodGm4qXVJIPYsujWr0SrZ4f4URiHLcsgSluzsmCxMbXXxeWjzdJ00FvevaEWW">
+      <Modal visible={isVisible} transparent={true}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity style={styles.xButton} onPress={handleClose}>
+              <FontAwesome5Icon name="times" size={30} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.popupTitle}>Pay $1 to boost your listing</Text>
+            <TextInput
+              autoCapitalize="none"
+              placeholder="E-mail"
+              keyboardType="email-address"
+              onChangeText={(text) => setEmail(text)}
+              style={styles.input}
+            />
+            <CardField
+              postalCodeEnabled={true}
+              placeholders={{
+                number: "4242 4242 4242 4242",
+              }}
+              cardStyle={styles.card}
+              style={styles.cardContainer}
+              onCardChange={(cardDetails) => {
+                setCardDetails(cardDetails);
+              }}
+            />
+            <Button onPress={handlePayPress} title="Pay" disabled={loading} />
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
     </StripeProvider>
   );
 };
@@ -193,12 +181,12 @@ const styles = StyleSheet.create({
   // }
   cardContainer: {
     height: 100,
-    width: '100%', // Ensure it spans the full width of its container
-    marginVertical: 10
+    width: "100%", // Ensure it spans the full width of its container
+    marginVertical: 10,
   },
   card: {
-    backgroundColor: "#ffffff" // Use a clearly visible color
-  }
+    backgroundColor: "#ffffff", // Use a clearly visible color
+  },
 });
 
 export default StripeViewModal;
