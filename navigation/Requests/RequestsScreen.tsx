@@ -71,14 +71,16 @@ const RequestsScreen: React.FC<RequestsScreenProps> = ({ navigation }) => {
 
   const renderItem = ({ item }: { item: any }) => {
     // Find the index of the item in the requests array
-    const index = requests.indexOf(item);
-
+    const index = 0;
+    if (item != null) {
+      const index = requests.indexOf(item);
+    }
     // Retrieve the corresponding requestDetail using the index
     const requestDetail = requestDetails[index];
     if (!requestDetail) return null;
 
     return (
-      <TouchableOpacity onPress={() => navigation.navigate("RequestListing")}>
+      <TouchableOpacity onPress={() => navigation.navigate('RequestListing', requests[index])}>
         <View style={styles.requestItem}>
           <Text style={styles.requestTitle}>{requestDetail.title}</Text>
           <Text style={styles.requestText}>{requestDetail.description}</Text>
