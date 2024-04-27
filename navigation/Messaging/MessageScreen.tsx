@@ -91,10 +91,9 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
             onPress={() => handlePress(chat)}
             activeOpacity={0.7}
           >
-             <View style={styles.circle}></View>
              {chat.photoURL ? (
               <Image
-                source={{ uri: chat.imageUri }}
+                source={{ uri: chat.photoURL }}
                 style={{
                   width: 80,
                   height: 80,
