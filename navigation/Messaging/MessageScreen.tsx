@@ -79,20 +79,37 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   }, [currentUser]);
 
   return (
-    <>
+    <ScrollView style={styles.container}>
       {chatData.length > 0 ? (
         chatData.map((chat) => (
-          <ScrollView style={styles.container}>
           <TouchableOpacity
-            style={[styles.messageContainer, clicked === chat.id && styles.clickedContainer]}
+            style={[
+              styles.messageContainer,
+              clicked === chat.id && styles.clickedContainer,
+            ]}
             key={chat.id}
             onPress={() => handlePress(chat)}
             activeOpacity={0.7}
           >
-            <View style={styles.circle}></View>
+             <View style={styles.circle}></View>
+             {chat.photoURL ? (
+              <Image
+                source={{ uri: chat.imageUri }}
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 80/2,
+                }}
+              />
+            ) : (
+              <View style={styles.circle}></View>
+            )}
+
             <View style={styles.userInfoText}>
               <Text style={styles.username}>{chat.userInfo.displayName}</Text>
-              <Text numberOfLines={1} style={styles.message}>{chat.lastMessage}</Text>
+              <Text numberOfLines={1} style={styles.message}>
+                {chat.lastMessage}
+              </Text>
               <Text style={styles.time}>{formatDate(chat)}</Text>
             </View>
             {chat.imageUri ? (
@@ -101,7 +118,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
                 style={{
                   width: 80,
                   height: 80,
-                  borderRadius: 7
+                  borderRadius: 7,
                 }}
               />
             ) : (
@@ -118,15 +135,14 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
               </View>
             )}
           </TouchableOpacity>
-          </ScrollView>
         ))
       ) : (
         <View style={styles.defaultContainer}>
           <Text style={styles.defaultText}>Your inbox is empty!</Text>
-          <MaterialIcons name="mailbox-outline" size={80} color="gray"/>
+          <MaterialIcons name="mailbox-outline" size={80} color="gray" />
         </View>
       )}
-    </>
+    </ScrollView>
   );
 };
 

@@ -58,6 +58,7 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
 
   const closeModal = () => {
     setIsNestedModalVisible(false);
+    onClose();
   };
 
   useEffect(() => {
@@ -68,7 +69,7 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
     try {
       const offerData = await getExisitingOffer(listingId, sendTo); //uid is always the other uid
       if (offerData) {
-        setOfferPrice(offerData.price)
+        setOfferPrice(price)
         setSeller(offerData.sellerID)
       }
     } catch (error) {
@@ -157,7 +158,7 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
 
 
         <View style={styles.inputContainer}>
-            <Text style={styles.label}>Offer: ${offerPrice}</Text>
+            <Text style={styles.label}>Offer: $10</Text>
         </View>
         <View style={styles.buttonsContainer}>
             <TouchableOpacity style={styles.makeOfferButton} onPress={handleAcceptOffer}>
