@@ -27,7 +27,12 @@ export const searchKListings = async (search_string: string, k: number) => {
 
 export const upsertListingPC = async (tagArray, listing_id, date) => {
   // turning tag list to string
-  const listing_labels = tagArray.join(" ");
+  const listing_labels = tagArray
+    .map((entry) => {
+      return entry.description;
+    })
+    .join(" ");
+  console.log(listing_labels);
   const upsert = await fetch(
     search_base_url +
       "upsert?listing_labels=" +
@@ -71,12 +76,12 @@ export const addExistingToPC = async () => {
   const snapshot = await getDocs(collection(firestore, "items"));
   const idsAndTags = snapshot.docs.map((doc) => {
     const tagsData = doc.data().tags || []; // Ensure tagsData is an array, even if 'tags' is undefined
-    const tagsDescriptions = tagsData.map((tag) => tag.description);
     const id = doc.id;
-    return { id, tagsDescriptions };
+    return { id, tagsData };
   });
   for (let i = 0; i < idsAndTags.length; i++) {
     const l = idsAndTags[i];
-    console.log(await upsertListingPC(l.tagsDescriptions, l.id, "20240422"));
+    console.log(await upsertListingPC(l.tagsData, l.id, "20240426"));
   }
-};*/
+};
+*/
