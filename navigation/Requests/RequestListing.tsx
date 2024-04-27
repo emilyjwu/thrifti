@@ -45,7 +45,7 @@ const RequestListing: React.FC<RequestListingProps> = ({ navigation, route }) =>
     
 
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('RequestListing')}>
+      <TouchableOpacity onPress={() => navigation.navigate('MessageScreen')}>
         <View style={styles.container}>
           <Text style={styles.title}>{requestDetail.title}</Text>
           <Text style={styles.description}>{requestDetail.description}</Text>
