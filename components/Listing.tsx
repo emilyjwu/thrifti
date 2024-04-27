@@ -137,12 +137,20 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
           )}
           {binItemInfo.sold ? (
             <>
-              <Image style={styles.image} source={{ uri: imageUri }} onLoad={() => setImageLoading(false)}/>
+              <Image
+                style={styles.image}
+                source={{ uri: imageUri }}
+                onLoad={() => setImageLoading(false)}
+              />
               <View style={[styles.imageOverlay]} />
               <Text style={styles.soldText}>SOLD</Text>
             </>
           ) : (
-            <Image style={styles.square} source={{ uri: imageUri }} onLoad={() => setImageLoading(false)}/>
+            <Image
+              style={styles.square}
+              source={{ uri: imageUri }}
+              onLoad={() => setImageLoading(false)}
+            />
           )}
         </View>
         <View style={styles.horizontalBox}>
@@ -179,11 +187,13 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
       </ScrollView>
       <View style={styles.bottomBar}>
         {binItemInfo.sold ? (
-          <Text style={[styles.title, styles.strikethrough]}>${binItemInfo.price}</Text>
+          <Text style={[styles.title, styles.strikethrough]}>
+            ${binItemInfo.price}
+          </Text>
         ) : (
           <Text style={styles.title}>${binItemInfo.price}</Text>
         )}
-         <TouchableOpacity onPress={() => handleMessageButton()}>
+        <TouchableOpacity onPress={() => handleMessageButton()}>
           <MaterialCommunityIcon name="message" size={40} color="white" />
         </TouchableOpacity>
       </View>
@@ -216,8 +226,8 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: "relative",
     aspectRatio: 1,
-    justifyContent: "center", 
-    alignItems: "center", 
+    justifyContent: "center",
+    alignItems: "center",
   },
   square: {
     flex: 1,
@@ -225,7 +235,7 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
-    width: "100%", 
+    width: "100%",
     height: "100%",
     borderRadius: 10,
     resizeMode: "cover",
@@ -251,8 +261,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   strikethrough: {
-    textDecorationLine: 'line-through',
-    color: 'black', 
+    textDecorationLine: "line-through",
+    color: "black",
   },
   listingDescription: {
     backgroundColor: "#eBeBeB",

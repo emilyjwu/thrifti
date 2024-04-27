@@ -34,10 +34,6 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp, onReturn }) => {
       return;
     }
     */
-    const pattern = /@gatech\.edu$/;
-    if (!pattern.test(email)) {
-      return;
-    }
     await createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         // // ******************** ******************** EMAIL VERIFICATION ******************** ********************
