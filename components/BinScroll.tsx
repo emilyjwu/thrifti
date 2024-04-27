@@ -19,15 +19,16 @@ const BinScroll= ({ binsInfo, binNames, navigation, itemWidth }) => {
                                 renderItem={({ item }) => (
                                     <View style={[styles.itemContainer, { width: itemWidth }]}>
                                         <TouchableOpacity onPress={() => navigation.navigate("Listing", { imageUri: item.imageUri, binItemInfo: item })}>
-                                            {item.imageUri ? (
-                                                <Image
-                                                    source={{ uri: item.imageUri }}
-                                                    style={{
-                                                        width: 115,
-                                                        height: 115,
-                                                        borderRadius: 7
-                                                    }}
-                                                />
+                                        {item.imageUri ? (
+                                            <View style={styles.imageContainer}>
+                                                <Image source={{ uri: item.imageUri }} style={styles.image}/>
+                                                {item.sold && (
+                                                    <>
+                                                        <View style={[styles.imageOverlay]}/>
+                                                        <Text style={styles.soldText}>SOLD</Text>
+                                                    </>
+                                                )}
+                                            </View>
                                             ) : (
                                                 <IconWithBackground
                                                     width={115}
@@ -70,19 +71,43 @@ const styles = StyleSheet.create({
     titleContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 5,
-        marginTop: 10,
-        flex: 1
+        flex: 1,
     },
     contentContainer: {
         flex: 1,
-        backgroundColor: '#d3d3d3',
+        backgroundColor: '#eBeBeB',
         paddingHorizontal: 10,
         paddingVertical: 10,
-        marginBottom: 5,
+        marginBottom: 10,
         borderRadius: 7,
         overflow: 'hidden',
-    }
+    },
+    imageContainer: {
+        position: "relative",
+        aspectRatio: 1,
+        width: 115,
+        height: 115,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    image: {
+        flex: 1,
+        width: "100%",
+        height: "100%",
+        borderRadius: 10,
+        resizeMode: "cover",
+    },
+    imageOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 10,
+        backgroundColor: "rgba(0, 0, 0, 0.45)",
+    },
+    soldText: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: "white",
+        position: "absolute",
+    },
 });
 
 export default BinScroll;

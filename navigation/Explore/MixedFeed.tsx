@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   FlatList,
@@ -13,8 +13,12 @@ import {
   fetchAllBins,
   fetchBinItemsInfo,
   fetchBinName,
+  auth,
+  AuthContext,
 } from "../../database";
 import { usePostHog } from "posthog-react-native";
+const currentUser = auth?.currentUser;
+const currentUserID = currentUser?.uid;
 
 interface MixedFeedProps {
   navigation: NavigationProp<any>;
@@ -207,22 +211,41 @@ const renderItem = ({ item }: { item: DataEntry }) => {
 const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
   const [binsInfo, setBinsInfo] = useState<BinItemInfo[][]>([]);
   const [data, setData] = useState<DataEntry[]>([]);
-
   const posthog = usePostHog();
+  const [startTime, setStartTime] = useState(Date.now());
+  const emailAddr = useContext(AuthContext).userAuth.email;
 
   useEffect(() => {
-    posthog.capture("MIXED_FEED");
-  }, []);
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Mixed Feed Screen", { timeSpent, emailAddr });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const bins = await fetchAllBins();
-        const binsInfoArray: BinItemInfo[][] = await Promise.all(
-          bins.map(async (bin) => {
-            return await fetchBinItemsInfo(bin);
-          })
-        );
+        const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
+          let binItems = await fetchBinItemsInfo(bin);
+          binItems = binItems.filter(binItem => binItem.userID !== currentUserID);
+          binItems = binItems.filter(binItem => !binItem.sold);
+          return binItems;
+      }));
         setBinsInfo(binsInfoArray);
       } catch (error) {
         console.error("Error fetching bin items info:", error);
@@ -256,7 +279,6 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 26, fontWeight: "bold" }}>Recent Listings</Text>
       <FlatList
         data={data}
         renderItem={renderItem}
@@ -270,7 +292,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
-    padding: 9,
   },
   listingSquare: {
     width: 120,

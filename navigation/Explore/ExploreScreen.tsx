@@ -1,11 +1,18 @@
 import * as React from "react";
-import { useState, useContext } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import { useState, useContext, useEffect } from "react";
+import {
+  View,
+  TextInput,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import { AuthContext } from "../../database/index";
-
+import { usePostHog } from "posthog-react-native";
 import MixedFeed from "./MixedFeed";
 import FilteredFeed from "./FilteredFeed";
 import { searchKListings } from "../../search/search";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 interface ExploreScreenProps {
   navigation: any;
@@ -15,6 +22,30 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const uid = useContext(AuthContext).userAuth.uid;
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+  const emailAddr = useContext(AuthContext).userAuth.email;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Explore Screen", { timeSpent, emailAddr });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
 
   const handleSearch = async () => {
     if (searchQuery.trim() !== "") {
@@ -32,19 +63,21 @@ const ExploreScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* <MixedFeed navigation={navigation} /> */}
       <View style={styles.textAreaContainer}>
           <TextInput
             style={styles.textArea}
             underlineColorAndroid="transparent"
             placeholderTextColor="grey"
-            placeholder="Search for Something!"
+            placeholder="Start shopping..."
             onChangeText={(text) => setSearchQuery(text)}
             value={searchQuery}
           />
-          <Button title="Search" onPress={handleSearch} />
+          <TouchableOpacity onPress={handleSearch}>
+            <Ionicons name="search" size={30} color="black" />
+          </TouchableOpacity>
         </View>
-        <FilteredFeed navigation={navigation} />
+        {/* <FilteredFeed navigation={navigation} /> */}
+        <MixedFeed navigation={navigation} />
     </View>
   );
 };
@@ -57,6 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
     width: "100%",
+    padding: 9,
   },
   imageContainer: {
     marginVertical: 10,
@@ -67,22 +101,21 @@ const styles = StyleSheet.create({
     height: 200,
   },
   textArea: {
-    height: 15,
     justifyContent: "flex-start",
   },
   textAreaContainer: {
-    padding: 10,
-    margin: 5,
+    marginVertical: 5,
+    height: 40,
+    paddingLeft: 5,
     backgroundColor: "#eBeBeB",
-    borderRadius: 20,
+    borderRadius: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    width: "70%",
+    width: "100%",
   },
   searchButtonContainer: {
     alignSelf: "flex-start",
-    align: "left",
     position: "absolute",
     top: 10,
     left: 10,

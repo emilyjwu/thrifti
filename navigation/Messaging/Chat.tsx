@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { fetchBinItemsInfo, auth, firestore} from '../../database';
+import { fetchBinItemsInfo, auth} from '../../database/index';
 import { getConvo, handleSend } from '../../database/messaging';
 import MakeOfferModal from '../../components/MakeOfferModal';
 import { getExisitingOffer } from '../../database/offers';
@@ -225,13 +225,13 @@ const Chats: React.FC<ChatProps> = ({ navigation, route }) => {
                   style={{
                     width: 40,
                     height: 40,
-                    borderRadius: 20,
+                    borderRadius: 40,
                     marginRight: 5,
                     marginLeft: screenWidth/3
                   }}
                 />
               ) : (
-                <View style={[styles.grayCircle, { width: 40, height: 40, borderRadius: 20, marginRight: 5,  marginLeft: screenWidth/3 }]} />
+                <Icon name="user-circle" size={40} color='gray' style={[styles.profilePhoto, { width: 40, height: 40, borderRadius: 40, marginRight: 5,  marginLeft: screenWidth/3 }]} />
               )}
               <Text style={styles.profileText}>{displayName}</Text>
             </View>
@@ -458,9 +458,10 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'flex-end',
       },
-      grayCircle: {
-        backgroundColor: '#ccc',
-        borderRadius: 10,
+      profilePhoto: {
+        height: 40,
+        width: 40,
+        borderRadius: 40,
       },
       messageDate: {
         fontSize: 12,

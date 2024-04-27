@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,17 +7,17 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from "react-native";
 import SelectDropdown from "react-native-select-dropdown";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
-import {
-  firestore,
-  uploadListing,
-  AuthContext,
-  addListingToUser,
-} from "../../database/index";
+import EntypoIcon from "react-native-vector-icons/Entypo";
+import { uploadListing, AuthContext } from "../../database/index";
+import StripeViewModal from "../../components/StripeViewModal";
+import { usePostHog } from "posthog-react-native";
+
 interface ExploreScreenProps {
   navigation: any;
 }
@@ -31,7 +31,34 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
   const route = useRoute();
   const { selectedBin, listingData, imageUri } = route.params;
   const [isModalVisible, setIsModalVisible] = React.useState(false);
+  const [isStripeVisible, setIsStripeVisible] = React.useState(false);
   const uid = useContext(AuthContext).userAuth.uid;
+  const [isBoosted, setIsBoosted] = useState(false);
+  const [startTime, setStartTime] = useState(Date.now());
+  const posthog = usePostHog();
+  const emailAddr = useContext(AuthContext).userAuth.email;
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setStartTime(Date.now());
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("blur", () => {
+      if (startTime) {
+        const endTime = Date.now();
+        const timeSpent = Math.floor((endTime - startTime) / 1000);
+        if (timeSpent > 0) {
+          posthog.screen("Additional Info Screen", { timeSpent, emailAddr });
+        }
+        setStartTime(null);
+      }
+    });
+    return unsubscribe;
+  }, [navigation, startTime]);
+
   const currentDate = new Date();
 
   const handleInputChange = (text) => {
@@ -56,6 +83,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         currentDate.getDate();
       listingData.imgURL = "";
       listingData.sold = false;
+      listingData.boosted = isBoosted;
       if ((await uploadListing(imageUri, listingData)) == 400) {
         console.log("Unable to store image.");
         return;
@@ -66,6 +94,15 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
 
   const closeModal = () => {
     setIsModalVisible(false);
+    setIsStripeVisible(false);
+  };
+
+  const updateIsBoosted = (boosted) => {
+    setIsBoosted(boosted);
+  };
+
+  const handleBoostPress = async () => {
+    setIsStripeVisible(true);
   };
 
   return (
@@ -133,6 +170,13 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
               }}
             />
           </View>
+          <TouchableOpacity
+            style={styles.boostButton}
+            onPress={handleBoostPress}
+          >
+            <EntypoIcon name="flash" size={20} color="white" />
+            <Text style={styles.buttonText}>Boost</Text>
+          </TouchableOpacity>
         </View>
         <TouchableOpacity style={styles.button} onPress={onDonePress}>
           <Text style={styles.subTitle}> Done </Text>
@@ -141,6 +185,11 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
           isVisible={isModalVisible}
           onClose={closeModal}
           selectedBin={selectedBin}
+        />
+        <StripeViewModal
+          isVisible={isStripeVisible}
+          onClose={closeModal}
+          updateIsBoosted={updateIsBoosted}
         />
       </View>
     </TouchableWithoutFeedback>
@@ -202,8 +251,26 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     backgroundColor: "lightblue",
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 30,
     borderRadius: 5,
+  },
+  boostButton: {
+    flexDirection: "row",
+    // backgroundColor: "lightblue",
+    backgroundColor: "#007bff",
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    alignItems: "center",
+    borderRadius: 5,
+    alignSelf: "flex-start",
+    maxWidth: 100,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "white", // Text color
+    marginLeft: 5, // Space between icon and text
+    fontSize: 20, // Font size
+    fontWeight: "bold",
   },
 });
 
