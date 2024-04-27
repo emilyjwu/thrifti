@@ -1,37 +1,33 @@
-from pinecone import Pinecone, ServerlessSpec
-from openai import OpenAI
-from flask import Flask, jsonify, request, render_template
 import os
+from openai import OpenAI
+from pinecone import Pinecone
+import stripe
+from flask import Flask, render_template, request, jsonify
+
 
 pc = Pinecone(api_key=os.environ.get('PINECONE_API_KEY'))
 index = pc.Index("thrifti-bins")
 
 client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 
+stripe.api_key = os.environ.get('STRIPE_API_KEY')
+
+# pylint: disable=C0103
 app = Flask(__name__)
 
-if __name__ == '__main__':
-    app.run(debug=True, host="127.0.0.1", port=8000)
-
 @app.route('/')
-def connect():
-    return """<!DOCTYPE html>
-    <html>
-    <head>
-        <title>Welcome to Search</title>
-    </head>
-    <body>
-        <h1>Functions</h1>
-        <h2>/upsert-pinecone</h2>
-        <p>takes: listing_labels: list of strings; 
-                listing_id: listing ID in firebase; 
-                date: current date
-        <h2>/search-k</h2>
-        <p>takes: search_string: string to search on; 
-                    k: number of results to return
-        <h1>Have fun!</h1>
-    </body>
-    </html>"""
+def hello():
+    """Return a friendly HTTP greeting."""
+    message = "It's running!"
+
+    """Get Cloud Run environment variables."""
+    service = os.environ.get('K_SERVICE', 'Unknown service')
+    revision = os.environ.get('K_REVISION', 'Unknown revision')
+
+    return render_template('index.html',
+        message=message,
+        Service=service,
+        Revision=revision)
 
 def vectorize(listing_labels):
     stringified_labels = " ".join(listing_labels)
@@ -40,7 +36,7 @@ def vectorize(listing_labels):
         model="text-embedding-3-small"
     ).data[0].embedding
 
-@app.post("/upsert-pinecone")
+@app.route("/upsert", methods=['POST'])
 def upsert_pinecone():
     # PARAMS
     listing_labels = request.args["listing_labels"]
@@ -59,9 +55,9 @@ def upsert_pinecone():
         return "Successful Upsert"
     except Exception as e:
         print(e)
-        return "Issue Upserting"
+        return ("Issue Upserting" + str(e))
 
-@app.get("/search-k")
+@app.route("/search", methods=['GET'])
 def search_k():
     # PARAMS
     search_string = request.args['search_string']
@@ -82,4 +78,21 @@ def search_k():
         return jsonify(matches=search_matches)
     except Exception as e:
         print(e)
-        return "Search Failed"
+        return ("Search Failed" + str(e))
+
+@app.route("/create-payment-intent", methods=["POST"])
+def create_payment_intent():
+    try:
+        payment_intent = stripe.PaymentIntent.create(
+            amount=100,  # this is in cents and each boost is $1
+            currency="usd",
+            payment_method_types=["card"],
+        )
+        client_secret = payment_intent.client_secret
+        return jsonify({"clientSecret": client_secret})
+    except stripe.error.StripeError as e:
+        return jsonify({"error": str(e)})
+
+if __name__ == '__main__':
+    server_port = os.environ.get('PORT', '8080')
+    app.run(debug=False, port=server_port, host='0.0.0.0')

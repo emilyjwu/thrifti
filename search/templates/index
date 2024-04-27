@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <title>Welcome to Search</title>
+    </head>
+    <body>
+        <h1>Functions</h1>
+        <h2>/upsert-pinecone</h2>
+        <p>takes: listing_labels: list of strings; 
+                listing_id: listing ID in firebase; 
+                date: current date
+        <h2>/search-k</h2>
+        <p>takes: search_string: string to search on; 
+                    k: number of results to return
+        <h1>Have fun!</h1>
+    </body>
+    </html>
