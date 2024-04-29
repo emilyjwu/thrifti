@@ -14,7 +14,11 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import DoneListingModal from "../../components/DoneListingModal";
 import { setStatusBarBackgroundColor } from "expo-status-bar";
 import EntypoIcon from "react-native-vector-icons/Entypo";
-import { uploadListing, AuthContext } from "../../database/index";
+import {
+  uploadListing,
+  AuthContext,
+  updateTimeAnalytics,
+} from "../../database/index";
 import StripeViewModal from "../../components/StripeViewModal";
 import { usePostHog } from "posthog-react-native";
 
@@ -51,6 +55,7 @@ const AdditionalInfoScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
+          updateTimeAnalytics("additionalInfoTime", timeSpent);
           posthog.screen("Additional Info Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);

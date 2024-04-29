@@ -16,6 +16,7 @@ import {
   BasicUserInfo,
   isFollowingUser,
   AuthContext,
+  updateTimeAnalytics,
 } from "../../database";
 import { usePostHog } from "posthog-react-native";
 
@@ -49,6 +50,7 @@ const UserList: React.FC<UserListProps> = ({ navigation, route }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
+          updateTimeAnalytics("userListTime", timeSpent);
           posthog.screen("User List Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);

@@ -8,7 +8,11 @@ import {
   Text,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
-import { fetchFieldsAnyCollection, AuthContext } from "../../database/index";
+import {
+  fetchFieldsAnyCollection,
+  AuthContext,
+  updateTimeAnalytics,
+} from "../../database/index";
 import { usePostHog } from "posthog-react-native";
 
 interface ExploreScreenProps {
@@ -37,6 +41,7 @@ const SearchScreen: React.FC<ExploreScreenProps> = ({ navigation }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
+          updateTimeAnalytics("searchTime", timeSpent);
           posthog.screen("Search Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);
@@ -92,7 +97,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   item: {
-    width: "50%", 
+    width: "50%",
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#ccc",

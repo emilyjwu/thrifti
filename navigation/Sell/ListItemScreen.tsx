@@ -18,7 +18,11 @@ import SelectDropdown from "react-native-select-dropdown";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import IconWithBackground from "../../components/IconWithBackground";
 import { limit, getDocs, collection, query, where } from "firebase/firestore";
-import { firestore, AuthContext } from "../../database/index";
+import {
+  firestore,
+  AuthContext,
+  updateTimeAnalytics,
+} from "../../database/index";
 import { usePostHog } from "posthog-react-native";
 
 interface ListItemScreenProps {
@@ -60,6 +64,7 @@ const DetectObject: React.FC<DetectObjectProps> = ({ binNames }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
+          updateTimeAnalytics("itemInfoTime", timeSpent);
           posthog.screen("List Item Info Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);

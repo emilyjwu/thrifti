@@ -12,7 +12,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/native";
 import IconWithBackground from "./IconWithBackground";
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import { usePostHog } from "posthog-react-native";
-import { AuthContext } from "../database/index";
+import { AuthContext, updateTimeAnalytics } from "../database/index";
 
 interface ExpandBinProps {
   navigation: NavigationProp<any>;
@@ -40,6 +40,7 @@ const ExpandBin: React.FC<ExpandBinProps> = ({ navigation, route }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
+          updateTimeAnalytics("expandBinTime", timeSpent);
           posthog.screen("Expand Bin Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);

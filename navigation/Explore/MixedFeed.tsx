@@ -15,6 +15,7 @@ import {
   fetchBinName,
   auth,
   AuthContext,
+  updateTimeAnalytics,
 } from "../../database";
 import { usePostHog } from "posthog-react-native";
 const currentUser = auth?.currentUser;
@@ -228,6 +229,7 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
+          updateTimeAnalytics("mixedExploreTime", timeSpent);
           posthog.screen("Mixed Feed Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);
@@ -240,12 +242,16 @@ const MixedFeed: React.FC<MixedFeedProps> = ({ navigation }) => {
     const fetchData = async () => {
       try {
         const bins = await fetchAllBins();
-        const binsInfoArray: BinItemInfo[][] = await Promise.all(bins.map(async (bin) => {
-          let binItems = await fetchBinItemsInfo(bin);
-          binItems = binItems.filter(binItem => binItem.userID !== currentUserID);
-          binItems = binItems.filter(binItem => !binItem.sold);
-          return binItems;
-      }));
+        const binsInfoArray: BinItemInfo[][] = await Promise.all(
+          bins.map(async (bin) => {
+            let binItems = await fetchBinItemsInfo(bin);
+            binItems = binItems.filter(
+              (binItem) => binItem.userID !== currentUserID
+            );
+            binItems = binItems.filter((binItem) => !binItem.sold);
+            return binItems;
+          })
+        );
         setBinsInfo(binsInfoArray);
       } catch (error) {
         console.error("Error fetching bin items info:", error);

@@ -16,6 +16,7 @@ import {
   CardField,
   useConfirmPayment,
 } from "@stripe/stripe-react-native";
+import { updateBoosted } from "../database";
 
 // const API_URL = "http://localhost:3000";
 // const API_URL = "http://143.215.94.26:3000";
@@ -31,7 +32,6 @@ const StripeViewModal: React.FC<StripeViewModalProps> = ({
   isVisible,
   onClose,
   updateIsBoosted,
-
 }) => {
   const handleClose = () => {
     onClose();
@@ -81,6 +81,7 @@ const StripeViewModal: React.FC<StripeViewModalProps> = ({
           Alert.alert("Payment Successful", "Your listing has been boosted!", [
             { text: "OK", onPress: () => {
                 onClose(); // Close the modal
+                updateBoosted();
                 updateIsBoosted(true);
               }
             }

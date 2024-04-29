@@ -19,6 +19,7 @@ import {
   addLikedListing,
   removeLikedListing,
   AuthContext,
+  updateTimeAnalytics,
 } from "../database";
 import { createChat } from "../database/messaging";
 import LikeButton from "./LikeButton";
@@ -52,6 +53,7 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
+          updateTimeAnalytics("listingTime", timeSpent);
           posthog.screen("Listing Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);

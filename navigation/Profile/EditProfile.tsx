@@ -11,7 +11,11 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { AuthContext, updateUserInfo } from "../../database";
+import {
+  AuthContext,
+  updateUserInfo,
+  updateTimeAnalytics,
+} from "../../database";
 import DoneProfileModal from "../../components/DoneProfileModal";
 import { NavigationProp } from "@react-navigation/native";
 import { usePostHog } from "posthog-react-native";
@@ -50,6 +54,7 @@ const EditProfile: React.FC<EditProfileProps> = ({ navigation, route }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
+          updateTimeAnalytics("editProfileTime", timeSpent);
           posthog.screen("Edit Profile Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);
