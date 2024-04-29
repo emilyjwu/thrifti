@@ -135,8 +135,9 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
               <ActivityIndicator size="large" color="#0000ff" />
             </View>
           )}
+
           {binItemInfo.sold ? (
-            <>
+            <View style={styles.soldContainer}>
               <Image
                 style={styles.image}
                 source={{ uri: imageUri }}
@@ -144,15 +145,18 @@ const Listing: React.FC<ListingProps> = ({ navigation, route }) => {
               />
               <View style={[styles.imageOverlay]} />
               <Text style={styles.soldText}>SOLD</Text>
-            </>
+            </View>
           ) : (
-            <Image
-              style={styles.square}
-              source={{ uri: imageUri }}
-              onLoad={() => setImageLoading(false)}
-            />
+
+              <Image
+                style={styles.square}
+                source={{ uri: imageUri }}
+                onLoad={() => setImageLoading(false)}
+              />
+
           )}
-        </View>
+          </View>
+
         <View style={styles.horizontalBox}>
           {binItemInfo.listingName ? (
             <Text style={styles.title}>{binItemInfo.listingName}</Text>
@@ -223,11 +227,15 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 16,
   },
-  imageContainer: {
+  soldContainer: {
     position: "relative",
     aspectRatio: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  imageContainer: {
+    position: "relative",
+    aspectRatio: 1,
   },
   square: {
     flex: 1,
@@ -311,6 +319,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
 });
 
 export default Listing;

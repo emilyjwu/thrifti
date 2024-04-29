@@ -78,9 +78,14 @@ const StripeViewModal: React.FC<StripeViewModalProps> = ({
         if (error) {
           alert(`Payment Confirmation Error ${error.message}`);
         } else if (paymentIntent) {
-          alert("Payment Sucessful");
-          console.log("Payment sucessful", paymentIntent);
-          updateIsBoosted(true);
+          Alert.alert("Payment Successful", "Your listing has been boosted!", [
+            { text: "OK", onPress: () => {
+                onClose(); // Close the modal
+                updateIsBoosted(true);
+              }
+            }
+          ]);
+          console.log("Payment successful", paymentIntent);
         }
       }
     } catch (e) {
@@ -98,6 +103,7 @@ const StripeViewModal: React.FC<StripeViewModalProps> = ({
               <FontAwesome5Icon name="times" size={30} color="#000" />
             </TouchableOpacity>
             <Text style={styles.popupTitle}>Boost your listing for $1</Text>
+            <View style={styles.inputContainer}>
             <TextInput
               autoCapitalize="none"
               placeholder="E-mail"
@@ -105,6 +111,7 @@ const StripeViewModal: React.FC<StripeViewModalProps> = ({
               onChangeText={(text) => setEmail(text)}
               style={styles.input}
             />
+            </View>
             <CardField
               postalCodeEnabled={true}
               placeholders={{
@@ -143,14 +150,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    borderRadius: 10,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
+  // input: {
+  //   height: 40,
+  //   borderColor: "gray",
+  //   borderWidth: 1,
+  //   borderRadius: 10,
+  //   marginBottom: 10,
+  //   paddingHorizontal: 10,
+  // },
   xButton: {
     position: "absolute",
     top: 5,
@@ -175,6 +182,19 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#ffffff", // Use a clearly visible color
+  },
+  input: {
+    height: 40,
+    width: '100%',  // Make it stretch across the container
+    borderColor: "gray",
+    borderWidth: 1,
+    borderRadius: 10,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  inputContainer: {
+    width: '80%',  // or some other appropriate width
+    alignSelf: 'center',  // Center it in the parent View
   },
 });
 
