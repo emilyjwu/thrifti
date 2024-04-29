@@ -58,6 +58,7 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
 
   const closeModal = () => {
     setIsNestedModalVisible(false);
+    onClose();
   };
 
   useEffect(() => {
@@ -102,7 +103,6 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
         const ret = await acceptOffer(listingId, sendTo);
         setAlertType(ret); // State is set here
         setIsNestedModalVisible(true); // Directly set modal visibility here
-        onClose();
       } catch (error) {
         console.error("Error:", error);
       }
@@ -116,7 +116,6 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
         const ret = await declineOffer(listingId, sendTo);
         setAlertType(ret); // State is set here
         setIsNestedModalVisible(true); // Directly set modal visibility here
-        onClose();
       } catch (error) {
         console.error("Error:", error);
       }
@@ -159,7 +158,7 @@ const PendingOfferModal: React.FC< PendingOfferModalProps> = ({
 
 
         <View style={styles.inputContainer}>
-            <Text style={styles.label}>Offer: $10</Text>
+            <Text style={styles.label}>Offer: ${price} </Text>
         </View>
         <View style={styles.buttonsContainer}>
             <TouchableOpacity style={styles.makeOfferButton} onPress={handleAcceptOffer}>

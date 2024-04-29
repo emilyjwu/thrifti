@@ -52,6 +52,7 @@ const MakeOfferModal: React.FC< MakeOfferModalProps> = ({
 
   const closeModal = () => {
     setIsNestedModalVisible(false);
+    onClose();
   };
 
 
@@ -62,7 +63,6 @@ const sendOffer = () => {
       const ret = await createOffer(itemPrice, listingId, sendTo);
       setAlertType(ret);
       setIsNestedModalVisible(true);
-      onClose();
     } catch (error) {
       console.error("Error:", error);
     }
