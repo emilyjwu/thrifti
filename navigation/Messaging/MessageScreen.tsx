@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import IconWithBackground from '../../components/IconWithBackground';
 import EntypoIcon from "react-native-vector-icons/Entypo";
 import MaterialIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getChats } from '../../database/messaging';
-import {auth} from '../../database/index';
+import { auth } from '../../database/index';
 
 
 
@@ -23,7 +23,7 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   const handlePress = (chat) => {
     setClicked(chat);
     // console.log(chat)
-    navigation.navigate('Chat', { chatId: chat.id, chatData: chat});
+    navigation.navigate('Chat', { chatId: chat.id, chatData: chat });
   };
 
   const currentUser = auth?.currentUser;
@@ -79,69 +79,71 @@ const MessageScreen: React.FC<MessageScreenProps> = ({ navigation }) => {
   }, [currentUser]);
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       {chatData.length > 0 ? (
-        chatData.map((chat) => (
-          <TouchableOpacity
-            style={[
-              styles.messageContainer,
-              clicked === chat.id && styles.clickedContainer,
-            ]}
-            key={chat.id}
-            onPress={() => handlePress(chat)}
-            activeOpacity={0.7}
-          >
-             {chat.photoURL ? (
-              <Image
-                source={{ uri: chat.photoURL }}
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 80/2,
-                }}
-              />
-            ) : (
-              <View style={styles.circle}></View>
-            )}
-
-            <View style={styles.userInfoText}>
-              <Text style={styles.username}>{chat.userInfo.displayName}</Text>
-              <Text numberOfLines={1} style={styles.message}>
-                {chat.lastMessage}
-              </Text>
-              <Text style={styles.time}>{formatDate(chat)}</Text>
-            </View>
-            {chat.imageUri ? (
-              <Image
-                source={{ uri: chat.imageUri }}
-                style={{
-                  width: 80,
-                  height: 80,
-                  borderRadius: 7,
-                }}
-              />
-            ) : (
-              <View>
-                <IconWithBackground
-                  width={80}
-                  height={80}
-                  iconSize={40}
-                  iconColor="#000"
-                  iconComponent={EntypoIcon}
-                  iconName="image"
-                  backgroundColor="#eBeBeB"
+        <ScrollView style={styles.scrollView}>
+          {chatData.map((chat) => (
+            <TouchableOpacity
+              style={[
+                styles.messageContainer,
+                clicked === chat.id && styles.clickedContainer,
+              ]}
+              key={chat.id}
+              onPress={() => handlePress(chat)}
+              activeOpacity={0.7}
+            >
+              {chat.photoURL ? (
+                <Image
+                  source={{ uri: chat.photoURL }}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 80 / 2,
+                  }}
                 />
+              ) : (
+                <View style={styles.circle}></View>
+              )}
+
+              <View style={styles.userInfoText}>
+                <Text style={styles.username}>{chat.userInfo.displayName}</Text>
+                <Text numberOfLines={1} style={styles.message}>
+                  {chat.lastMessage}
+                </Text>
+                <Text style={styles.time}>{formatDate(chat)}</Text>
               </View>
-            )}
-          </TouchableOpacity>
-        ))
+              {chat.imageUri ? (
+                <Image
+                  source={{ uri: chat.imageUri }}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 7,
+                  }}
+                />
+              ) : (
+                <View>
+                  <IconWithBackground
+                    width={80}
+                    height={80}
+                    iconSize={40}
+                    iconColor="#000"
+                    iconComponent={EntypoIcon}
+                    iconName="image"
+                    backgroundColor="#eBeBeB"
+                  />
+                </View>
+              )}
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       ) : (
         <View style={styles.defaultContainer}>
           <Text style={styles.defaultText}>Your inbox is empty!</Text>
           <MaterialIcons name="mailbox-outline" size={80} color="gray" />
         </View>
       )}
-    </ScrollView>
+    </View>
   );
 };
 
@@ -149,6 +151,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  scrollView: {
+    flex: 1,
   },
   messageContainer: {
     width: '100%',
@@ -203,6 +208,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: "gray",
+    textAlign: 'center',
+    marginTop: 20,
   }
 });
 
