@@ -12,6 +12,7 @@ import {
   storage,
   firebaseApp,
   AuthContext,
+  updateNewUsers,
 } from "../../database/index";
 
 interface LoginScreenProps {
@@ -78,6 +79,7 @@ const SignupScreen: React.FC<LoginScreenProps> = ({ onSignUp, onReturn }) => {
           userCredential.user.uid
         );
         setDoc(myDocRef2, {});
+        updateNewUsers();
         onSignUp();
       })
       .catch((error) => {

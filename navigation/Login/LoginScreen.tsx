@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { View, TextInput, Button, StyleSheet, Text } from "react-native";
 import { signInWithEmailAndPassword, signOut, getAuth } from "firebase/auth";
 import Toast from "react-native-toast-message";
-import { AuthContext, auth } from "../../database/index";
+import { AuthContext, auth, updateDailyUsers } from "../../database/index";
 
 interface LoginScreenProps {
   onLogin: (email: string) => void;
@@ -33,6 +33,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, onSignUp }) => {
         console.log("Email: ", email);
         console.log("Password: ", password);
         console.log("UID: ", userCredential.user.uid);
+        updateDailyUsers();
         setAuthAfterLogin(userCredential.user);
         onLogin(email);
       })

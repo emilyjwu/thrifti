@@ -245,7 +245,7 @@ export const fetchBinItemsInfo = async (
           sold: data.sold,
           tags: data.tags,
           userID: data.userID,
-          boosted: data.boosted
+          boosted: data.boosted,
         };
       }
     );
@@ -260,38 +260,46 @@ export const fetchBinItemsInfo = async (
 };
 
 // ********** LISTING INFORMATION **********
-export const fetchUserListings = async (listingIDs: string[]): Promise<BinItemInfo[]> => {
+export const fetchUserListings = async (
+  listingIDs: string[]
+): Promise<BinItemInfo[]> => {
   try {
-    const binItemsInfoPromises: Promise<BinItemInfo | null>[] = listingIDs.map(async (listingID) => {
-      try {
-        const docSnap = await getDoc(doc(collection(firestore, "items"), listingID));
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          return {
-            id: docSnap.id,
-            binID: data.binID,
-            condition: data.condition,
-            date: data.date,
-            description: data.description,
-            imageUri: data.imgURL,
-            listingName: data.listingName,
-            price: data.price,
-            sold: data.sold,
-            tags: data.tags,
-            userID: data.userID,
-            boosted: data.boosted,
-          };
-        } else {
-          console.log(`No document found with ID ${listingID}`);
+    const binItemsInfoPromises: Promise<BinItemInfo | null>[] = listingIDs.map(
+      async (listingID) => {
+        try {
+          const docSnap = await getDoc(
+            doc(collection(firestore, "items"), listingID)
+          );
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            return {
+              id: docSnap.id,
+              binID: data.binID,
+              condition: data.condition,
+              date: data.date,
+              description: data.description,
+              imageUri: data.imgURL,
+              listingName: data.listingName,
+              price: data.price,
+              sold: data.sold,
+              tags: data.tags,
+              userID: data.userID,
+              boosted: data.boosted,
+            };
+          } else {
+            console.log(`No document found with ID ${listingID}`);
+            return null;
+          }
+        } catch (error) {
+          console.error(`Error fetching document with ID ${listingID}:`, error);
           return null;
         }
-      } catch (error) {
-        console.error(`Error fetching document with ID ${listingID}:`, error);
-        return null;
       }
-    });
+    );
 
-    const binItemsInfo: (BinItemInfo | null)[] = await Promise.all(binItemsInfoPromises);
+    const binItemsInfo: (BinItemInfo | null)[] = await Promise.all(
+      binItemsInfoPromises
+    );
     return binItemsInfo;
   } catch (error) {
     console.error("Issue getting user listings: ", error);
@@ -443,11 +451,11 @@ export const fetchBasicUserInfo = async (
  */
 export const updateUserInfo = async (
   userID: string,
-  updatedInfo: Partial<UserInfo>,
+  updatedInfo: Partial<UserInfo>
 ): Promise<void> => {
-  const userDocRef = doc(firestore, 'users', userID);
+  const userDocRef = doc(firestore, "users", userID);
   const storage = getStorage();
-  
+
   try {
     const response = await fetch(updatedInfo.profilePicURL);
     const blob = await response.blob();
@@ -457,10 +465,10 @@ export const updateUserInfo = async (
     updatedInfo.profilePicURL = profilePicURL;
 
     await updateDoc(userDocRef, updatedInfo);
-    console.log('User profile updated successfully');
+    console.log("User profile updated successfully");
   } catch (error) {
-    console.error('Error updating user information:', error);
-    throw error; 
+    console.error("Error updating user information:", error);
+    throw error;
   }
 };
 
@@ -494,22 +502,25 @@ export const isFollowingUser = async (
 
 /**
  * Add follower to follower list
- * 
+ *
  * @param userID userID the user to follow
  * @param followerID the user following that user
  * @returns the updated following list of the follower
  */
-export const addFollowerToUser = async (userID: string, followerID: string): Promise<string[]> => {
+export const addFollowerToUser = async (
+  userID: string,
+  followerID: string
+): Promise<string[]> => {
   try {
     const userDoc = doc(firestore, "users", userID);
     updateDoc(userDoc, {
       followers: arrayUnion(followerID),
-    })
+    });
 
     const followerDoc = doc(firestore, "users", followerID);
     updateDoc(followerDoc, {
       following: arrayUnion(userID),
-    })
+    });
 
     console.log("Follower added successfully!");
 
@@ -519,7 +530,7 @@ export const addFollowerToUser = async (userID: string, followerID: string): Pro
     return updatedFollowingList;
   } catch (error) {
     console.error("Error adding follower to user:", error);
-    throw error; 
+    throw error;
   }
 };
 
@@ -529,7 +540,10 @@ export const addFollowerToUser = async (userID: string, followerID: string): Pro
  * @param userID the user to unfollow
  * @param followerID the user unfollowing that user
  */
-export const removeFollowerFromUser = async (userID: string, followerID: string): Promise<string[]> => {
+export const removeFollowerFromUser = async (
+  userID: string,
+  followerID: string
+): Promise<string[]> => {
   try {
     const userDoc = doc(firestore, "users", userID);
     updateDoc(userDoc, {
@@ -549,7 +563,7 @@ export const removeFollowerFromUser = async (userID: string, followerID: string)
     return updatedFollowingList;
   } catch (error) {
     console.error("Error removing follower from user:", error);
-    throw error; 
+    throw error;
   }
 };
 
@@ -570,7 +584,10 @@ export const isListingLiked = async (
 
     if (userDocSnapshot.exists()) {
       const userData = userDocSnapshot.data();
-      if (userData.likedListings && userData.likedListings.includes(listingID)) {
+      if (
+        userData.likedListings &&
+        userData.likedListings.includes(listingID)
+      ) {
         return true;
       }
     }
@@ -581,10 +598,7 @@ export const isListingLiked = async (
   }
 };
 
-export const addLikedListing = async (
-  userID: string,
-  listingID: string
-) => {
+export const addLikedListing = async (userID: string, listingID: string) => {
   const docRef = doc(firestore, "users", userID);
   updateDoc(docRef, {
     likedListings: arrayUnion(listingID),
@@ -597,10 +611,7 @@ export const addLikedListing = async (
     });
 };
 
-export const removeLikedListing = async (
-  userID: string,
-  listingID: string
-) => {
+export const removeLikedListing = async (userID: string, listingID: string) => {
   const docRef = doc(firestore, "users", userID);
   updateDoc(docRef, {
     likedListings: arrayRemove(listingID),
@@ -788,3 +799,75 @@ export const posthog = new PostHog(
     host: "https://us.posthog.com",
   }
 );
+
+export const updateTimeAnalytics = async (timerField, val) => {
+  const docRef = doc(firestore, "analytics", "pageTimes");
+  const doccy = await getDoc(docRef);
+  let array = doccy.data()[timerField];
+  array.push(val);
+  updateDoc(docRef, {
+    [timerField]: array,
+  });
+};
+
+export const updateNewUsers = async () => {
+  const docRef = doc(firestore, "analytics", "activityData");
+  const doccy = await getDoc(docRef);
+  const map = doccy.data().newUsers;
+  const date = getFormattedDate();
+  if (map.hasOwnProperty(date)) {
+    map[date] += 1;
+  } else {
+    map[date] = 1;
+  }
+  await updateDoc(docRef, {
+    newUsers: map,
+  });
+};
+
+export const updateBoosted = async () => {
+  const docRef = doc(firestore, "analytics", "activityData");
+  const doccy = await getDoc(docRef);
+  const map = doccy.data().boosted;
+  const date = getFormattedDate();
+  if (map.hasOwnProperty(date)) {
+    map[date] += 1;
+  } else {
+    map[date] = 1;
+  }
+  await updateDoc(docRef, {
+    boosted: map,
+  });
+};
+
+export const updateDailyUsers = async () => {
+  const docRef = doc(firestore, "analytics", "activityData");
+  const doccy = await getDoc(docRef);
+  const map = doccy.data().dailyUsers;
+  const date = getFormattedDate();
+  if (map.hasOwnProperty(date)) {
+    map[date] += 1;
+  } else {
+    map[date] = 1;
+  }
+  await updateDoc(docRef, {
+    dailyUsers: map,
+  });
+};
+
+export const getFormattedDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  let month = today.getMonth() + 1;
+  let day = today.getDate();
+  let da = "" + day;
+  let mo = "" + month;
+  if (month < 10) {
+    mo = `0${month}`;
+  }
+  if (day < 10) {
+    da = `0${day}`;
+  }
+  const formattedDate = `${year}-${mo}-${da}`;
+  return formattedDate;
+};

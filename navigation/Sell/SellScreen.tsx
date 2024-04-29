@@ -21,6 +21,7 @@ import {
   AuthContext,
   fetchBinSize,
   addBinToUser,
+  updateTimeAnalytics,
 } from "../../database/index";
 import { addDoc, getDocs, collection, query, where } from "firebase/firestore";
 import { usePostHog } from "posthog-react-native";
@@ -68,6 +69,7 @@ const SellScreenMain: React.FC<SellScreenMain> = ({ navigation }) => {
         const endTime = Date.now();
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
+          updateTimeAnalytics("sellMainTime", timeSpent);
           posthog.screen("Sell Main Screen", { timeSpent, emailAddr });
         }
         setStartTime(null);

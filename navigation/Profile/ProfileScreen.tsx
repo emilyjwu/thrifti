@@ -24,6 +24,7 @@ import {
   fetchUserListings,
   isFollowingUser,
   UserInfo,
+  updateTimeAnalytics,
 } from "../../database/index";
 import ListingScroll from "../../components/ListingScroll";
 import BinScroll from "../../components/BinScroll";
@@ -69,8 +70,10 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
         const timeSpent = Math.floor((endTime - startTime) / 1000);
         if (timeSpent > 0) {
           if (isCurrentUser) {
+            updateTimeAnalytics("profileOwnTime", timeSpent);
             posthog.screen("Profile Screen (Self)", { timeSpent, emailAddr });
           } else {
+            updateTimeAnalytics("profileOtherTime", timeSpent);
             posthog.screen("Profile Screen (Other)", { timeSpent, emailAddr });
           }
         }
@@ -86,7 +89,11 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation, route }) => {
     return (
       <View style={styles.tabContainer}>
         {listingsInfo.length > 0 ? (
-          <ListingScroll binItemsInfo={listingsInfo} navigation={navigation} userID={userID}/>
+          <ListingScroll
+            binItemsInfo={listingsInfo}
+            navigation={navigation}
+            userID={userID}
+          />
         ) : (
           <View style={styles.centerContainer}>
             {isCurrentUser ? (
