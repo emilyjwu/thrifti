@@ -79,9 +79,9 @@ const OfferAlertModal: React.FC<OfferAlertModalProps > = ({
               <Text style={styles.popupTitle}>Offer Accepted!</Text>
               <View style={styles.line}></View>
               {seller === auth?.currentUser.uid ? (
-                 <Text style={styles.text}> You accepted the offer of $ {existingPrice}</Text>
+                 <Text style={styles.text}> You accepted the offer of ${existingPrice}</Text>
               ) : (
-                <Text style={styles.text}> {sellerName} accepted your offer of $ {existingPrice}</Text>
+                <Text style={styles.text}> {sellerName} accepted your offer of ${existingPrice}</Text>
               )}
             </>
           )}
